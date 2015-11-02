@@ -1,0 +1,60 @@
+In file included from multiTrain.cpp:3:0:
+SBCDsolve.h: In member function ‘Model* SBCDsolve::solve()’:
+SBCDsolve.h:44:5: error: cannot convert ‘double**’ to ‘SparseVec** {aka std::vector<std::pair<int, double> >**}’ in assignment
+   w = new double*[K];
+     ^
+SBCDsolve.h:46:9: error: cannot convert ‘double*’ to ‘SparseVec* {aka std::vector<std::pair<int, double> >*}’ in assignment
+    w[i] = new double[D];
+         ^
+SBCDsolve.h:48:13: error: no match for ‘operator=’ (operand types are ‘SparseVec {aka std::vector<std::pair<int, double> >}’ and ‘double’)
+     w[i][j] = 0.0;
+             ^
+SBCDsolve.h:48:13: note: candidate is:
+In file included from /usr/include/c++/4.8/vector:69:0,
+                 from util.h:5,
+                 from multiTrain.cpp:1:
+/usr/include/c++/4.8/bits/vector.tcc:160:5: note: std::vector<_Tp, _Alloc>& std::vector<_Tp, _Alloc>::operator=(const std::vector<_Tp, _Alloc>&) [with _Tp = std::pair<int, double>; _Alloc = std::allocator<std::pair<int, double> >]
+     vector<_Tp, _Alloc>::
+     ^
+/usr/include/c++/4.8/bits/vector.tcc:160:5: note:   no known conversion for argument 1 from ‘double’ to ‘const std::vector<std::pair<int, double> >&’
+In file included from multiTrain.cpp:3:0:
+SBCDsolve.h:100:22: error: cannot convert ‘SparseVec* {aka std::vector<std::pair<int, double> >*}’ to ‘double*’ in initialization
+      double* wk = w[k];
+                      ^
+SBCDsolve.h: In member function ‘void SBCDsolve::subSolve(int, int*, int, double*)’:
+SBCDsolve.h:133:33: error: cannot convert ‘SparseVec* {aka std::vector<std::pair<int, double> >*}’ to ‘double*’ for argument ‘1’ to ‘double inner_prod(double*, SparseVec*)’
+    grad[j] = inner_prod(w[k],x_i) + ((double)(k!=yi)) - Qii*alpha[k];
+                                 ^
+SBCDsolve.h:133:68: error: invalid operands of types ‘double’ and ‘double*’ to binary ‘operator*’
+    grad[j] = inner_prod(w[k],x_i) + ((double)(k!=yi)) - Qii*alpha[k];
+                                                                    ^
+SBCDsolve.h:144:3: error: expected ‘;’ before ‘int’
+   int r = 2;
+   ^
+SBCDsolve.h:146:10: error: ‘r’ was not declared in this scope
+   while( r <= act_k_size && (beta/(r-1)) < Dk[r-1] ){
+          ^
+SBCDsolve.h:150:18: error: ‘r’ was not declared in this scope
+   beta = beta / (r-1);
+                  ^
+SBCDsolve.h:153:31: error: expected ‘)’ before ‘{’ token
+   for(int j=0;j<act_k_size;j++{
+                               ^
+SBCDsolve.h:161:25: error: no matching function for call to ‘Model::Model(int&, int&, SparseVec**&)’
+   return new Model(D,K,w);
+                         ^
+SBCDsolve.h:161:25: note: candidates are:
+In file included from multiTrain.cpp:2:0:
+multi.h:33:2: note: Model::Model(int, int, double**)
+  Model(int _D, int _K, double** _w){
+  ^
+multi.h:33:2: note:   no known conversion for argument 3 from ‘SparseVec** {aka std::vector<std::pair<int, double> >**}’ to ‘double**’
+multi.h:31:7: note: Model::Model(const Model&)
+ class Model{
+       ^
+multi.h:31:7: note:   candidate expects 1 argument, 3 provided
+In file included from multiTrain.cpp:3:0:
+SBCDsolve.h:161:25: error: return-statement with a value, in function returning 'void' [-fpermissive]
+   return new Model(D,K,w);
+                         ^
+make: *** [all] Error 1

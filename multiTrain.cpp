@@ -1,13 +1,14 @@
 #include "util.h"
 #include "multi.h"
-#include <omp.h>
+#include "SBCDsolve.h"
 
 void exit_with_help(){
 
 	cerr << "Usage: ./multiTrain (options) [train_data] (model)" << endl;
 	cerr << "options:" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
-	cerr << "-t theta:  L2-regularization weight (default 1.0)" << endl;
+	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
+	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
 	exit(0);
 }
 
@@ -26,7 +27,9 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 
 			case 'l': param->lambda = atof(argv[i]);
 				  break;
-			case 't': param->theta = atof(argv[i]);
+			case 'c': param->C = atof(argv[i]);
+				  break;
+			case 'm': param->max_iter = atoi(argv[i]);
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;
@@ -105,6 +108,28 @@ void readData(char* fname, Problem* prob)
 	delete[] line;
 }
 
+void writeModel( char* fname, Model* model){
+
+	ofstream fout(fname);
+	fout << "solver_type MCSVM_CS" << endl;
+	fout << "nr_class " << model->K << endl;
+	fout << "label ";
+	for(vector<string>::iterator it=model->label_name_list->begin(); 
+			it!=model->label_name_list->end(); it++)
+		fout << *it << " ";
+	fout << endl;
+	fout << "nr_feature " << model->D << endl;
+	fout << "bias -1" << endl << "w" << endl;
+	double* w = model->w;
+	int D = model->D;
+	int K = model->K;
+	for(int j=1;j<D;j++){
+		for(int k=0;k<K;k++)
+			fout << w[j*K+k] << " ";
+		fout << endl;
+	}
+}
+
 int main(int argc, char** argv){
 	
 	Param* param = new Param();
@@ -112,8 +137,16 @@ int main(int argc, char** argv){
 	
 	Problem* prob = new Problem();
 	readData( param->trainFname, prob);
+	param->prob = prob;
 
 	cerr << "N=" << prob->data.size() << endl;
 	cerr << "D=" << prob->D << endl; 
 	cerr << "K=" << prob->K << endl;
+	cerr << "lambda=" << param->lambda << ", C=" << param->C << endl;
+	//param->lambda /= prob->N;
+	
+	SBCDsolve* solver = new SBCDsolve(param);
+	Model* model = solver->solve();
+	
+	writeModel(param->modelFname, model);
 }
