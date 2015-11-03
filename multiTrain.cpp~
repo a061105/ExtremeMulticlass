@@ -1,6 +1,7 @@
 #include "util.h"
 #include "multi.h"
 #include "SBCDsolve.h"
+#include "ActBCDsolve.h"
 
 void exit_with_help(){
 
@@ -9,6 +10,7 @@ void exit_with_help(){
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
+	cerr << "-s max_select: maximum number of greedy-selected dual variables per sample (default 10)" << endl;
 	exit(0);
 }
 
@@ -29,7 +31,9 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 				  break;
 			case 'c': param->C = atof(argv[i]);
 				  break;
-			case 'm': param->m = atoi(argv[i]);
+			case 'm': param->max_iter = atoi(argv[i]);
+				  break;
+			case 's': param->max_select = atoi(argv[i]);
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;
@@ -145,7 +149,8 @@ int main(int argc, char** argv){
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << endl;
 	//param->lambda /= prob->N;
 	
-	SBCDsolve* solver = new SBCDsolve(param);
+	//SBCDsolve* solver = new SBCDsolve(param);
+	ActBCDsolve* solver = new ActBCDsolve(param);
 	Model* model = solver->solve();
 	
 	writeModel(param->modelFname, model);

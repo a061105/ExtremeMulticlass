@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <iostream>
-#include <google/sparsehash/dense_hash_map>
 using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;
@@ -41,6 +40,17 @@ void sumReduce(SparseVec* list){
 
 int main(){
 	
+	double start2 = omp_get_wtime();
+	int N2 = 1000000;
+	int K2 = 100000;
+	double** A = new double*[N2];
+	for(int i=0;i<N2;i++){
+		A[i] = new double[K2];
+		for(int k=0;k<K2;k++)
+			A[i][k] = 0.0;
+	}
+	cerr << "time=" << omp_get_wtime()-start2 << endl;
+	exit(0);
 	//insert (assign) a lot of key-value pair
 	int N = 10000;
 	int K = 3000;
@@ -152,10 +162,12 @@ int main(){
 		}
 	}
 	cerr << "hashmap update time=" << omp_get_wtime()-start << endl;
+	
+	
 
 	//test hash map matrix multiplication
-	start = omp_get_wtime();
 	/*
+	start = omp_get_wtime();
 	double* A = new double[N*K];
 	for(int j=0;j<D;j++){
 		SparseVec* x_i = data[i];

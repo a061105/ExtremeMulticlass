@@ -21,12 +21,18 @@ class Param{
 	char* modelFname;
 	double lambda; //for L1-norm (default 1/N)
 	double C; //weight of loss
-	int max_iter;
+	
 	Problem* prob;
+	
+	//solver-specific param
+	int max_iter;
+	int max_select;
+	
 	Param(){
 		lambda = 1.0;
 		C = 1.0;
 		max_iter = 20;
+		max_select = 10;
 	}
 };
 
