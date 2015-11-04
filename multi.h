@@ -32,9 +32,9 @@ class Param{
 	Param(){
 		solver = 0;
 		lambda = 1.0;
-		C = 1.0;
+		C = 10.0;
 		max_iter = 20;
-		max_select = 10;
+		max_select = 1;
 	}
 };
 

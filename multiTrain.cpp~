@@ -10,10 +10,11 @@ void exit_with_help(){
 	cerr << "-s solver: (default 0)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
 	cerr << "	1 -- Active Block Coordinate Descent" << endl;
+	cerr << "	2 -- Oracle-Active Block Coordinate Descent" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
-	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
+	cerr << "-c cost: cost of each sample (default 10)" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
-	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 10)" << endl;
+	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 1)" << endl;
 	exit(0);
 }
 
@@ -73,7 +74,7 @@ void writeModel( char* fname, Model* model){
 	HashVec** w = model->w;
 	int D = model->D;
 	int K = model->K;
-	for(int j=1;j<D;j++){
+	for(int j=0;j<D;j++){
 		fout << w[j]->size() << " ";
 		for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++)
 			fout << it->first << ":" << it->second << " ";

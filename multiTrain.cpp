@@ -2,6 +2,7 @@
 #include "multi.h"
 #include "SBCDsolve.h"
 #include "ActBCDsolve.h"
+#include "OracleActBCD.h"
 
 void exit_with_help(){
 
@@ -10,10 +11,11 @@ void exit_with_help(){
 	cerr << "-s solver: (default 0)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
 	cerr << "	1 -- Active Block Coordinate Descent" << endl;
+	cerr << "	2 -- Oracle-Active Block Coordinate Descent" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
-	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
+	cerr << "-c cost: cost of each sample (default 10)" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
-	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 10)" << endl;
+	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 1)" << endl;
 	exit(0);
 }
 
@@ -105,6 +107,11 @@ int main(int argc, char** argv){
 	}else if( param->solver==1 ){
 		
 		ActBCDsolve* solver = new ActBCDsolve(param);
+		Model* model = solver->solve();
+		writeModel(param->modelFname, model);
+	}else if( param->solver==2 ){
+		
+		OracleActBCD* solver = new OracleActBCD(param);
 		Model* model = solver->solve();
 		writeModel(param->modelFname, model);
 	}
