@@ -31,14 +31,12 @@ class SBCDsolve{
 			for(int k=0;k<K;k++)
 				alpha[i][k] = 0.0;
 		}
-		v = new double[D*K]; //w = prox(v);
-		for(int i=0;i<D*K;i++){
-			v[i] = 0.0;
+		v = new double*[D]; //w = prox(v);
+		for(int j=0;j<D;j++){
+			v[j] = new double[K];
+			for(int k=0;k<K;k++)
+				v[j][k] = 0.0;
 		}
-		/*w = new double[D*K];
-		for(int i=0;i<D*K;i++){
-			w[i] = 0.0;
-		}*/
 		
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
 		Q_diag = new double[N];
@@ -93,13 +91,12 @@ class SBCDsolve{
 				SparseVec* x_i = data->at(i);
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 
-					int f_offset = it->first*K;
+					int j = it->first;
 					double f_val = it->second;
+					double* vj = v[j];
 					for(int j=0;j<act_size;j++){
 						int k = act_index[j];
-						int ind = f_offset+k;
-						v[ ind ] += f_val*(alpha_i_new[k]-alpha_i[k]);
-						//w[ ind ] = prox_l1( v[ ind ], lambda );
+						vj[k] += f_val*(alpha_i_new[k]-alpha_i[k]);
 					}
 				}
 				//update alpha
@@ -119,21 +116,24 @@ class SBCDsolve{
 		cerr << endl;
 		
 		//convert v into w
-		for(int i=0;i<D*K;i++)
-			v[i] = prox_l1(v[i],lambda);
-		double* w = v;
-
+		HashVec** w = new HashVec*[D];
+		for(int j=0;j<D;j++)
+			w[j] = new HashVec();
+		for(int j=0;j<D;j++)
+			for(int k=0;k<K;k++){
+				double wjk = prox_l1(v[j][k],lambda);
+				if( wjk != 0.0 )
+					w[j]->insert(make_pair(k,wjk));
+			}
+		
 		double d_obj = 0.0;
 		int nSV = 0;
 		int nnz_w = 0;
-		int jk=0;
 		for(int j=0;j<D;j++){
-			for(int k=0;k<K;k++,jk++){
-				if( fabs(w[jk]) > 1e-12 ){
-					d_obj += w[jk]*w[jk];
-					nnz_w++;
-				}
+			for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++){
+				d_obj += it->second*it->second;
 			}
+			nnz_w += w[j]->size();
 		}
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
@@ -163,6 +163,9 @@ class SBCDsolve{
 			delete[] alpha[i];
 		delete[] alpha;
 		delete[] Q_diag;
+		for(int j=0;j<D;j++)
+			delete[] v[j];
+		delete[] v;
 		
 		return new Model(prob, w);
 	}
@@ -185,11 +188,11 @@ class SBCDsolve{
 				grad[j] = - Qii*alpha_i[k];
 		}
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
-			int fea_offset = it->first*K;
+			int fea_ind = it->first;
 			double fea_val = it->second;
 			for(int j=0;j<act_k_size;j++){
 				int k = act_k_index[j];
-				double vjk = v[fea_offset+k];
+				double vjk = v[fea_ind][k];
 				if( fabs(vjk) > lambda ){
 					if( vjk > 0 )
 						grad[j] += (vjk-lambda)*fea_val;
@@ -238,8 +241,7 @@ class SBCDsolve{
 	int K;
 	double* Q_diag;
 	double** alpha;
-	double* v;
-	double* w;
+	double** v;
 	
 	int max_iter;
 	double* grad;

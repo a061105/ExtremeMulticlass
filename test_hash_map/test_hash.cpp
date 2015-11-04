@@ -45,7 +45,7 @@ int main(){
 	int K = 3000;
 	int D = 10000;
 	int nnz_x_i = 100;
-	int nnz_w_j = 10;
+	int nnz_w_j = 100;
 	int act_k_size = 10;
 	vector<int>* act_k_index = new vector<int>[N];
 	for(int i=0;i<N;i++){
@@ -108,7 +108,6 @@ int main(){
 	SparseVec** w3 = new SparseVec*[D];
 	for(int j=0;j<D;j++){
 		w3[j] = new SparseVec();
-		w3[j]->reserve(nnz_w_j*1.5);
 	}
 	start = omp_get_wtime();
 	for(int i=0;i<N;i++){
@@ -127,7 +126,7 @@ int main(){
 		sumReduce(w3[j]);
 	cerr << "sparse vect update time=" << omp_get_wtime()-start << endl;
 	
-	//test hash map matrix multiplication
+	//test spasre vec matrix multiplication
 	for(int j=0;j<D;j++){
 		w3[j]->clear();
 		for(int k=0;k<nnz_w_j;k++)
@@ -152,7 +151,7 @@ int main(){
 	start = omp_get_wtime();
 	HashVec** v = new HashVec*[D];
 	for(int j=0;j<D;j++)
-		v[j] = new HashVec(nnz_w_j*1.5);
+		v[j] = new HashVec();
 	/*HashVec::iterator it2;
 	for(int i=0;i<N;i++){
 		SparseVec* x_i = data[i];

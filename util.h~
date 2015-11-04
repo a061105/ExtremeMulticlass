@@ -4,7 +4,6 @@
 #include<cmath>
 #include<vector>
 #include <map>
-#include <unordred_map>
 #include<string>
 #include<cstring>
 #include<stdlib.h>
@@ -12,10 +11,11 @@
 #include <iostream>
 #include <algorithm>
 #include <omp.h>
+#include <unordered_map>
 using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;
-typedef unordred_map<int,double> HashVec;
+typedef unordered_map<int,double> HashVec;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 

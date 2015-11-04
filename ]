@@ -82,11 +82,9 @@ class ActBCDsolve{
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
 					continue;
-				
 				subsolve_time -= omp_get_wtime();
 				subSolve(i, act_k_index[i], alpha_i_new);
 				subsolve_time += omp_get_wtime();
-				
 				//maintain v =  X^T\alpha;  w = prox_{l1}(v);
 				maintain_time -= omp_get_wtime();
 				SparseVec* x_i = data->at(i);
@@ -196,13 +194,46 @@ class ActBCDsolve{
 		return new Model(prob, w); //v is w
 	}
 	
+	void search_active_i( int i, vector<int>& act_k_index ){
+	
+		//compute <xi,wk> for k=1...K
+		double* prod = new double[K];
+		for(int k=0;k<K;k++)
+			prod[k] = 0.0;
+		SparseVec* xi = data->at(i);
+		int yi = labels->at(i);
+		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+			int j = it->first;
+			double xij = it->second;
+			HashVec* wj = w[j];
+			for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
+				prod[it2->first] += it2->second * xij;
+			}
+		}
+		
+		//sort accordingg to <xi,wk>
+		sort(k_index.begin(), k_index.end(), ScoreComp(prod));
+		int num_select=0;
+		for(int r=0;r<K;r++){
+			int k = k_index[r];
+			if( alpha[i][k]<0.0 || k==yi ) //exclude already in active set
+				continue;
+			if( prod[k] > -1.0 ){
+				act_k_index.push_back(k);
+				num_select++;
+				if( num_select >= max_select )
+					break;
+			}
+		}
+		
+		delete[] prod;
+	}
+
 	void subSolve(int i, vector<int>& act_k_index, double* alpha_i_new){
 		
 		int act_k_size = act_k_index.size();
-		
 		double* grad = new double[act_k_size];
 		double* Dk = new double[act_k_size];
-		
 		int yi = labels->at(i);
 		SparseVec* x_i = data->at(i);
 		double Qii = Q_diag[i];
@@ -247,7 +278,6 @@ class ActBCDsolve{
 			beta += Dk[r];
 		}
 		beta = beta / r;
-		
 		//update alpha
 		for(int j=0;j<act_k_size;j++){
 			int k = act_k_index[j];
@@ -256,41 +286,6 @@ class ActBCDsolve{
 		
 		delete[] grad;
 		delete[] Dk;
-	}
-
-	void search_active_i( int i, vector<int>& act_k_index ){
-	
-		//compute <xi,wk> for k=1...K
-		double* prod = new double[K];
-		for(int k=0;k<K;k++)
-			prod[k] = 0.0;
-		SparseVec* xi = data->at(i);
-		int yi = labels->at(i);
-		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
-			int j = it->first;
-			double xij = it->second;
-			HashVec* wj = w[j];
-			for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
-				prod[it2->first] += it2->second * xij;
-			}
-		}
-		
-		//sort accordingg to <xi,wk>
-		sort(k_index.begin(), k_index.end(), ScoreComp(prod));
-		int num_select=0;
-		for(int r=0;r<K;r++){
-			int k = k_index[r];
-			if( alpha[i][k]<0.0 || k==yi ) //exclude already in active set
-				continue;
-			if( prod[k] > -1.0 ){
-				act_k_index.push_back(k);
-				num_select++;
-				if( num_select >= max_select )
-					break;
-			}
-		}
-		
-		delete[] prod;
 	}
 
 	/*void searchActive( double* v, vector<int>* act_k_index){

@@ -1,4 +1,4 @@
-all: train predict
+all: train
 	
 train:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp

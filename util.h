@@ -11,9 +11,11 @@
 #include <iostream>
 #include <algorithm>
 #include <omp.h>
+#include <unordered_map>
 using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;
+typedef unordered_map<int,double> HashVec;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 
