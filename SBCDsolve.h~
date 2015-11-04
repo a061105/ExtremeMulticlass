@@ -16,6 +16,7 @@ class SBCDsolve{
 		N = prob->N;
 		K = prob->K;
 		max_iter = param->max_iter;
+		
 	}
 	
 	~SBCDsolve(){
@@ -34,10 +35,10 @@ class SBCDsolve{
 		for(int i=0;i<D*K;i++){
 			v[i] = 0.0;
 		}
-		w = new double[D*K];
+		/*w = new double[D*K];
 		for(int i=0;i<D*K;i++){
 			w[i] = 0.0;
-		}
+		}*/
 		
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
 		Q_diag = new double[N];
@@ -69,8 +70,6 @@ class SBCDsolve{
 		double starttime = omp_get_wtime();
 		double subsolve_time = 0.0, maintain_time = 0.0;
 		double* alpha_i_new = new double[K];
-		grad = new double[K];
-		Dk = new double[K];
 		int iter = 0;
 		while( iter < max_iter ){
 			
@@ -101,7 +100,6 @@ class SBCDsolve{
 						int ind = f_offset+k;
 						v[ ind ] += f_val*(alpha_i_new[k]-alpha_i[k]);
 						//w[ ind ] = prox_l1( v[ ind ], lambda );
-						w[ ind ] = prox_l1_nneg( v[ ind ], lambda );
 					}
 				}
 				//update alpha
@@ -160,13 +158,14 @@ class SBCDsolve{
 			delete[] alpha[i];
 		delete[] alpha;
 		delete[] Q_diag;
-		delete[] grad;
-		delete[] Dk;
 		
 		return new Model(prob, w);
 	}
 	
 	void subSolve(int i, int* act_k_index, int act_k_size, double* alpha_i_new){
+		
+		grad = new double[act_k_size];
+		Dk = new double[act_k_size];
 		
 		int yi = labels->at(i);
 		SparseVec* x_i = data->at(i);
@@ -185,7 +184,13 @@ class SBCDsolve{
 			double fea_val = it->second;
 			for(int j=0;j<act_k_size;j++){
 				int k = act_k_index[j];
-				grad[j] += w[fea_offset+k]*fea_val;
+				double vjk = v[fea_offset+k];
+				if( fabs(vjk) > lambda ){
+					if( vjk > 0 )
+						grad[j] += (vjk-lambda)*fea_val;
+					else
+						grad[j] += (vjk+lambda)*fea_val;
+				}
 			}
 		}
 		for(int j=0;j<act_k_size;j++){
@@ -212,6 +217,9 @@ class SBCDsolve{
 			int k = act_k_index[j];
 			alpha_i_new[k] = min( (k!=yi)?0.0:C, (beta-grad[j])/Qii );
 		}
+		
+		delete[] grad;
+		delete[] Dk;
 	}
 
 	private:

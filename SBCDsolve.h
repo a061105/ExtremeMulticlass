@@ -117,6 +117,11 @@ class SBCDsolve{
 		}
 		double endtime = omp_get_wtime();
 		cerr << endl;
+		
+		//convert v into w
+		for(int i=0;i<D*K;i++)
+			v[i] = prox_l1(v[i],lambda);
+		double* w = v;
 
 		double d_obj = 0.0;
 		int nSV = 0;

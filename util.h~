@@ -4,6 +4,7 @@
 #include<cmath>
 #include<vector>
 #include <map>
+#include <unordred_map>
 #include<string>
 #include<cstring>
 #include<stdlib.h>
@@ -14,6 +15,7 @@
 using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;
+typedef unordred_map<int,double> HashVec;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 
@@ -57,13 +59,13 @@ double inner_prod(double* w, SparseVec* sv){
 	return sum;
 }
 
-/*double prox_l1_nneg( double v, double lambda ){
+double prox_l1_nneg( double v, double lambda ){
 	
 	if( v < lambda )
 		return 0.0;
 
 	return v-lambda;
-}*/
+}
 
 double prox_l1( double v, double lambda ){
 	

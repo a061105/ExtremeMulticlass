@@ -25,14 +25,16 @@ class Param{
 	Problem* prob;
 	
 	//solver-specific param
+	int solver_choice;
 	int max_iter;
 	int max_select;
 	
 	Param(){
+		solver_choice = 0;
 		lambda = 1.0;
 		C = 1.0;
 		max_iter = 20;
-		max_select = 10;
+		max_select = 5;
 	}
 };
 

@@ -33,13 +33,9 @@ class ActBCDsolve{
 				alpha[i][k] = 0.0;
 		}
 		v = new double[D*K]; //w = prox(v);
-		for(int i=0;i<D*K;i++){
+		for(int i=0;i<D*K;i++)
 			v[i] = 0.0;
-		}
-		/*w = new double[D*K];
-		for(int i=0;i<D*K;i++){
-			w[i] = 0.0;
-		}*/
+		w = new HashVec[D];
 		
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
 		Q_diag = new double[N];
@@ -56,16 +52,7 @@ class ActBCDsolve{
 		for(int i=0;i<N;i++)
 			index[i] = i;
 		//initialize active set out of [K] for each sample i
-		int* act_k_size = new int[N];
-		for(int i=0;i<N;i++)
-			act_k_size[i] = K;
-
-		int** act_k_index = new int*[N];
-		for(int i=0;i<N;i++){
-			act_k_index[i] = new int[K];
-			for(int k=0;k<K;k++)
-				act_k_index[i][k] = k;
-		}
+		vector<int>* act_k_index = new vector<int>[N];
 		
 		//main loop
 		double starttime = omp_get_wtime();
@@ -74,49 +61,61 @@ class ActBCDsolve{
 		int iter = 0;
 		while( iter < max_iter ){
 			
-			search_time -= omp_get_wtime();
-			searchActive( v, act_k_index, act_k_size );
-			search_time += omp_get_wtime();
-			
 			random_shuffle( index, index+N );
 			for(int r=0;r<N;r++){	
 				
 				int i = index[r];
-				int act_size = act_k_size[i];
-				int* act_index = act_k_index[i];
 				double* alpha_i = alpha[i];
-				if( act_size < 2 )
-					continue;
+				
+				//search active
 				
 				//solve subproblem
+				if( act_k_index[i].size() < 2 )
+					continue;
 				subsolve_time -= omp_get_wtime();
-				subSolve(i, act_index, act_size, alpha_i_new);
+				subSolve(i, act_k_index[i], alpha_i_new);
 				subsolve_time += omp_get_wtime();
 				
-				//maintain w = prox_{\lambda}( X^T\alpha )
+				//maintain v =  X^T\alpha;  w = prox_{l1}(v);
 				maintain_time -= omp_get_wtime();
 				SparseVec* x_i = data->at(i);
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 
 					int f_offset = it->first*K;
 					double f_val = it->second;
-					for(int j=0;j<act_size;j++){
-						int k = act_index[j];
+					for(vector<int>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
+						int k = *it;
 						int ind = f_offset+k;
 						v[ ind ] += f_val*(alpha_i_new[k]-alpha_i[k]);
-						//w[ ind ] = prox_l1( v[ ind ], lambda );
 					}
 				}
 				//update alpha
-				for(int j=0;j<act_size;j++){
-					int k = act_index[j];
+				for(vector<int>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
+					int k = *it;
 					alpha_i[k] = alpha_i_new[k];
 				}
+				//shrink act_k_index
+				vector<int> tmp_vec;
+				tmp_vec.reserve(act_k_index[i].size());
+				for(vector<int>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
+					int k = *it;
+					if( alpha_i[k] != 0.0 )
+						tmp_vec.push_back(k);
+				}
+				act_k_index[i] = tmp_vec;
+				
 				maintain_time += omp_get_wtime();
 			}
 			
-			if( iter % 1 == 0 )
+			if( iter % 1 == 0 ){
 				cerr << "." ;
+				/*double act_size_avg = 0.0;
+				for(int i=0;i<N;i++){
+					act_size_avg += act_k_index[i].size();	
+				}
+				act_size_avg /= N;
+				cerr << "act="<< act_size_avg << endl;*/
+			}
 			
 			iter++;
 		}
@@ -159,11 +158,7 @@ class ActBCDsolve{
 		cerr << "maintain time=" << maintain_time << endl;
 		//delete algorithm-specific variables
 		delete[] alpha_i_new;
-		delete[] act_k_size;
-		for(int i=0;i<N;i++)
-			delete[] act_k_index[i];
 		delete[] act_k_index;
-		
 		for(int i=0;i<N;i++)
 			delete[] alpha[i];
 		delete[] alpha;
@@ -172,10 +167,7 @@ class ActBCDsolve{
 		return new Model(prob, w); //v is w
 	}
 	
-	void searchActive( double* v, int** act_k_index, int* act_k_size ){
-		
-		for(int i=0;i<N;i++)
-			act_k_size[i] = 1; //\alpha_{i,y_i} is always active
+	/*void searchActive( double* v, vector<int>* act_k_index){
 		
 		// convert v to w (in SparseMtrix format)
 		SparseVec* w = new SparseVec[D];
@@ -193,18 +185,46 @@ class ActBCDsolve{
 		
 		// Row-wise Sparse Matrix Multiplication X*W (x_i*W, i=1...N)
 		double* prod_xi_w = new double[K];
+		int* k_index = new int[K];
+		for(int k=0;k<K;k++)
+			k_index[k] = k;
 		for(int i=0;i<N;i++){
+			SparseVec* xi = data->at(i);
+			int yi = labels->at(i);
+
 			for(int k=0;k<K;k++)
 				prod_xi_w[k] = 0.0;
-			
+			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+				int j = it->first;
+				double xij = it->second;
+				for(SparseVec::iterator it2=w[j].begin(); it2!=w[j].end(); it2++){
+					prod_xi_w[it2->first] += xij*it2->second;
+				}
+			}	
+
+			sort(k_index, k_index+K, ScoreComp(prod_xi_w));
+			int num_select=0;
+			for(int r=0;r<K;r++){
+				int k = k_index[r];
+				if( k == yi || alpha[i][k]<0.0 )
+					continue;
+				if( prod_xi_w[k] > -1.0 ){
+					act_k_index[i].push_back(k);
+					num_select++;
+					if( num_select >= max_select )
+						break;
+				}
+			}
 		}
 		
+		delete[] k_index;
 		delete[] prod_xi_w;
 		delete[] w;
-	}
+	}*/
 	
-	void subSolve(int i, int* act_k_index, int act_k_size, double* alpha_i_new){
+	void subSolve(int i, vector<int>& act_k_index, double* alpha_i_new){
 		
+		int act_k_size = act_k_index.size();
 		grad = new double[act_k_size];
 		Dk = new double[act_k_size];
 		
@@ -275,7 +295,8 @@ class ActBCDsolve{
 	double* Q_diag;
 	double** alpha;
 	double* v;
-	
+	HashVec* w;
+
 	int max_iter;
 	int max_select;
 	

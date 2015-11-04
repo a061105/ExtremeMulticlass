@@ -40,24 +40,13 @@ void sumReduce(SparseVec* list){
 
 int main(){
 	
-	double start2 = omp_get_wtime();
-	int N2 = 1000000;
-	int K2 = 100000;
-	double** A = new double*[N2];
-	for(int i=0;i<N2;i++){
-		A[i] = new double[K2];
-		for(int k=0;k<K2;k++)
-			A[i][k] = 0.0;
-	}
-	cerr << "time=" << omp_get_wtime()-start2 << endl;
-	exit(0);
 	//insert (assign) a lot of key-value pair
-	int N = 10000;
+	int N = 20000;
 	int K = 3000;
 	int D = 10000;
 	int nnz_x_i = 100;
-	int nnz_w_j = 100;
-	int act_k_size = 100;
+	int nnz_w_j = 10;
+	int act_k_size = 10;
 	vector<int>* act_k_index = new vector<int>[N];
 	for(int i=0;i<N;i++){
 		for(int j=0;j<act_k_size;j++){
@@ -96,31 +85,30 @@ int main(){
 	}
 	cerr << "array update time=" << omp_get_wtime()-start  << endl;
 	
-	//test double array update
+	//test array mat mul
+	double* Ai = new double[K];
 	double** w2 = new double*[D];
 	for(int j=0;j<D;j++)
 		w2[j] = new double[K];
 	start = omp_get_wtime();
 	for(int i=0;i<N;i++){
-
 		SparseVec* x_i = data[i];
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
-			int f_ind = it->first;
-			int f_val = it->second;
-			double* w2_j = w2[f_ind];
-			for(int j=0;j<act_k_size;j++){
-				int k = act_k_index[i][j];
-				w2_j[k] += f_val;
+			int j = it->first;
+			double x_ij = it->second;
+			double* w2_j = w2[j];
+			for(int k=0;k<K;k++){
+				Ai[k] += w2_j[k]*x_ij;
 			}
 		}
 	}
-	cerr << "two-dimensional array update time=" << omp_get_wtime()-start  << endl;
+	cerr << "array (dense) mat mul time=" << omp_get_wtime()-start  << endl;
 	
 	//test SparseVec update time
 	SparseVec** w3 = new SparseVec*[D];
 	for(int j=0;j<D;j++){
 		w3[j] = new SparseVec();
-		w3[j]->reserve(K);
+		w3[j]->reserve(nnz_w_j*1.5);
 	}
 	start = omp_get_wtime();
 	for(int i=0;i<N;i++){
@@ -138,13 +126,34 @@ int main(){
 	for(int j=0;j<D;j++)
 		sumReduce(w3[j]);
 	cerr << "sparse vect update time=" << omp_get_wtime()-start << endl;
-
+	
+	//test hash map matrix multiplication
+	for(int j=0;j<D;j++){
+		w3[j]->clear();
+		for(int k=0;k<nnz_w_j;k++)
+			w3[j]->push_back(make_pair(k,1.0));
+	}
+	
+	start = omp_get_wtime();
+	for(int i=0;i<N;i++){
+		SparseVec* x_i = data[i];
+		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
+			int j = it->first;
+			double xij = it->second;
+			SparseVec* w_j = w3[j];
+			for(SparseVec::iterator it2=w_j->begin(); it2!=w_j->end(); it2++){
+				Ai[it2->first] += xij*it2->second;
+			}
+		}
+	}
+	cerr << "sparseVec mat mul time=" << omp_get_wtime()-start << endl;
+	
 	//test hash map update
 	start = omp_get_wtime();
 	HashVec** v = new HashVec*[D];
 	for(int j=0;j<D;j++)
-		v[j] = new HashVec();
-	HashVec::iterator it2;
+		v[j] = new HashVec(nnz_w_j*1.5);
+	/*HashVec::iterator it2;
 	for(int i=0;i<N;i++){
 		SparseVec* x_i = data[i];
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
@@ -161,20 +170,27 @@ int main(){
 			}
 		}
 	}
+	
 	cerr << "hashmap update time=" << omp_get_wtime()-start << endl;
+	*/
 	
-	
-
 	//test hash map matrix multiplication
-	/*
-	start = omp_get_wtime();
-	double* A = new double[N*K];
 	for(int j=0;j<D;j++){
+		for(int k=0;k<nnz_w_j;k++)
+			v[j]->insert(make_pair(k,1.0));
+	}
+	start = omp_get_wtime();
+	for(int i=0;i<N;i++){
 		SparseVec* x_i = data[i];
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
-			int f_ind = it->first;
-			int f_val = it->second;
-			
+			int j = it->first;
+			double xij = it->second;
+			HashVec* v_j = v[j];
+			for(HashVec::iterator it2=v_j->begin(); it2!=v_j->end(); it2++){
+				Ai[it2->first] += xij*it2->second;
+			}
 		}
-	}*/
+	}
+	cerr << "hashmap mat mul time=" << omp_get_wtime()-start << endl;
+	
 }
