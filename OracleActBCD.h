@@ -2,7 +2,7 @@
 #include "multi.h"
 #include <cassert>
 
-#define speed_up_rate 1
+#define speed_up_rate 20
 
 class OracleActBCD{
 	
@@ -310,21 +310,6 @@ class OracleActBCD{
 		memset(prod, 0, sizeof(double)*K);
                 SparseVec* xi = data->at(i);
 		int nnz = xi->size();
-		int rand_index = 0;
-		/*for(int k = 0; k < K; k++){
-			if (alpha[i][k] < 0.0 || k == yi)
-				continue;
-			for(int j = 0; j < n; j++){
-				rand_index = rand()%nnz;
-				pair<int, double>* xij = &(xi->at(rand_index));
-				HashVec* wr = w[xij->first];
-				auto wjk = wr->find(k);
-				if (wjk != wr->end()){
-					prod[k] += wjk->second * xij->second;
-				}
-			}
-			prod[k] *= (1.0*nnz)/n;
-		}*/
 		for(int j = 0; j < act_k_index.size(); j++){
 			prod[act_k_index[j]] = -10000000.0;
 		}
@@ -349,49 +334,56 @@ class OracleActBCD{
 				}
 			}
                 }
+		tc1 += omp_get_wtime();
 		double th = -n/(1.0*nnz);
-		/*if (prod[max_index] > th){
+		if (prod[max_index] < 0){
+			for(int k = 0; k < K; k++)
+				if (prod[k] == 0){
+					max_index = k;
+					break;
+				}
+		}
+		if (prod[max_index] > th){
 			act_k_index.push_back(max_index);
-		}*/	
+		}
 		tc1 += omp_get_wtime();
 		//cerr << counter << "/" << K << endl;
 
                 //sort accordingg to <xi,wk> in decreasing order
-		
-		tc2 -= omp_get_wtime();
+			
+		/*tc2 -= omp_get_wtime();
 		int k, bestk = 0;
-		for (int r = 1; r < K; r++){
-			k = r; //k_index[r];
-			if (prod[k] <= prod[bestk]){
-				//k_index[r] = bestk;
-				//k_index[r+1] = k;
-			} else {
+		for (int k = 1; k < K; k++){
+			if (prod[k] > prod[bestk]){
 				bestk = k;
 			}
 		}
 		if (prod[bestk] > th){
 			act_k_index.push_back(bestk);
 		}
-		tc2 += omp_get_wtime();
+		tc2 += omp_get_wtime();*/
 		
-//		tc2 -= omp_get_wtime();
-//                sort(k_index.begin(), k_index.end(), ScoreComp(prod));
-//		
-//		int num_select=0;
-//		double th = -n/(1.0*nnz);
-//                for(int r=0;r<K;r++){
-//                        int k = k_index[r];
-//                        if( alpha[i][k]<0.0 || k==yi ) //exclude already in active set
-//                                continue;
-//                        if( prod[k] > th){
-////				assert(prod[k] == prod[max_index]);
-//                                act_k_index.push_back(k);
-//                                num_select++;
-//                                if( num_select >= max_select )
-//                                        break;
-//                        }
-//                }
-//		tc2 += omp_get_wtime();
+		/*tc2 -= omp_get_wtime();
+                sort(k_index.begin(), k_index.end(), ScoreComp(prod));
+		
+		int num_select=0;
+		double th = -n/(1.0*nnz);
+                for(int r=0;r<1;r++){
+                        int k = k_index[r];
+//                        if( alpha[i][k]<0.0 || k==yi ){ //exclude already in active set
+//                                assert(prod[k] <= th);
+//				continue;
+//			}
+                        if( prod[k] > th){
+                                act_k_index.push_back(k);
+                                num_select++;
+                                if( num_select >= max_select )
+                                        break;
+                        } else {
+				break;
+			}
+                }
+		tc2 += omp_get_wtime();*/
         }
 
 	/*void searchActive( double* v, vector<int>* act_k_index){
