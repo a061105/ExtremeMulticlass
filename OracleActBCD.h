@@ -310,14 +310,14 @@ class OracleActBCD{
                         }
                 }
 
-                //sort accordingg to <xi,wk>
+                //sort accordingg to <xi,wk> in decreasing order
                 sort(k_index.begin(), k_index.end(), ScoreComp(prod));
                 int num_select=0;
                 for(int r=0;r<K;r++){
                         int k = k_index[r];
                         if( alpha[i][k]<0.0 || k==yi ) //exclude already in active set
                                 continue;
-                        if( prod[k] > -1.0 ){
+                        if( prod[k] > -1.0){
                                 act_k_index.push_back(k);
                                 num_select++;
                                 if( num_select >= max_select )
