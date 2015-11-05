@@ -142,12 +142,20 @@ class ActBCDsolve{
 			
 			if( iter % 1 == 0 ){
 				cerr << "." ;
-				double act_size_avg = 0.0;
+				int nnz_alpha = 0;
 				for(int i=0;i<N;i++){
-					act_size_avg += act_k_index[i].size();	
+					nnz_alpha += act_k_index[i].size();	
 				}
-				act_size_avg /= N;
-				cerr << "act="<< act_size_avg << endl;
+				int nnz_w = 0;
+				int nnz_w2 = 0;
+				for(int j=0;j<D;j++){
+					nnz_w += w[j]->size();
+					for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++)
+						if( fabs(it->second) > 1e-5 )
+							nnz_w2++;
+				}
+				cerr << "nnz_alpha_i="<< ((double)nnz_alpha/N) << ", nnz_w_j=" << ((double)nnz_w/D) 
+					<< "nnz_w2_j=" << ((double)nnz_w2/D) << endl;
 			}
 			
 			iter++;
