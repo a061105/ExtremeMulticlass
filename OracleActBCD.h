@@ -319,9 +319,9 @@ class OracleActBCD{
 		int counter = 0;
 		tc1 -= omp_get_wtime();
 		int max_index = 0;
+		random_shuffle(xi->begin(), xi->end());
 		while (n < nnz/rate) {
-			n++;
-                	pair<int, double>* it = &(xi->at(rand()%nnz));
+                	pair<int, double>* it = &(xi->at(n++));
 		//for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
                 //        int j = it->first;
                         double xij = it->second;
@@ -334,14 +334,17 @@ class OracleActBCD{
 				}
 			}
                 }
+		//found best over all updated prod
 		tc1 += omp_get_wtime();
 		double th = -n/(1.0*nnz);
 		if (prod[max_index] < 0){
-			for(int k = 0; k < K; k++)
-				if (prod[k] == 0){
-					max_index = k;
+			for(int k = 0; k < K; k++){
+				int r = rand()%K;
+				if (prod[r] == 0){
+					max_index = r;
 					break;
 				}
+			}
 		}
 		if (prod[max_index] > th){
 			act_k_index.push_back(max_index);
