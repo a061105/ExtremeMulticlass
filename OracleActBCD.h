@@ -1,5 +1,8 @@
 #include "util.h"
 #include "multi.h"
+#include <cassert>
+
+#define speed_up_rate 20
 
 class OracleActBCD{
 	
@@ -18,12 +21,16 @@ class OracleActBCD{
 
 		max_iter = param->max_iter;
 		max_select = param->max_select;
-		
-		for(int k=0;k<K;k++)
+		tc1 = 0.0; tc2 = 0.0; tc3 = 0.0;
+		prod = new double[K];
+		for(int k=0;k<K;k++){
+			prod[k] = 0.0;
 			k_index.push_back(k);
+		}
 	}
 	
 	~OracleActBCD(){
+		delete[] prod;
 	}
 
 	Model* solve(){
@@ -77,7 +84,8 @@ class OracleActBCD{
 				double* alpha_i = alpha[i];
 				//search active variable
 				search_time -= omp_get_wtime();
-				search_active_i( i, act_k_index[i] );
+				//search_active_i( i, act_k_index[i]);
+				search_active_i_approx( i, act_k_index[i], speed_up_rate );
 				search_time += omp_get_wtime();
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
@@ -192,6 +200,7 @@ class OracleActBCD{
 		for(int j=0;j<D;j++)
 			delete[] v[j];
 		delete[] v;
+		cerr << "calc time=" << tc1 << " sort time=" << tc2 << " look up time=" << tc3 << endl;
 		
 		return new Model(prob, w); //v is w
 	}
@@ -253,7 +262,8 @@ class OracleActBCD{
 			int k = act_k_index[j];
 			alpha_i_new[k] = min( (k!=yi)?0.0:C, (beta-grad[j])/Qii );
 		}
-		
+	
+			
 		delete[] grad;
 		delete[] Dk;
 	}
@@ -292,40 +302,84 @@ class OracleActBCD{
 		
 		delete[] prod;
 	}
-	
-	void search_active_i_approx( int i, vector<int>& act_k_index ){
+		
+	void search_active_i_approx( int i, vector<int>& act_k_index, int rate ){
 
                 //compute <xi,wk> for k=1...K
-                double* prod = new double[K];
-                for(int k=0;k<K;k++)
-                        prod[k] = 0.0;
-                SparseVec* xi = data->at(i);
                 int yi = labels->at(i);
-                for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
-                        int j = it->first;
+		memset(prod, 0, sizeof(double)*K);
+                SparseVec* xi = data->at(i);
+		int nnz = xi->size();
+		int rand_index = 0;
+		/*for(int k = 0; k < K; k++){
+			if (alpha[i][k] < 0.0 || k == yi)
+				continue;
+			for(int j = 0; j < n; j++){
+				rand_index = rand()%nnz;
+				pair<int, double>* xij = &(xi->at(rand_index));
+				HashVec* wr = w[xij->first];
+				auto wjk = wr->find(k);
+				if (wjk != wr->end()){
+					prod[k] += wjk->second * xij->second;
+				}
+			}
+			prod[k] *= (1.0*nnz)/n;
+		}*/
+		int n = 0;
+		int counter = 0;
+		tc1 -= omp_get_wtime();
+		while (n < nnz/rate && counter < K) {
+			n++;
+                	pair<int, double>* it = &(xi->at(rand()%nnz));
+		//for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+                //        int j = it->first;
                         double xij = it->second;
-                        HashVec* wj = w[j];
+                        HashVec* wj = w[it->first];
+			counter += wj->size();
                         for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
                                 prod[it2->first] += it2->second * xij;
-                        }
+			}
                 }
+		tc1 += omp_get_wtime();
+		//cerr << counter << "/" << K << endl;
 
                 //sort accordingg to <xi,wk> in decreasing order
-                sort(k_index.begin(), k_index.end(), ScoreComp(prod));
-                int num_select=0;
-                for(int r=0;r<K;r++){
-                        int k = k_index[r];
-                        if( alpha[i][k]<0.0 || k==yi ) //exclude already in active set
-                                continue;
-                        if( prod[k] > -1.0){
-                                act_k_index.push_back(k);
-                                num_select++;
-                                if( num_select >= max_select )
-                                        break;
-                        }
-                }
-
-                delete[] prod;
+		
+		tc2 -= omp_get_wtime();
+		double th = -n/(1.0*nnz);
+		int k, bestk = K-1;
+		for (int r = K-2; r >= 0; r--){
+			k = k_index[r];
+			if (alpha[i][k] < 0.0 || k == yi || prod[k] < prod[bestk]){
+				k_index[r] = bestk;
+				k_index[r+1] = k;
+			} else {
+				bestk = k;
+			}
+		}
+		if (!(alpha[i][bestk] < 0.0 || bestk == yi || prod[bestk] <= th)){
+			act_k_index.push_back(bestk);
+		}
+		tc2 += omp_get_wtime();
+		
+//		tc2 -= omp_get_wtime();
+//                sort(k_index.begin(), k_index.end(), ScoreComp(prod));
+//		
+//		int num_select=0;
+//		double th = -n/(1.0*nnz);
+//                for(int r=0;r<K;r++){
+//                        int k = k_index[r];
+//                        if( alpha[i][k]<0.0 || k==yi ) //exclude already in active set
+//                                continue;
+//                        if( prod[k] > th){
+////				assert(prod[k] == prod[max_index]);
+//                                act_k_index.push_back(k);
+//                                num_select++;
+//                                if( num_select >= max_select )
+//                                        break;
+//                        }
+//                }
+//		tc2 += omp_get_wtime();
         }
 
 	/*void searchActive( double* v, vector<int>* act_k_index){
@@ -384,6 +438,7 @@ class OracleActBCD{
 	}*/
 	
 	private:
+	double tc1, tc2, tc3;
 	Problem* prob;
 	double lambda;
 	double C;
@@ -393,10 +448,10 @@ class OracleActBCD{
 	int N;
 	int K;
 	double* Q_diag;
+	double* prod;
 	double** alpha;
 	double** v;
 	HashVec** w;
-
 	int max_iter;
 	int max_select;
 	
