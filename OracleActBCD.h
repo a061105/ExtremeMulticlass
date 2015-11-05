@@ -292,6 +292,41 @@ class OracleActBCD{
 		
 		delete[] prod;
 	}
+	
+	void search_active_i_approx( int i, vector<int>& act_k_index ){
+
+                //compute <xi,wk> for k=1...K
+                double* prod = new double[K];
+                for(int k=0;k<K;k++)
+                        prod[k] = 0.0;
+                SparseVec* xi = data->at(i);
+                int yi = labels->at(i);
+                for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+                        int j = it->first;
+                        double xij = it->second;
+                        HashVec* wj = w[j];
+                        for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
+                                prod[it2->first] += it2->second * xij;
+                        }
+                }
+
+                //sort accordingg to <xi,wk>
+                sort(k_index.begin(), k_index.end(), ScoreComp(prod));
+                int num_select=0;
+                for(int r=0;r<K;r++){
+                        int k = k_index[r];
+                        if( alpha[i][k]<0.0 || k==yi ) //exclude already in active set
+                                continue;
+                        if( prod[k] > -1.0 ){
+                                act_k_index.push_back(k);
+                                num_select++;
+                                if( num_select >= max_select )
+                                        break;
+                        }
+                }
+
+                delete[] prod;
+        }
 
 	/*void searchActive( double* v, vector<int>* act_k_index){
 		
