@@ -2,7 +2,7 @@
 #include "multi.h"
 #include <cassert>
 
-#define speed_up_rate 20
+#define speed_up_rate 1
 
 class OracleActBCD{
 	
@@ -325,10 +325,16 @@ class OracleActBCD{
 			}
 			prod[k] *= (1.0*nnz)/n;
 		}*/
+		for(int j = 0; j < act_k_index.size(); j++){
+			prod[act_k_index[j]] = -10000000.0;
+		}
+		prod[yi] = -10000000.0;
+		
 		int n = 0;
 		int counter = 0;
 		tc1 -= omp_get_wtime();
-		while (n < nnz/rate && counter < K) {
+		int max_index = 0;
+		while (n < nnz/rate) {
 			n++;
                 	pair<int, double>* it = &(xi->at(rand()%nnz));
 		//for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
@@ -338,26 +344,32 @@ class OracleActBCD{
 			counter += wj->size();
                         for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
                                 prod[it2->first] += it2->second * xij;
+				if (prod[it2->first] > prod[max_index]){
+					max_index = it2->first;
+				}
 			}
                 }
+		double th = -n/(1.0*nnz);
+		/*if (prod[max_index] > th){
+			act_k_index.push_back(max_index);
+		}*/	
 		tc1 += omp_get_wtime();
 		//cerr << counter << "/" << K << endl;
 
                 //sort accordingg to <xi,wk> in decreasing order
 		
 		tc2 -= omp_get_wtime();
-		double th = -n/(1.0*nnz);
-		int k, bestk = K-1;
-		for (int r = K-2; r >= 0; r--){
-			k = k_index[r];
-			if (alpha[i][k] < 0.0 || k == yi || prod[k] < prod[bestk]){
-				k_index[r] = bestk;
-				k_index[r+1] = k;
+		int k, bestk = 0;
+		for (int r = 1; r < K; r++){
+			k = r; //k_index[r];
+			if (prod[k] <= prod[bestk]){
+				//k_index[r] = bestk;
+				//k_index[r+1] = k;
 			} else {
 				bestk = k;
 			}
 		}
-		if (!(alpha[i][bestk] < 0.0 || bestk == yi || prod[bestk] <= th)){
+		if (prod[bestk] > th){
 			act_k_index.push_back(bestk);
 		}
 		tc2 += omp_get_wtime();
