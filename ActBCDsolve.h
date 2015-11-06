@@ -142,12 +142,16 @@ class ActBCDsolve{
 			
 			if( iter % 1 == 0 ){
 				cerr << "." ;
-				double act_size_avg = 0.0;
+				int nnz_a_i = 0;
 				for(int i=0;i<N;i++){
-					act_size_avg += act_k_index[i].size();	
+					nnz_a_i += act_k_index[i].size();	
 				}
-				act_size_avg /= N;
-				cerr << "act="<< act_size_avg << endl;
+				cerr << "nnz_a_i="<< ((double)nnz_a_i/N) << endl;
+				int nnz_w_j = 0;
+				for(int j=0;j<D;j++){
+					nnz_w_j += w[j]->size();
+				}
+				cerr << "nnz_w_j=" << ((double)nnz_w_j/D) << endl;
 			}
 			
 			iter++;
