@@ -3,6 +3,7 @@
 #include <cassert>
 
 #define speed_up_rate 20
+#define INFI 1e10
 
 class OracleActBCD{
 	
@@ -315,9 +316,9 @@ class OracleActBCD{
                 SparseVec* xi = data->at(i);
 		int nnz = xi->size();
 		for(int j = 0; j < act_k_index.size(); j++){
-			prod[act_k_index[j]] = -10000000.0;
+			prod[act_k_index[j]] = -INFI;
 		}
-		prod[yi] = -10000000.0;
+		prod[yi] = -INFI;
 		
 		int n = 0;
 		int counter = 0;
