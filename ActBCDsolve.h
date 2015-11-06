@@ -146,7 +146,7 @@ class ActBCDsolve{
 				for(int i=0;i<N;i++){
 					nnz_a_i += act_k_index[i].size();	
 				}
-				cerr << "nnz_a_i="<< ((double)nnz_a_i/N) << endl;
+				cerr << "nnz_a_i="<< ((double)nnz_a_i/N) << "\t";
 				int nnz_w_j = 0;
 				for(int j=0;j<D;j++){
 					nnz_w_j += w[j]->size();
