@@ -2,7 +2,7 @@
 #include "multi.h"
 #include <cassert>
 
-#define speed_up_rate 20
+#define speed_up_rate 100
 #define INFI 1e10
 
 class OracleActBCD{
@@ -160,7 +160,10 @@ class OracleActBCD{
 				for(int j=0;j<D;j++){
 					nnz_w_j += w[j]->size();
 				}
-				cerr << "nnz_w_j=" << ((double)nnz_w_j/D) << endl;
+				cerr << "nnz_w_j=" << ((double)nnz_w_j/D) << "\t";
+				cerr << "search=" << search_time << "\t";
+				cerr << "subsolve=" << subsolve_time << "\t";
+				cerr << "maintain=" << maintain_time << endl;
 			}
 			
 			iter++;
