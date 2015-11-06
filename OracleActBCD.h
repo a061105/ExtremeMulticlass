@@ -1,5 +1,8 @@
 #include "util.h"
 #include "multi.h"
+#include <cassert>
+
+#define speed_up_rate 20
 
 class OracleActBCD{
 	
@@ -18,12 +21,16 @@ class OracleActBCD{
 
 		max_iter = param->max_iter;
 		max_select = param->max_select;
-		
-		for(int k=0;k<K;k++)
+		tc1 = 0.0; tc2 = 0.0; tc3 = 0.0;
+		prod = new double[K];
+		for(int k=0;k<K;k++){
+			prod[k] = 0.0;
 			k_index.push_back(k);
+		}
 	}
 	
 	~OracleActBCD(){
+		delete[] prod;
 	}
 
 	Model* solve(){
@@ -77,7 +84,8 @@ class OracleActBCD{
 				double* alpha_i = alpha[i];
 				//search active variable
 				search_time -= omp_get_wtime();
-				search_active_i( i, act_k_index[i] );
+				//search_active_i( i, act_k_index[i]);
+				search_active_i_approx( i, act_k_index[i], speed_up_rate );
 				search_time += omp_get_wtime();
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
@@ -192,6 +200,7 @@ class OracleActBCD{
 		for(int j=0;j<D;j++)
 			delete[] v[j];
 		delete[] v;
+		cerr << "calc time=" << tc1 << " sort time=" << tc2 << " look up time=" << tc3 << endl;
 		
 		return new Model(prob, w); //v is w
 	}
@@ -253,7 +262,8 @@ class OracleActBCD{
 			int k = act_k_index[j];
 			alpha_i_new[k] = min( (k!=yi)?0.0:C, (beta-grad[j])/Qii );
 		}
-		
+	
+			
 		delete[] grad;
 		delete[] Dk;
 	}
@@ -292,6 +302,92 @@ class OracleActBCD{
 		
 		delete[] prod;
 	}
+		
+	void search_active_i_approx( int i, vector<int>& act_k_index, int rate ){
+
+                //compute <xi,wk> for k=1...K
+                int yi = labels->at(i);
+		memset(prod, 0, sizeof(double)*K);
+                SparseVec* xi = data->at(i);
+		int nnz = xi->size();
+		for(int j = 0; j < act_k_index.size(); j++){
+			prod[act_k_index[j]] = -10000000.0;
+		}
+		prod[yi] = -10000000.0;
+		
+		int n = 0;
+		int counter = 0;
+		tc1 -= omp_get_wtime();
+		int max_index = 0;
+		random_shuffle(xi->begin(), xi->end());
+		while (n < nnz/rate) {
+                	pair<int, double>* it = &(xi->at(n++));
+		//for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+                //        int j = it->first;
+                        double xij = it->second;
+                        HashVec* wj = w[it->first];
+			counter += wj->size();
+                        for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
+                                prod[it2->first] += it2->second * xij;
+				if (prod[it2->first] > prod[max_index]){
+					max_index = it2->first;
+				}
+			}
+                }
+		//found best over all updated prod
+		tc1 += omp_get_wtime();
+		double th = -n/(1.0*nnz);
+		if (prod[max_index] < 0){
+			for(int k = 0; k < K; k++){
+				int r = rand()%K;
+				if (prod[r] == 0){
+					max_index = r;
+					break;
+				}
+			}
+		}
+		if (prod[max_index] > th){
+			act_k_index.push_back(max_index);
+		}
+		tc1 += omp_get_wtime();
+		//cerr << counter << "/" << K << endl;
+
+                //sort accordingg to <xi,wk> in decreasing order
+			
+		/*tc2 -= omp_get_wtime();
+		int k, bestk = 0;
+		for (int k = 1; k < K; k++){
+			if (prod[k] > prod[bestk]){
+				bestk = k;
+			}
+		}
+		if (prod[bestk] > th){
+			act_k_index.push_back(bestk);
+		}
+		tc2 += omp_get_wtime();*/
+		
+		/*tc2 -= omp_get_wtime();
+                sort(k_index.begin(), k_index.end(), ScoreComp(prod));
+		
+		int num_select=0;
+		double th = -n/(1.0*nnz);
+                for(int r=0;r<1;r++){
+                        int k = k_index[r];
+//                        if( alpha[i][k]<0.0 || k==yi ){ //exclude already in active set
+//                                assert(prod[k] <= th);
+//				continue;
+//			}
+                        if( prod[k] > th){
+                                act_k_index.push_back(k);
+                                num_select++;
+                                if( num_select >= max_select )
+                                        break;
+                        } else {
+				break;
+			}
+                }
+		tc2 += omp_get_wtime();*/
+        }
 
 	/*void searchActive( double* v, vector<int>* act_k_index){
 		
@@ -349,6 +445,7 @@ class OracleActBCD{
 	}*/
 	
 	private:
+	double tc1, tc2, tc3;
 	Problem* prob;
 	double lambda;
 	double C;
@@ -358,10 +455,10 @@ class OracleActBCD{
 	int N;
 	int K;
 	double* Q_diag;
+	double* prod;
 	double** alpha;
 	double** v;
 	HashVec** w;
-
 	int max_iter;
 	int max_select;
 	
