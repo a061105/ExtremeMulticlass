@@ -2,8 +2,8 @@
 #include "multi.h"
 #include <cassert>
 
-#define speed_up_rate 100
-#define INFI 1e10
+#define speed_up_rate 1
+#define INFI 1e9
 
 class OracleActBCD{
 	
@@ -45,12 +45,27 @@ class OracleActBCD{
 		v = new double*[D]; //w = prox(v);
 		for(int j=0;j<D;j++){
 			v[j] = new double[K];
-			for(int k=0;k<K;k++)
+			for(int k=0;k<K;k++){
 				v[j][k] = 0.0;
+			}
 		}
-		w = new HashVec*[D];
-		for(int j=0;j<D;j++)
-			w[j] = new HashVec();
+		
+		/*W = new double*[D];
+		for(int j=0;j<D;j++){
+			W[j] = new double[K];
+			for(int k=0;k<K;k++){
+				W[j][k] = 0.0;
+			}
+		}*/
+		//v_hash = new HashVec*[D];
+		//for(int j = 0; j < D; j++){
+		//	v_hash[j] = new HashVec();
+		//}
+		w_nnz_index = new vector<int>*[D];
+		for(int j=0;j<D;j++){
+			w_nnz_index[j] = new vector<int>();
+			w_nnz_index[j]->reserve(100);
+		}
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
 		Q_diag = new double[N];
 		for(int i=0;i<N;i++){
@@ -74,6 +89,7 @@ class OracleActBCD{
 		//main loop
 		double starttime = omp_get_wtime();
 		double search_time=0.0, subsolve_time=0.0, maintain_time=0.0;
+		double last_search_time = 0.0, last_subsolve_time = 0.0, last_maintain_time = 0.0;
 		double* alpha_i_new = new double[K];
 		int iter = 0;
 		while( iter < max_iter ){
@@ -86,7 +102,7 @@ class OracleActBCD{
 				//search active variable
 				search_time -= omp_get_wtime();
 				//search_active_i( i, act_k_index[i]);
-				search_active_i_approx( i, act_k_index[i], speed_up_rate );
+				search_active_i_approx( i, act_k_index[i]);
 				search_time += omp_get_wtime();
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
@@ -97,36 +113,47 @@ class OracleActBCD{
 				subsolve_time += omp_get_wtime();
 				
 				//maintain v =  X^T\alpha;  w = prox_{l1}(v);
-				maintain_time -= omp_get_wtime();
 				SparseVec* x_i = data->at(i);
 				int yi = labels->at(i);
-				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
-					
+				maintain_time -= omp_get_wtime();
+				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){	
 					int j = it->first;
 					double f_val = it->second;
-					HashVec* wj = w[j];
+					//int len = 0;
 					for(vector<int>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
 						int k = *it;
 						double delta_alpha = (alpha_i_new[k]-alpha_i[k]);
 						if( fabs(delta_alpha) < 1e-12 )
 							continue;
 						//update v
-						double vjk_old = v[j][k]; 
+						double vjk_old = v[j][k];
 						double vjk = vjk_old + f_val*delta_alpha;
-						v[j][k] = vjk ;
-						//update w
-						double wjk_old = prox_l1(vjk_old,lambda);
-						double wjk = prox_l1(vjk,lambda);
-						if(  wjk_old ==0.0 && wjk==0.0 ){
-							continue;
-						}else if( wjk_old == 0.0 ){
-							wj->insert(make_pair(k, (vjk>0.0)?(vjk-lambda):(vjk+lambda) ));
-						}else if( wjk == 0.0 ){
-							wj->erase(k);
-						}else{
-							wj->find(k)->second = wjk;
-						}
+						v[j][k] = vjk;
+						/*HashVec::iterator it3 = (v_hash[j]->find(k));
+						if (it3 != v_hash[j]->end()){
+							it3->second = vjk;
+						} else {
+							v_hash[j]->insert(make_pair(k, vjk));
+						}*/
+						double wjk = prox_l1(vjk, lambda);
+						//double wjk_old = W[j][k];
+						double wjk_old = prox_l1(vjk_old, lambda);
+						if ( wjk_old != wjk ){
+                                                        //W[j][k] = wjk;
+                                                        if(  wjk_old == 0.0  ){
+                                                                w_nnz_index[j]->push_back(k);
+                                                        }
+                                                }
+						//update_k[len] = k;
+						//update_wjk[len++] = (vjk > lambda)? (vjk-lambda):((vjk < -lambda)?(vjk + lambda):0 );
 					}
+					/*for(vector<int>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
+						//update w
+						int k = *it;
+						//int k = update_k[ll];
+						//double wjk = update_wjk[ll];
+						//double wjk_old = W[j][k];
+					}*/
 				}
 				//update alpha
 				bool has_zero=0;
@@ -155,15 +182,16 @@ class OracleActBCD{
 				for(int i=0;i<N;i++){
 					nnz_a_i += act_k_index[i].size();	
 				}
-				cerr << "nnz_a_i="<< ((double)nnz_a_i/N) << "\t";
+				cerr << "nnz_a_i="<< ((double)nnz_a_i/N) << "  \t";
 				int nnz_w_j = 0;
 				for(int j=0;j<D;j++){
-					nnz_w_j += w[j]->size();
+					nnz_w_j += w_nnz_index[j]->size();
 				}
-				cerr << "nnz_w_j=" << ((double)nnz_w_j/D) << "\t";
-				cerr << "search=" << search_time << "\t";
-				cerr << "subsolve=" << subsolve_time << "\t";
-				cerr << "maintain=" << maintain_time << endl;
+				cerr << "nnz_w_j=" << ((double)nnz_w_j/D) << "  \t";
+				cerr << "search=" << search_time-last_search_time << "  \t";
+				cerr << "subsolve=" << subsolve_time-last_subsolve_time << "  \t";
+				cerr << "maintain=" << maintain_time-last_maintain_time << endl;
+				last_search_time = search_time; last_subsolve_time = subsolve_time; last_maintain_time = maintain_time;
 			}
 			
 			iter++;
@@ -176,10 +204,11 @@ class OracleActBCD{
 		int nnz_w = 0;
 		int jk=0;
 		for(int j=0;j<D;j++){
-			for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++){
-				d_obj += it->second*it->second;
+			for (vector<int>::iterator it=w_nnz_index[j]->begin(); it!=w_nnz_index[j]->end(); it++){
+				double wjk = prox_l1(v[j][*it], lambda);
+				d_obj += wjk*wjk;//W[j][*it]*W[j][*it];
 			}
-			nnz_w+=w[j]->size();
+			nnz_w+=w_nnz_index[j]->size();
 		}
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
@@ -205,12 +234,19 @@ class OracleActBCD{
 			delete[] alpha[i];
 		delete[] alpha;
 		delete[] Q_diag;
+		//cerr << "calc time=" << tc1 << " sort time=" << tc2 << " look up time=" << tc3 << endl;
+		w_temp = new HashVec*[D];
+		for(int j = 0; j < D; j++){
+			w_temp[j] = new HashVec();
+			for (vector<int>::iterator it=w_nnz_index[j]->begin(); it!=w_nnz_index[j]->end(); it++){
+				int k = *it;
+				w_temp[j]->insert(make_pair(k, prox_l1(v[j][k], lambda)));
+			}
+		}
 		for(int j=0;j<D;j++)
 			delete[] v[j];
 		delete[] v;
-		cerr << "calc time=" << tc1 << " sort time=" << tc2 << " look up time=" << tc3 << endl;
-		
-		return new Model(prob, w); //v is w
+		return new Model(prob, w_temp); //v is w
 	}
 	
 	void subSolve(int i, vector<int>& act_k_index, double* alpha_i_new){
@@ -237,6 +273,7 @@ class OracleActBCD{
 			double fea_val = it->second;
 			for(int j=0;j<act_k_size;j++){
 				int k = act_k_index[j];
+				//grad[j] += W[fea_ind][k]*fea_val;
 				double vjk = v[fea_ind][k];
 				if( fabs(vjk) > lambda ){
 					if( vjk > 0 )
@@ -287,9 +324,11 @@ class OracleActBCD{
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			int j = it->first;
 			double xij = it->second;
-			HashVec* wj = w[j];
-			for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
-				prod[it2->first] += it2->second * xij;
+			vector<int>* wj = w_nnz_index[j];
+			int k = 0;
+			for( vector<int>::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
+				k = *it2;
+				prod[k] += prox_l1(v[j][k],lambda) * xij;
 			}
 		}
 		
@@ -303,7 +342,7 @@ class OracleActBCD{
 			if( prod[k] > -1.0 ){
 				act_k_index.push_back(k);
 				num_select++;
-				if( num_select >= max_select )
+				if( num_select >= max_select)
 					break;
 			}
 		}
@@ -311,7 +350,7 @@ class OracleActBCD{
 		delete[] prod;
 	}
 		
-	void search_active_i_approx( int i, vector<int>& act_k_index, int rate ){
+	void search_active_i_approx( int i, vector<int>& act_k_index ){
 
                 //compute <xi,wk> for k=1...K
                 int yi = labels->at(i);
@@ -328,22 +367,32 @@ class OracleActBCD{
 		tc1 -= omp_get_wtime();
 		int max_index = 0;
 		random_shuffle(xi->begin(), xi->end());
-		while (n < nnz/rate) {
+		while (n < nnz/speed_up_rate) {
                 	pair<int, double>* it = &(xi->at(n++));
 		//for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
                 //        int j = it->first;
                         double xij = it->second;
-                        HashVec* wj = w[it->first];
+			int j = it->first;
+                        vector<int>* wj = w_nnz_index[j];
 			counter += wj->size();
-                        for( HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++ ){
-                                prod[it2->first] += it2->second * xij;
-				if (prod[it2->first] > prod[max_index]){
-					max_index = it2->first;
+			int k = 0;
+			double wjk = 0.0;
+                        for(vector<int>::iterator it2 = wj->begin(); it2<wj->end(); it2++ ){
+				k = *it2;
+				wjk = prox_l1(v[j][k], lambda);
+				if (wjk == 0.0){
+					*it2=*(wj->end()-1);
+					wj->erase(wj->end()-1);
+					it2--;
+					continue;
+				}
+                                prod[k] += wjk * xij;
+				if (prod[k] > prod[max_index]){
+					max_index = k;
 				}
 			}
                 }
 		//found best over all updated prod
-		tc1 += omp_get_wtime();
 		double th = -n/(1.0*nnz);
 		if (prod[max_index] < 0){
 			for(int k = 0; k < K; k++){
@@ -357,7 +406,7 @@ class OracleActBCD{
 		if (prod[max_index] > th){
 			act_k_index.push_back(max_index);
 		}
-		tc1 += omp_get_wtime();
+		//tc1 += omp_get_wtime();
 		//cerr << counter << "/" << K << endl;
 
                 //sort accordingg to <xi,wk> in decreasing order
@@ -458,7 +507,7 @@ class OracleActBCD{
 	double lambda;
 	double C;
 	vector<SparseVec*>* data ;
-	vector<int>* labels ;
+	vector<int>* labels;
 	int D; 
 	int N;
 	int K;
@@ -466,7 +515,10 @@ class OracleActBCD{
 	double* prod;
 	double** alpha;
 	double** v;
-	HashVec** w;
+	//HashVec** v_hash;
+	//double** W;
+	HashVec** w_temp;
+	vector<int>** w_nnz_index;
 	int max_iter;
 	int max_select;
 	
