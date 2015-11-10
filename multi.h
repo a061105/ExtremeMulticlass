@@ -22,7 +22,7 @@ class Param{
 	double lambda; //for L1-norm (default 1/N)
 	double C; //weight of loss
 	int speed_up_rate; // speed up rate for sampling
-	
+	int split_up_rate; // split up [K] into a number of subsets	
 	Problem* prob;
 	
 	//solver-specific param
@@ -38,6 +38,7 @@ class Param{
 		max_iter = 20;
 		max_select = 1;
 		speed_up_rate = 1;
+		split_up_rate = 1;
 		using_importance_sampling = false;
 	}
 };

@@ -3,6 +3,7 @@
 #include "SBCDsolve.h"
 #include "ActBCDsolve.h"
 #include "OracleActBCD.h"
+#include "SplitOracleActBCD.h"
 
 void exit_with_help(){
 
@@ -47,6 +48,8 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 			case 'r': param->speed_up_rate = atoi(argv[i]);
 				  break;
 			case 'i': param->using_importance_sampling = true; --i;
+				  break;
+			case 'q': param->split_up_rate = atoi(argv[i]);
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;
@@ -120,5 +123,10 @@ int main(int argc, char** argv){
 		OracleActBCD* solver = new OracleActBCD(param);
 		Model* model = solver->solve();
 		writeModel(param->modelFname, model);
+	}else if( param->solver==3 ){
+		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
+		Model* model = solver->solve();
+		writeModel(param->modelFname, model);
 	}
+	
 }
