@@ -2,7 +2,6 @@
 #include "multi.h"
 #include <cassert>
 
-#define speed_up_rate 1
 #define INFI 1e9
 
 class OracleActBCD{
@@ -13,25 +12,36 @@ class OracleActBCD{
 		prob = param->prob;
 		lambda = param->lambda;
 		C = param->C;
-		
+		speed_up_rate = param->speed_up_rate;	
+		using_importance_sampling = param->using_importance_sampling;	
 		data = &(prob->data);
+		N = prob->N;
+		//compute l_1 norm of every feature x_i
+		cdf_sum = new vector<double>();
+		for(int i = 0; i < N; i++){
+			SparseVec* xi = data->at(i);
+			double _cdf = 0.0;
+			for (SparseVec::iterator it = xi->begin(); it < xi->end(); it++){
+				_cdf += fabs(it->second);
+			}
+			cdf_sum->push_back(_cdf);
+		}
 		labels = &(prob->labels);
 		D = prob->D;
-		N = prob->N;
 		K = prob->K;
 
 		max_iter = param->max_iter;
 		max_select = param->max_select;
-		tc1 = 0.0; tc2 = 0.0; tc3 = 0.0;
 		prod = new double[K];
 		for(int k=0;k<K;k++){
-			prod[k] = 0.0;
 			k_index.push_back(k);
 		}
+		tc1 = 0.0; tc2 = 0.0; tc3 = 0.0;
 	}
 	
 	~OracleActBCD(){
 		delete[] prod;
+		delete[] cdf_sum;
 	}
 
 	Model* solve(){
@@ -101,8 +111,10 @@ class OracleActBCD{
 				double* alpha_i = alpha[i];
 				//search active variable
 				search_time -= omp_get_wtime();
-				//search_active_i( i, act_k_index[i]);
-				search_active_i_approx( i, act_k_index[i]);
+				if (using_importance_sampling)
+					search_active_i_importance( i, act_k_index[i]);
+				else
+					search_active_i_uniform(i, act_k_index[i]);
 				search_time += omp_get_wtime();
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
@@ -268,6 +280,7 @@ class OracleActBCD{
 			else
 				grad[j] = - Qii*alpha_i[k];
 		}
+		
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 			int fea_ind = it->first;
 			double fea_val = it->second;
@@ -350,8 +363,7 @@ class OracleActBCD{
 		delete[] prod;
 	}
 		
-	void search_active_i_approx( int i, vector<int>& act_k_index ){
-
+	void search_active_i_importance( int i, vector<int>& act_k_index ){
                 //compute <xi,wk> for k=1...K
                 int yi = labels->at(i);
 		memset(prod, 0, sizeof(double)*K);
@@ -361,20 +373,30 @@ class OracleActBCD{
 			prod[act_k_index[j]] = -INFI;
 		}
 		prod[yi] = -INFI;
-		
-		int n = 0;
-		int counter = 0;
-		tc1 -= omp_get_wtime();
+		int n = nnz/speed_up_rate;
+		vector<double>* rand_nums = new vector<double>();
+		for (int tt = 0; tt < n; tt++){
+			rand_nums->push_back(((double)rand()/(RAND_MAX)));
+		}
+		sort(rand_nums->begin(), rand_nums->end()); 
 		int max_index = 0;
-		random_shuffle(xi->begin(), xi->end());
-		while (n < nnz/speed_up_rate) {
-                	pair<int, double>* it = &(xi->at(n++));
-		//for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
-                //        int j = it->first;
-                        double xij = it->second;
-			int j = it->first;
-                        vector<int>* wj = w_nnz_index[j];
-			counter += wj->size();
+		SparseVec::iterator current_index = xi->begin();
+		double current_sum = current_index->second;
+		vector<double>::iterator current_rand_index = rand_nums->begin();
+		double cdf_sumi = cdf_sum->at(i);
+		while (current_rand_index < rand_nums->end()){
+			while (current_sum < (*current_rand_index)*cdf_sumi){
+				current_index++;
+				current_sum += current_index->second;
+			}
+			double xij = 0.0;
+			while (current_rand_index < rand_nums->end() && current_sum >= (*current_rand_index)*cdf_sumi ){
+				xij = xij + 1.0;
+				current_rand_index++;
+			}
+                        xij *= cdf_sumi*((current_index->second > 0.0)?1:(-1));
+			int j = current_index->first;
+			vector<int>* wj = w_nnz_index[j];
 			int k = 0;
 			double wjk = 0.0;
                         for(vector<int>::iterator it2 = wj->begin(); it2<wj->end(); it2++ ){
@@ -392,7 +414,6 @@ class OracleActBCD{
 				}
 			}
                 }
-		//found best over all updated prod
 		double th = -n/(1.0*nnz);
 		if (prod[max_index] < 0){
 			for(int k = 0; k < K; k++){
@@ -406,46 +427,65 @@ class OracleActBCD{
 		if (prod[max_index] > th){
 			act_k_index.push_back(max_index);
 		}
-		//tc1 += omp_get_wtime();
-		//cerr << counter << "/" << K << endl;
-
-                //sort accordingg to <xi,wk> in decreasing order
-			
-		/*tc2 -= omp_get_wtime();
-		int k, bestk = 0;
-		for (int k = 1; k < K; k++){
-			if (prod[k] > prod[bestk]){
-				bestk = k;
-			}
-		}
-		if (prod[bestk] > th){
-			act_k_index.push_back(bestk);
-		}
-		tc2 += omp_get_wtime();*/
-		
-		/*tc2 -= omp_get_wtime();
-                sort(k_index.begin(), k_index.end(), ScoreComp(prod));
-		
-		int num_select=0;
-		double th = -n/(1.0*nnz);
-                for(int r=0;r<1;r++){
-                        int k = k_index[r];
-//                        if( alpha[i][k]<0.0 || k==yi ){ //exclude already in active set
-//                                assert(prod[k] <= th);
-//				continue;
-//			}
-                        if( prod[k] > th){
-                                act_k_index.push_back(k);
-                                num_select++;
-                                if( num_select >= max_select )
-                                        break;
-                        } else {
-				break;
-			}
-                }
-		tc2 += omp_get_wtime();*/
         }
 
+	void search_active_i_uniform(int i, vector<int>& act_k_index){
+		int yi = labels->at(i);
+                memset(prod, 0, sizeof(double)*K);
+                SparseVec* xi = data->at(i);
+                int nnz = xi->size();
+                for(int j = 0; j < act_k_index.size(); j++){
+                        prod[act_k_index[j]] = -INFI;
+                }
+                prod[yi] = -INFI;
+                int n = nnz/speed_up_rate;
+                vector<double>* rand_nums = new vector<double>();
+                for (int tt = 0; tt < n; tt++){
+                        rand_nums->push_back(((double)rand()/(RAND_MAX)));
+                }
+                sort(rand_nums->begin(), rand_nums->end());
+                int max_index = 0;
+		random_shuffle(xi->begin(), xi->end());
+                SparseVec::iterator current_index = xi->begin();
+                for (int t = 0; t < n; t++){
+                        double xij = current_index->second;
+                        int j = current_index->first;
+                        current_index++;
+                        vector<int>* wj = w_nnz_index[j];
+                        int k = 0;
+                        double wjk = 0.0;
+                        for(vector<int>::iterator it2 = wj->begin(); it2<wj->end(); it2++ ){
+                                k = *it2;
+                                wjk = prox_l1(v[j][k], lambda);
+                                if (wjk == 0.0){
+                                        *it2=*(wj->end()-1);
+                                        wj->erase(wj->end()-1);
+                                        it2--;
+                                        continue;
+                                }
+                                prod[k] += wjk * xij;
+                                if (prod[k] > prod[max_index]){
+                                        max_index = k;
+                                }
+			}
+		}
+		double th = -n/(1.0*nnz);
+                if (prod[max_index] < 0){
+                        for(int k = 0; k < K; k++){
+                                int r = rand()%K;
+                                if (prod[r] == 0){
+                                        max_index = r;
+                                        break;
+                                }
+                        }
+                }
+		if (prod[max_index] > th){
+                        act_k_index.push_back(max_index);
+                }
+	}
+	
+	
+	
 	/*void searchActive( double* v, vector<int>* act_k_index){
 		
 		// convert v to w (in SparseMtrix format)
@@ -515,12 +555,13 @@ class OracleActBCD{
 	double* prod;
 	double** alpha;
 	double** v;
-	//HashVec** v_hash;
-	//double** W;
+	//vector<SparseVec*>* cdf_x;
+	vector<double>* cdf_sum;
 	HashVec** w_temp;
 	vector<int>** w_nnz_index;
 	int max_iter;
 	int max_select;
-	
+	int speed_up_rate;	
 	vector<int> k_index;
+	bool using_importance_sampling;
 };

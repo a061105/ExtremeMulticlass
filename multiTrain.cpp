@@ -14,6 +14,7 @@ void exit_with_help(){
 	cerr << "	2 -- Oracle-Active Block Coordinate Descent" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 10)" << endl;
+	cerr << "-r speed_up_rate: using 1/r fraction of samples (default 1)" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
 	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 1)" << endl;
 	exit(0);
@@ -41,6 +42,10 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 			case 'm': param->max_iter = atoi(argv[i]);
 				  break;
 			case 'g': param->max_select = atoi(argv[i]);
+				  break;
+			case 'r': param->speed_up_rate = atoi(argv[i]);
+				  break;
+			case 'i': param->using_importance_sampling = true; --i;
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;

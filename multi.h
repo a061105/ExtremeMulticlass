@@ -21,6 +21,7 @@ class Param{
 	char* modelFname;
 	double lambda; //for L1-norm (default 1/N)
 	double C; //weight of loss
+	int speed_up_rate; // speed up rate for sampling
 	
 	Problem* prob;
 	
@@ -28,6 +29,7 @@ class Param{
 	int solver;
 	int max_iter;
 	int max_select;
+	bool using_importance_sampling;
 	
 	Param(){
 		solver = 0;
@@ -35,6 +37,8 @@ class Param{
 		C = 10.0;
 		max_iter = 20;
 		max_select = 1;
+		speed_up_rate = 1;
+		using_importance_sampling = false;
 	}
 };
 
