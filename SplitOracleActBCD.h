@@ -317,15 +317,15 @@ class SplitOracleActBCD{
 		}
 		prod[yi] = -INFI;
 		int n = nnz/speed_up_rate;
-		vector<double>* rand_nums = new vector<double>();
+		vector<double> rand_nums;
 		for (int tt = 0; tt < n; tt++){
-			rand_nums->push_back(((double)rand()/(RAND_MAX)));
+			rand_nums.push_back(((double)rand()/(RAND_MAX)));
 		}
-		sort(rand_nums->begin(), rand_nums->end()); 
+		sort(rand_nums.begin(), rand_nums.end()); 
 		int max_index = 0;
 		SparseVec::iterator current_index = xi->begin();
 		double current_sum = current_index->second;
-		vector<double>::iterator current_rand_index = rand_nums->begin();
+		vector<double>::iterator current_rand_index = rand_nums.begin();
 		double cdf_sumi = cdf_sum->at(i);
 		while (current_rand_index < rand_nums->end()){
 			while (current_sum < (*current_rand_index)*cdf_sumi){
@@ -383,12 +383,13 @@ class SplitOracleActBCD{
                 }
                 prod[yi] = -INFI;
                 int n = nnz/speed_up_rate;
-                vector<double>* rand_nums = new vector<double>();
+                /*vector<double> rand_nums;
                 for (int tt = 0; tt < n; tt++){
-                        rand_nums->push_back(((double)rand()/(RAND_MAX)));
+                        rand_nums.push_back(((double)rand()/(RAND_MAX)));
                 }
-                sort(rand_nums->begin(), rand_nums->end());
-                int max_index = 0;
+                sort(rand_nums.begin(), rand_nums.end());
+                */
+		int max_index = 0;
 		random_shuffle(xi->begin(), xi->end());
                 SparseVec::iterator current_index = xi->begin();
                 for (int t = 0; t < n; t++){
