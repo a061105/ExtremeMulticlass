@@ -1,6 +1,5 @@
 #include "util.h"
 #include "multi.h"
-#include <cassert>
 
 #define INFI 1e9
 #define loc(k) k*split_up_rate/K
@@ -22,7 +21,6 @@ class SplitOracleActBCD{
 		using_importance_sampling = param->using_importance_sampling;	
 		max_select = param->max_select;
 		prod = new double[K];
-		
 		
 		data = &(prob->data);
 		//compute l_1 norm of every feature x_i
@@ -317,16 +315,26 @@ class SplitOracleActBCD{
 		}
 		prod[yi] = -INFI;
 		int n = nnz/speed_up_rate;
+		double th = -n/(1.0*nnz);
 		vector<double>* rand_nums = new vector<double>();
 		for (int tt = 0; tt < n; tt++){
 			rand_nums->push_back(((double)rand()/(RAND_MAX)));
 		}
 		sort(rand_nums->begin(), rand_nums->end()); 
+		#ifdef MULTISELECT
+		int* max_indices = new int[max_select+1];
+		for(int ind = 0; ind <= max_select; ind++){
+			max_indices[ind] = -1;
+		}
+		#endif
+		#ifndef MULTISELECT
 		int max_index = 0;
+		#endif
 		SparseVec::iterator current_index = xi->begin();
 		double current_sum = current_index->second;
 		vector<double>::iterator current_rand_index = rand_nums->begin();
 		double cdf_sumi = cdf_sum->at(i);
+		
 		while (current_rand_index < rand_nums->end()){
 			while (current_sum < (*current_rand_index)*cdf_sumi){
 				current_index++;
@@ -340,7 +348,7 @@ class SplitOracleActBCD{
                         xij *= cdf_sumi*((current_index->second > 0.0)?1:(-1));
 			int j = current_index->first;
 			vector<int>* wj = w_nnz_index[j][S];
-			int k = 0;
+			int k = 0, ind = 0;
 			double wjk = 0.0;
                         for(vector<int>::iterator it2 = wj->begin(); it2<wj->end(); it2++ ){
 				k = *it2;
@@ -352,17 +360,69 @@ class SplitOracleActBCD{
 					continue;
 				}
                                 prod[k] += wjk * xij;
-				if (prod[k] > prod[max_index]){
+				#ifndef MULTISELECT
+				if (prod[max_index] < prod[k]){
 					max_index = k;
 				}
+				#endif
+				#ifdef MULTISELECT
+				if (prod[k] > th){
+					ind = 0;
+					while (ind < max_select && max_indices[ind] != -1 && max_indices[ind] != k){
+						ind++;
+					}
+					max_indices[ind] = k;
+					//try move to left
+					while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
+						//using k as temporary variables
+						k = max_indices[ind];
+						max_indices[ind] = max_indices[ind-1];
+						max_indices[ind-1] = k;
+					}
+					//try move to right
+					while (ind < max_select-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
+                                                //using k as temporary variables
+                                                k = max_indices[ind];
+                                                max_indices[ind] = max_indices[ind+1];
+                                                max_indices[ind+1] = k;
+                                        }
+				}
+				#endif
 			}
                 }
-		double th = -n/(1.0*nnz);
+		#ifdef MULTISELECT
+		for (int j = 0; j < max_select; j++){
+			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
+				continue;
+			for (int r = 0; r < K; r++){
+				int k = rand() % K;
+				if (prod[k] == 0){
+					bool flag = false;
+					for (int ind = 0; ind < max_select; ind++){
+						if (max_indices[ind] == k){
+							flag = true;
+							break;
+						}
+					}
+					if (!flag){
+						max_indices[j] = k;
+						break;
+					}
+				}
+			}
+		}
+		for(int ind = 0; ind < max_select; ind++){
+			if (max_indices[ind] != -1 && prod[max_indices[ind]] > th){
+				act_k_index.push_back(max_indices[ind]);
+			}
+		}
+		#endif
+		#ifndef MULTISELECT
 		if (prod[max_index] < 0){
-			for(int k = 0; k < K; k++){
-				int r = rand()%K;
-				if (prod[r] == 0){
-					max_index = r;
+			for (int r = 0; r < K; r++){
+				int k = rand() % K;
+				if (prod[k] == 0){
+					max_index = k;
 					break;
 				}
 			}
@@ -370,6 +430,7 @@ class SplitOracleActBCD{
 		if (prod[max_index] > th){
 			act_k_index.push_back(max_index);
 		}
+		#endif
         }
 
 	void search_active_i_uniform(int i, vector<int>& act_k_index){
@@ -444,7 +505,7 @@ class SplitOracleActBCD{
 	HashVec** w_temp;
 	vector<int>*** w_nnz_index;
 	int max_iter;
-	//vector<int> k_index;
+	vector<int>* k_index;
 	
 	//sampling 
 	bool using_importance_sampling;

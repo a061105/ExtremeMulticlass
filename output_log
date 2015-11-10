@@ -1,0 +1,2112 @@
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 20 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.66015  	subsolve=2.0894  	maintain=1.01712
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.83768  	subsolve=2.95044  	maintain=1.14804
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.38863  	subsolve=3.70241  	maintain=1.27872
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.72768  	subsolve=4.30656  	maintain=1.46147
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.83246  	subsolve=4.67428  	maintain=1.57119
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.83178  	subsolve=4.91572  	maintain=1.64108
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.91799  	subsolve=5.21205  	maintain=1.69959
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.97753  	subsolve=5.48359  	maintain=1.73495
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.95804  	subsolve=5.63234  	maintain=1.75861
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=7.79695  	subsolve=5.62409  	maintain=1.76823
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.77221  	subsolve=5.68321  	maintain=1.77893
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.94716  	subsolve=5.91215  	maintain=1.80943
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=8.00004  	subsolve=5.98795  	maintain=1.81591
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=8.07206  	subsolve=6.10456  	maintain=1.82812
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=8.11639  	subsolve=6.18137  	maintain=1.83728
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=8.17638  	subsolve=6.28674  	maintain=1.84746
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=8.14982  	subsolve=6.27062  	maintain=1.84521
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=8.18005  	subsolve=6.33437  	maintain=1.84902
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=8.08949  	subsolve=6.24317  	maintain=1.84031
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=8.09146  	subsolve=6.26632  	maintain=1.84419
+
+dual_obj=-50655.7
+nSV=706672 (NK=1153238670)
+nnz_w=3540984 (DK=2140557516)
+train time=294.766
+search time=154.524
+subsolve time=105.861
+maintain time=33.3749
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.933319
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247529
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 25 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.82659  	subsolve=2.19908  	maintain=1.05613
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=7.1261  	subsolve=3.12429  	maintain=1.19136
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.51453  	subsolve=3.80241  	maintain=1.29798
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.66072  	subsolve=4.26778  	maintain=1.45701
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.79914  	subsolve=4.66352  	maintain=1.57278
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.86843  	subsolve=4.95981  	maintain=1.64961
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.94248  	subsolve=5.25122  	maintain=1.70598
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.82963  	subsolve=5.38633  	maintain=1.72703
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.86219  	subsolve=5.57139  	maintain=1.75454
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=8.00521  	subsolve=5.8291  	maintain=1.79114
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=8.07619  	subsolve=5.97058  	maintain=1.80754
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=8.04286  	subsolve=5.99149  	maintain=1.8164
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=8.04958  	subsolve=6.03211  	maintain=1.82257
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=8.00488  	subsolve=6.05342  	maintain=1.82743
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=8.00218  	subsolve=6.0791  	maintain=1.83163
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=8.058  	subsolve=6.16991  	maintain=1.83811
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=8.06504  	subsolve=6.1925  	maintain=1.84177
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=8.13073  	subsolve=6.28897  	maintain=1.84682
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=8.19276  	subsolve=6.36043  	maintain=1.85506
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=8.21441  	subsolve=6.40401  	maintain=1.86119
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=8.13895  	subsolve=6.34389  	maintain=1.85542
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=8.01677  	subsolve=6.24428  	maintain=1.84979
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=8.20361  	subsolve=6.42872  	maintain=1.86155
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=8.28157  	subsolve=6.53971  	maintain=1.87434
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=8.16427  	subsolve=6.42994  	maintain=1.86342
+
+dual_obj=-51014.1
+nSV=730472 (NK=1153238670)
+nnz_w=3559175 (DK=2140557516)
+train time=378.787
+search time=196.077
+subsolve time=138.584
+maintain time=42.8566
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.938276
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247243
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 30 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.66043  	subsolve=2.0946  	maintain=1.02203
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.83253  	subsolve=2.94961  	maintain=1.14942
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.29647  	subsolve=3.64362  	maintain=1.27311
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.62357  	subsolve=4.21137  	maintain=1.45102
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.73381  	subsolve=4.5787  	maintain=1.56239
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.83224  	subsolve=4.90207  	maintain=1.64271
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.93241  	subsolve=5.22446  	maintain=1.70299
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.98297  	subsolve=5.50314  	maintain=1.74039
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=8.12026  	subsolve=5.79032  	maintain=1.77871
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=8.00013  	subsolve=5.79676  	maintain=1.78703
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=8.08475  	subsolve=5.96356  	maintain=1.81057
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=8.13034  	subsolve=6.08905  	maintain=1.82812
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=8.1686  	subsolve=6.14565  	maintain=1.83193
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=8.13978  	subsolve=6.17684  	maintain=1.84
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=8.30733  	subsolve=6.4096  	maintain=1.86609
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=8.26154  	subsolve=6.40535  	maintain=1.86172
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=8.18894  	subsolve=6.33383  	maintain=1.85677
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=8.14376  	subsolve=6.31214  	maintain=1.85326
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=8.18876  	subsolve=6.34985  	maintain=1.85403
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=8.18402  	subsolve=6.36112  	maintain=1.85634
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=8.16035  	subsolve=6.36316  	maintain=1.85968
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=8.21149  	subsolve=6.43587  	maintain=1.86925
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=8.17938  	subsolve=6.42326  	maintain=1.86124
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=8.16765  	subsolve=6.40681  	maintain=1.86182
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=8.22287  	subsolve=6.48072  	maintain=1.86653
+.nnz_a_i=7.85188  	nnz_w_j=20.4552  	search=8.20339  	subsolve=6.46672  	maintain=1.86669
+.nnz_a_i=7.89047  	nnz_w_j=20.4688  	search=8.13812  	subsolve=6.42953  	maintain=1.86577
+.nnz_a_i=7.9277  	nnz_w_j=20.4763  	search=8.02901  	subsolve=6.33157  	maintain=1.85585
+.nnz_a_i=7.96652  	nnz_w_j=20.4844  	search=8.03625  	subsolve=6.34941  	maintain=1.86009
+.nnz_a_i=8.00148  	nnz_w_j=20.4921  	search=8.23561  	subsolve=6.55708  	maintain=1.87564
+
+dual_obj=-51214.9
+nSV=748582 (NK=1153238670)
+nnz_w=3567958 (DK=2140557516)
+train time=462.596
+search time=237.397
+subsolve time=171.486
+maintain time=52.2112
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.944875
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.249047
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 20 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.77945  	subsolve=2.16565  	maintain=1.04497
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=7.00414  	subsolve=3.04389  	maintain=1.17227
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.39195  	subsolve=3.70684  	maintain=1.28084
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.66817  	subsolve=4.25562  	maintain=1.45746
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.8065  	subsolve=4.64768  	maintain=1.56962
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.86931  	subsolve=4.95901  	maintain=1.64786
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.94165  	subsolve=5.24939  	maintain=1.70662
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.9391  	subsolve=5.46756  	maintain=1.73768
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=8.01761  	subsolve=5.7225  	maintain=1.77021
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=8.22675  	subsolve=6.0936  	maintain=1.81802
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=8.23945  	subsolve=6.18136  	maintain=1.82864
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=8.23874  	subsolve=6.26285  	maintain=1.84126
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=8.12908  	subsolve=6.18384  	maintain=1.83354
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=8.05113  	subsolve=6.15807  	maintain=1.83192
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=8.04392  	subsolve=6.19577  	maintain=1.8357
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=8.01321  	subsolve=6.19812  	maintain=1.83458
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=8.03111  	subsolve=6.24534  	maintain=1.84111
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=8.00411  	subsolve=6.30245  	maintain=1.84107
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=8.10069  	subsolve=6.40114  	maintain=1.85069
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=8.2769  	subsolve=6.62265  	maintain=1.86956
+
+dual_obj=-50655.7
+nSV=706672 (NK=1153238670)
+nnz_w=3540984 (DK=2140557516)
+train time=298.432
+search time=155.773
+subsolve time=108.063
+maintain time=33.6136
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.933319
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247529
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 25 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.72084  	subsolve=2.12993  	maintain=1.03083
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.96775  	subsolve=3.02537  	maintain=1.16597
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.37189  	subsolve=3.6962  	maintain=1.2784
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.55769  	subsolve=4.18001  	maintain=1.44343
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.62574  	subsolve=4.5128  	maintain=1.55247
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.75299  	subsolve=4.85424  	maintain=1.63357
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.86027  	subsolve=5.1689  	maintain=1.69332
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.86978  	subsolve=5.40683  	maintain=1.72889
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=8.00586  	subsolve=5.69016  	maintain=1.76782
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=8.02712  	subsolve=5.88076  	maintain=1.79707
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=8.09445  	subsolve=6.02867  	maintain=1.81638
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=8.11492  	subsolve=6.09022  	maintain=1.82558
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=8.22104  	subsolve=6.21809  	maintain=1.84198
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=8.31132  	subsolve=6.40454  	maintain=1.86706
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=8.44661  	subsolve=6.57781  	maintain=1.89116
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=8.33924  	subsolve=6.49189  	maintain=1.88578
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=8.4503  	subsolve=6.63662  	maintain=1.9028
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=8.45488  	subsolve=6.66841  	maintain=1.90322
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=8.47872  	subsolve=6.69277  	maintain=1.90302
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=8.51162  	subsolve=6.7407  	maintain=1.91009
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=193.057  	subsolve=709.203  	maintain=2.87643
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=304.759  	subsolve=1781.63  	maintain=4.3597
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=17.7338  	subsolve=299.821  	maintain=2.35175
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=9.05073  	subsolve=179.793  	maintain=2.1341
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=8.57901  	subsolve=129.867  	maintain=2.06895
+
+dual_obj=-51014.1
+nSV=730472 (NK=1153238670)
+nnz_w=3559175 (DK=2140557516)
+train time=3951.24
+search time=690.362
+subsolve time=3209.41
+maintain time=47.6298
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.938276
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247243
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 30 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.80492  	subsolve=2.1753  	maintain=1.05079
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.99139  	subsolve=3.03848  	maintain=1.16821
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.24172  	subsolve=3.62154  	maintain=1.26219
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.38674  	subsolve=4.06884  	maintain=1.42412
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.49791  	subsolve=4.42821  	maintain=1.537
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.6871  	subsolve=4.81505  	maintain=1.62691
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.80271  	subsolve=5.13694  	maintain=1.68542
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.90182  	subsolve=5.44756  	maintain=1.73353
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.9006  	subsolve=5.61187  	maintain=1.75188
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=8.00221  	subsolve=5.84146  	maintain=1.78708
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.94765  	subsolve=5.87879  	maintain=1.79339
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.90385  	subsolve=5.91438  	maintain=1.79956
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=7.91852  	subsolve=5.96046  	maintain=1.80808
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=7.9491  	subsolve=6.05715  	maintain=1.81541
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=7.99497  	subsolve=6.16222  	maintain=1.82769
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=7.85942  	subsolve=6.07348  	maintain=1.82195
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=7.94194  	subsolve=6.16771  	maintain=1.82554
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=7.95187  	subsolve=6.20925  	maintain=1.82677
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=7.91917  	subsolve=6.18539  	maintain=1.82928
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=8.04669  	subsolve=6.31882  	maintain=1.83927
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=8.02637  	subsolve=6.31704  	maintain=1.83747
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=7.95857  	subsolve=6.27765  	maintain=1.83781
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=7.91853  	subsolve=6.25568  	maintain=1.83884
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=7.9207  	subsolve=6.27626  	maintain=1.83973
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=7.92861  	subsolve=6.30299  	maintain=1.8427
+.nnz_a_i=7.85188  	nnz_w_j=20.4552  	search=7.9391  	subsolve=6.32089  	maintain=1.84729
+.nnz_a_i=7.89047  	nnz_w_j=20.4688  	search=7.92187  	subsolve=6.31908  	maintain=1.84318
+.nnz_a_i=7.9277  	nnz_w_j=20.4763  	search=7.91712  	subsolve=6.32678  	maintain=1.84733
+.nnz_a_i=7.96652  	nnz_w_j=20.4844  	search=7.92483  	subsolve=6.34618  	maintain=1.84748
+.nnz_a_i=8.00148  	nnz_w_j=20.4921  	search=7.93099  	subsolve=6.35773  	maintain=1.84739
+
+dual_obj=-51214.9
+nSV=748582 (NK=1153238670)
+nnz_w=3567958 (DK=2140557516)
+train time=453.314
+search time=232.037
+subsolve time=168.213
+maintain time=51.6433
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.944875
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.249047
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 20 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.72572  	subsolve=2.13792  	maintain=1.03254
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.96112  	subsolve=3.02384  	maintain=1.16545
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.35391  	subsolve=3.69635  	maintain=1.27479
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.39376  	subsolve=4.06944  	maintain=1.42444
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.49632  	subsolve=4.42756  	maintain=1.53707
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.56806  	subsolve=4.72025  	maintain=1.61518
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.61282  	subsolve=4.98735  	maintain=1.66974
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.66843  	subsolve=5.25608  	maintain=1.70797
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.70715  	subsolve=5.45056  	maintain=1.73957
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=7.71647  	subsolve=5.58992  	maintain=1.76071
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.78088  	subsolve=5.733  	maintain=1.78198
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.94752  	subsolve=5.94416  	maintain=1.80496
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=8.05965  	subsolve=6.08462  	maintain=1.81641
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=7.98792  	subsolve=6.08003  	maintain=1.81884
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=7.7372  	subsolve=5.92146  	maintain=1.80701
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=7.71174  	subsolve=5.95541  	maintain=1.81131
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=7.74056  	subsolve=5.99131  	maintain=1.81491
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=7.73261  	subsolve=6.02168  	maintain=1.81673
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=7.75539  	subsolve=6.04314  	maintain=1.81882
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=7.75696  	subsolve=6.06646  	maintain=1.8211
+
+dual_obj=-50655.7
+nSV=706672 (NK=1153238670)
+nnz_w=3540984 (DK=2140557516)
+train time=287.561
+search time=150.414
+subsolve time=103.201
+maintain time=33.0395
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.933319
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247529
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 25 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.66876  	subsolve=2.09158  	maintain=1.01605
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.83925  	subsolve=2.94778  	maintain=1.14657
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.21507  	subsolve=3.59628  	maintain=1.25597
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.39499  	subsolve=4.06482  	maintain=1.42264
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.51529  	subsolve=4.42578  	maintain=1.5352
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.56525  	subsolve=4.71375  	maintain=1.61268
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.62451  	subsolve=4.98551  	maintain=1.6684
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.67117  	subsolve=5.25231  	maintain=1.70694
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.7182  	subsolve=5.44541  	maintain=1.73518
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=7.71392  	subsolve=5.57856  	maintain=1.75957
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.73424  	subsolve=5.67772  	maintain=1.77356
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.74131  	subsolve=5.75734  	maintain=1.78547
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=7.77578  	subsolve=5.82295  	maintain=1.79493
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=7.7676  	subsolve=5.87726  	maintain=1.80218
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=7.74764  	subsolve=5.92416  	maintain=1.80515
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=7.73525  	subsolve=5.95777  	maintain=1.8094
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=7.76082  	subsolve=5.99426  	maintain=1.81408
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=7.7506  	subsolve=6.0236  	maintain=1.81574
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=7.77565  	subsolve=6.04144  	maintain=1.81995
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=7.78748  	subsolve=6.06968  	maintain=1.82044
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=7.78411  	subsolve=6.08863  	maintain=1.82376
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=7.78415  	subsolve=6.11019  	maintain=1.827
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=7.86282  	subsolve=6.19902  	maintain=1.83315
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=8.00113  	subsolve=6.32696  	maintain=1.83997
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=8.01618  	subsolve=6.36157  	maintain=1.84316
+
+dual_obj=-51014.1
+nSV=730472 (NK=1153238670)
+nnz_w=3559175 (DK=2140557516)
+train time=365.479
+search time=188.951
+subsolve time=133.334
+maintain time=42.0671
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.938276
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247243
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 30 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.76266  	subsolve=2.1568  	maintain=1.04224
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.98465  	subsolve=3.03515  	maintain=1.16865
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.33889  	subsolve=3.68057  	maintain=1.27542
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.58744  	subsolve=4.20207  	maintain=1.44793
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.72099  	subsolve=4.58166  	maintain=1.5628
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.79751  	subsolve=4.8899  	maintain=1.63993
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.61648  	subsolve=4.98363  	maintain=1.67339
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.67246  	subsolve=5.25335  	maintain=1.71405
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.72006  	subsolve=5.44548  	maintain=1.74175
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=7.72845  	subsolve=5.58026  	maintain=1.76478
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.75319  	subsolve=5.67825  	maintain=1.781
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.76774  	subsolve=5.75951  	maintain=1.79337
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=7.79786  	subsolve=5.81942  	maintain=1.80299
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=7.89826  	subsolve=5.96375  	maintain=1.81921
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=8.03907  	subsolve=6.12258  	maintain=1.83032
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=8.13632  	subsolve=6.23814  	maintain=1.84024
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=8.10843  	subsolve=6.24053  	maintain=1.84216
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=8.13889  	subsolve=6.29938  	maintain=1.84597
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=8.09558  	subsolve=6.26139  	maintain=1.84285
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=8.0378  	subsolve=6.2326  	maintain=1.84208
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=7.86987  	subsolve=6.09482  	maintain=1.83586
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=7.87661  	subsolve=6.1233  	maintain=1.83973
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=7.86958  	subsolve=6.13263  	maintain=1.84047
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=7.88333  	subsolve=6.1483  	maintain=1.84158
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=7.88174  	subsolve=6.16412  	maintain=1.84347
+.nnz_a_i=7.85188  	nnz_w_j=20.4552  	search=7.89124  	subsolve=6.18202  	maintain=1.84691
+.nnz_a_i=7.89047  	nnz_w_j=20.4688  	search=7.88476  	subsolve=6.19481  	maintain=1.84586
+.nnz_a_i=7.9277  	nnz_w_j=20.4763  	search=7.88933  	subsolve=6.20826  	maintain=1.84764
+.nnz_a_i=7.96652  	nnz_w_j=20.4844  	search=7.88536  	subsolve=6.21747  	maintain=1.8517
+.nnz_a_i=8.00148  	nnz_w_j=20.4921  	search=7.88436  	subsolve=6.22817  	maintain=1.85135
+
+dual_obj=-51214.9
+nSV=748582 (NK=1153238670)
+nnz_w=3567958 (DK=2140557516)
+train time=450.781
+search time=231.519
+subsolve time=166.118
+maintain time=51.7157
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.944875
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.249047
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 20 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.66073  	subsolve=2.09694  	maintain=1.01922
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.83767  	subsolve=2.95355  	maintain=1.15019
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.22827  	subsolve=3.60493  	maintain=1.26387
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.41282  	subsolve=4.07723  	maintain=1.42976
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.52323  	subsolve=4.43507  	maintain=1.54242
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.5851  	subsolve=4.72287  	maintain=1.61938
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.64466  	subsolve=4.99278  	maintain=1.67599
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.70426  	subsolve=5.26419  	maintain=1.71474
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.7508  	subsolve=5.45444  	maintain=1.74498
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=7.7578  	subsolve=5.5905  	maintain=1.76791
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.7808  	subsolve=5.68806  	maintain=1.78286
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.79877  	subsolve=5.77125  	maintain=1.7974
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=7.82789  	subsolve=5.83005  	maintain=1.80504
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=7.82825  	subsolve=5.88542  	maintain=1.81209
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=7.84116  	subsolve=5.9288  	maintain=1.81782
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=7.84003  	subsolve=5.96821  	maintain=1.82103
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=7.86369  	subsolve=5.99999  	maintain=1.82638
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=7.86322  	subsolve=6.03737  	maintain=1.82912
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=7.88512  	subsolve=6.05349  	maintain=1.83043
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=7.8903  	subsolve=6.08207  	maintain=1.8341
+
+dual_obj=-50655.7
+nSV=706672 (NK=1153238670)
+nnz_w=3540984 (DK=2140557516)
+train time=286.958
+search time=150.525
+subsolve time=102.437
+maintain time=33.0847
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.933319
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247529
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 25 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.64913  	subsolve=2.09016  	maintain=1.02114
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.81782  	subsolve=2.9504  	maintain=1.14957
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.20085  	subsolve=3.59788  	maintain=1.26161
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.38098  	subsolve=4.06602  	maintain=1.42736
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.49126  	subsolve=4.4266  	maintain=1.54077
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.55536  	subsolve=4.71336  	maintain=1.61899
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.6166  	subsolve=4.98347  	maintain=1.67442
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.67519  	subsolve=5.2546  	maintain=1.71359
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.71922  	subsolve=5.44593  	maintain=1.74295
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=7.73096  	subsolve=5.58224  	maintain=1.7666
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.74832  	subsolve=5.67672  	maintain=1.7801
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.76507  	subsolve=5.75879  	maintain=1.79451
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=7.79704  	subsolve=5.81817  	maintain=1.80546
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=7.79734  	subsolve=5.87397  	maintain=1.81102
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=7.81121  	subsolve=5.91751  	maintain=1.81561
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=7.80907  	subsolve=5.95718  	maintain=1.82026
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=7.83267  	subsolve=5.98891  	maintain=1.82457
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=7.82913  	subsolve=6.02197  	maintain=1.82652
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=7.8489  	subsolve=6.03955  	maintain=1.82935
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=7.85962  	subsolve=6.06743  	maintain=1.83158
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=7.86459  	subsolve=6.09162  	maintain=1.83499
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=7.86272  	subsolve=6.11131  	maintain=1.83865
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=7.86829  	subsolve=6.13266  	maintain=1.84005
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=7.88103  	subsolve=6.14864  	maintain=1.8418
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=7.87568  	subsolve=6.16164  	maintain=1.84367
+
+dual_obj=-51014.1
+nSV=730472 (NK=1153238670)
+nnz_w=3559175 (DK=2140557516)
+train time=365.553
+search time=189.288
+subsolve time=132.877
+maintain time=42.2551
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.938276
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.247243
+./multiTrain -s 3 -l 0.025 -c 1 -r 5 -m 30 -q 5 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9755  	nnz_w_j=10.7143  	search=4.64641  	subsolve=2.08591  	maintain=1.0196
+.nnz_a_i=2.86383  	nnz_w_j=14.6602  	search=6.8106  	subsolve=2.94243  	maintain=1.14881
+.nnz_a_i=3.65406  	nnz_w_j=16.683  	search=7.19244  	subsolve=3.58891  	maintain=1.26105
+.nnz_a_i=4.32155  	nnz_w_j=17.8301  	search=7.37753  	subsolve=4.05904  	maintain=1.4281
+.nnz_a_i=4.88278  	nnz_w_j=18.5258  	search=7.48832  	subsolve=4.41782  	maintain=1.54171
+.nnz_a_i=5.34349  	nnz_w_j=18.9972  	search=7.54792  	subsolve=4.70577  	maintain=1.61885
+.nnz_a_i=5.7218  	nnz_w_j=19.3105  	search=7.61043  	subsolve=4.97739  	maintain=1.67581
+.nnz_a_i=6.03514  	nnz_w_j=19.5352  	search=7.66715  	subsolve=5.24674  	maintain=1.71385
+.nnz_a_i=6.29462  	nnz_w_j=19.7013  	search=7.70992  	subsolve=5.43944  	maintain=1.74327
+.nnz_a_i=6.50748  	nnz_w_j=19.8281  	search=7.72038  	subsolve=5.57548  	maintain=1.76654
+.nnz_a_i=6.6918  	nnz_w_j=19.9303  	search=7.74394  	subsolve=5.67219  	maintain=1.78228
+.nnz_a_i=6.84105  	nnz_w_j=20.0085  	search=7.7599  	subsolve=5.75228  	maintain=1.7952
+.nnz_a_i=6.97408  	nnz_w_j=20.074  	search=7.79856  	subsolve=5.81772  	maintain=1.80533
+.nnz_a_i=7.08482  	nnz_w_j=20.1288  	search=7.79693  	subsolve=5.87357  	maintain=1.81172
+.nnz_a_i=7.1848  	nnz_w_j=20.1771  	search=7.80617  	subsolve=5.91291  	maintain=1.81693
+.nnz_a_i=7.27675  	nnz_w_j=20.2129  	search=7.80575  	subsolve=5.95145  	maintain=1.8221
+.nnz_a_i=7.35656  	nnz_w_j=20.2465  	search=7.83977  	subsolve=5.99291  	maintain=1.82686
+.nnz_a_i=7.42234  	nnz_w_j=20.2771  	search=7.83214  	subsolve=6.02068  	maintain=1.82839
+.nnz_a_i=7.48925  	nnz_w_j=20.3059  	search=7.84462  	subsolve=6.03404  	maintain=1.83058
+.nnz_a_i=7.55448  	nnz_w_j=20.3372  	search=7.85143  	subsolve=6.06297  	maintain=1.83332
+.nnz_a_i=7.61198  	nnz_w_j=20.3636  	search=7.85619  	subsolve=6.08295  	maintain=1.83626
+.nnz_a_i=7.6667  	nnz_w_j=20.3865  	search=7.85714  	subsolve=6.10245  	maintain=1.84037
+.nnz_a_i=7.71845  	nnz_w_j=20.4059  	search=7.86147  	subsolve=6.1228  	maintain=1.84116
+.nnz_a_i=7.76352  	nnz_w_j=20.4261  	search=7.87086  	subsolve=6.13689  	maintain=1.84324
+.nnz_a_i=7.80833  	nnz_w_j=20.4416  	search=7.86614  	subsolve=6.15285  	maintain=1.84473
+.nnz_a_i=7.85188  	nnz_w_j=20.4552  	search=7.88023  	subsolve=6.17121  	maintain=1.84849
+.nnz_a_i=7.89047  	nnz_w_j=20.4688  	search=7.87762  	subsolve=6.18475  	maintain=1.84781
+.nnz_a_i=7.9277  	nnz_w_j=20.4763  	search=7.87694  	subsolve=6.19837  	maintain=1.84907
+.nnz_a_i=7.96652  	nnz_w_j=20.4844  	search=7.87738  	subsolve=6.20656  	maintain=1.85082
+.nnz_a_i=8.00148  	nnz_w_j=20.4921  	search=7.88266  	subsolve=6.22406  	maintain=1.85309
+
+dual_obj=-51214.9
+nSV=748582 (NK=1153238670)
+nnz_w=3567958 (DK=2140557516)
+train time=445.153
+search time=228.557
+subsolve time=163.713
+maintain time=51.5253
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.944875
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.249047
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 20 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.25104  	subsolve=2.04069  	maintain=1.11795
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.93046  	subsolve=2.81178  	maintain=1.20883
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.06911  	subsolve=3.44639  	maintain=1.28547
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.14048  	subsolve=3.91276  	maintain=1.43201
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.17383  	subsolve=4.288  	maintain=1.54295
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.19882  	subsolve=4.58855  	maintain=1.62009
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.22047  	subsolve=4.88167  	maintain=1.67905
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25297  	subsolve=5.18386  	maintain=1.72707
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.25929  	subsolve=5.40688  	maintain=1.75986
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.27578  	subsolve=5.55817  	maintain=1.78082
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.28756  	subsolve=5.66668  	maintain=1.80045
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.28982  	subsolve=5.74464  	maintain=1.81224
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.30145  	subsolve=5.80917  	maintain=1.81919
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.31209  	subsolve=5.86414  	maintain=1.82907
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.30933  	subsolve=5.90292  	maintain=1.83285
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.30789  	subsolve=5.93761  	maintain=1.8346
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.31629  	subsolve=5.96274  	maintain=1.83935
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.31208  	subsolve=5.97744  	maintain=1.83787
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.31575  	subsolve=6.0003  	maintain=1.84391
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.31656  	subsolve=6.01279  	maintain=1.83674
+
+dual_obj=-48640.8
+nSV=712143 (NK=1153238670)
+nnz_w=3677317 (DK=2140557516)
+train time=199.365
+search time=63.8411
+subsolve time=100.997
+maintain time=33.4404
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.906551
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.241742
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 25 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.24859  	subsolve=2.04276  	maintain=1.1172
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.93475  	subsolve=2.81492  	maintain=1.21077
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.07295  	subsolve=3.45149  	maintain=1.28762
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.13919  	subsolve=3.91659  	maintain=1.43187
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.17782  	subsolve=4.29301  	maintain=1.54305
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.20491  	subsolve=4.59064  	maintain=1.62052
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.22473  	subsolve=4.88549  	maintain=1.67874
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25001  	subsolve=5.18789  	maintain=1.72718
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.25308  	subsolve=5.41302  	maintain=1.75749
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.26679  	subsolve=5.55987  	maintain=1.7791
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.27736  	subsolve=5.67524  	maintain=1.79918
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.28513  	subsolve=5.75587  	maintain=1.81004
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.2887  	subsolve=5.81175  	maintain=1.81833
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.29337  	subsolve=5.86055  	maintain=1.82542
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.29082  	subsolve=5.90342  	maintain=1.83005
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.29246  	subsolve=5.94174  	maintain=1.83282
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.29772  	subsolve=5.96454  	maintain=1.83559
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.29431  	subsolve=5.98151  	maintain=1.83519
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.30199  	subsolve=5.99527  	maintain=1.83627
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.29867  	subsolve=6.01064  	maintain=1.83388
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.28644  	subsolve=6.02314  	maintain=1.83221
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.28754  	subsolve=6.03075  	maintain=1.83184
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.28518  	subsolve=6.04676  	maintain=1.83181
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.28733  	subsolve=6.05312  	maintain=1.83318
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.28966  	subsolve=6.06259  	maintain=1.83244
+
+dual_obj=-49392.3
+nSV=726721 (NK=1153238670)
+nnz_w=3695175 (DK=2140557516)
+train time=255.315
+search time=80.1295
+subsolve time=131.273
+maintain time=42.5718
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.917712
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.24518
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 30 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.27589  	subsolve=2.04764  	maintain=1.11425
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.95275  	subsolve=2.81326  	maintain=1.2067
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.08919  	subsolve=3.44272  	maintain=1.28269
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.16591  	subsolve=3.91827  	maintain=1.42885
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.19628  	subsolve=4.28732  	maintain=1.54107
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.22289  	subsolve=4.59514  	maintain=1.61779
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.24176  	subsolve=4.88221  	maintain=1.67598
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.27331  	subsolve=5.18569  	maintain=1.72405
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.27355  	subsolve=5.4086  	maintain=1.75616
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.28506  	subsolve=5.5589  	maintain=1.77744
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.29529  	subsolve=5.66619  	maintain=1.79701
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.29826  	subsolve=5.74181  	maintain=1.80712
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.30847  	subsolve=5.80441  	maintain=1.8192
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.31287  	subsolve=5.85872  	maintain=1.82718
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.31469  	subsolve=5.90022  	maintain=1.82817
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.30985  	subsolve=5.93185  	maintain=1.83059
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.315  	subsolve=5.95689  	maintain=1.83543
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.31628  	subsolve=5.97482  	maintain=1.83345
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.32192  	subsolve=5.99381  	maintain=1.83497
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.28762  	subsolve=6.00548  	maintain=1.8308
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.27273  	subsolve=6.02196  	maintain=1.83267
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.28252  	subsolve=6.03397  	maintain=1.83075
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.28377  	subsolve=6.05007  	maintain=1.83172
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.28294  	subsolve=6.05506  	maintain=1.83145
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.2801  	subsolve=6.05976  	maintain=1.82861
+.nnz_a_i=7.79836  	nnz_w_j=21.2363  	search=3.28788  	subsolve=6.06493  	maintain=1.82898
+.nnz_a_i=7.81876  	nnz_w_j=21.2417  	search=3.28614  	subsolve=6.0741  	maintain=1.82587
+.nnz_a_i=7.84257  	nnz_w_j=21.2553  	search=3.28509  	subsolve=6.08097  	maintain=1.82692
+.nnz_a_i=7.86034  	nnz_w_j=21.259  	search=3.2885  	subsolve=6.08587  	maintain=1.82661
+.nnz_a_i=7.87328  	nnz_w_j=21.2621  	search=3.29004  	subsolve=6.10047  	maintain=1.82659
+
+dual_obj=-49898.9
+nSV=736248 (NK=1153238670)
+nnz_w=3702036 (DK=2140557516)
+train time=311.762
+search time=96.8966
+subsolve time=161.601
+maintain time=51.6591
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.924492
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.245237
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 20 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.24369  	subsolve=2.03952  	maintain=1.11017
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.9278  	subsolve=2.81131  	maintain=1.20499
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.06485  	subsolve=3.44643  	maintain=1.28273
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.13395  	subsolve=3.91529  	maintain=1.42785
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.17029  	subsolve=4.28485  	maintain=1.53968
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.19102  	subsolve=4.58805  	maintain=1.61752
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.21065  	subsolve=4.88414  	maintain=1.67507
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.24137  	subsolve=5.18287  	maintain=1.72269
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.24362  	subsolve=5.40948  	maintain=1.75533
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.25585  	subsolve=5.55525  	maintain=1.77654
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.26468  	subsolve=5.66536  	maintain=1.79679
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.27019  	subsolve=5.74294  	maintain=1.80719
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.27794  	subsolve=5.80661  	maintain=1.81766
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.27886  	subsolve=5.85567  	maintain=1.82432
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.28325  	subsolve=5.89902  	maintain=1.82864
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.27938  	subsolve=5.93501  	maintain=1.83082
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.28918  	subsolve=5.96184  	maintain=1.83554
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.29176  	subsolve=5.98372  	maintain=1.83433
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.29144  	subsolve=5.99459  	maintain=1.83329
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.28614  	subsolve=6.00461  	maintain=1.83207
+
+dual_obj=-48640.8
+nSV=712143 (NK=1153238670)
+nnz_w=3677317 (DK=2140557516)
+train time=198.894
+search time=63.4959
+subsolve time=100.967
+maintain time=33.3532
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.906551
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.241742
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 25 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.25532  	subsolve=2.04448  	maintain=1.11739
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.93318  	subsolve=2.81262  	maintain=1.20941
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.07476  	subsolve=3.44473  	maintain=1.28484
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.14341  	subsolve=3.91586  	maintain=1.43126
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.18001  	subsolve=4.28851  	maintain=1.54408
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.20833  	subsolve=4.5909  	maintain=1.62176
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.23684  	subsolve=4.89751  	maintain=1.68188
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.26036  	subsolve=5.18553  	maintain=1.72741
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.26215  	subsolve=5.40641  	maintain=1.75818
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.27486  	subsolve=5.55375  	maintain=1.7806
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.28609  	subsolve=5.66595  	maintain=1.8015
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.29177  	subsolve=5.73775  	maintain=1.81259
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.30339  	subsolve=5.80341  	maintain=1.82086
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.30855  	subsolve=5.85373  	maintain=1.83004
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.31379  	subsolve=5.89797  	maintain=1.83412
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.3134  	subsolve=5.93048  	maintain=1.83692
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.32044  	subsolve=5.95264  	maintain=1.84038
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.32196  	subsolve=5.97143  	maintain=1.84007
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.32948  	subsolve=5.99178  	maintain=1.84139
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.33108  	subsolve=6.00734  	maintain=1.84118
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.33535  	subsolve=6.02057  	maintain=1.84001
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.34221  	subsolve=6.03255  	maintain=1.84167
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.33997  	subsolve=6.04279  	maintain=1.84094
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.34542  	subsolve=6.05522  	maintain=1.83909
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.34229  	subsolve=6.06036  	maintain=1.8386
+
+dual_obj=-49392.3
+nSV=726721 (NK=1153238670)
+nnz_w=3695175 (DK=2140557516)
+train time=255.912
+search time=80.6544
+subsolve time=131.164
+maintain time=42.6562
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.917712
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.24518
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 30 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.25182  	subsolve=2.04479  	maintain=1.11459
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.9294  	subsolve=2.81129  	maintain=1.20642
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.07203  	subsolve=3.44549  	maintain=1.28188
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.1405  	subsolve=3.91687  	maintain=1.42831
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.17338  	subsolve=4.28487  	maintain=1.53959
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.20333  	subsolve=4.58876  	maintain=1.6175
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.21936  	subsolve=4.88129  	maintain=1.67555
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25517  	subsolve=5.18447  	maintain=1.72407
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.25673  	subsolve=5.40686  	maintain=1.75513
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.27215  	subsolve=5.55701  	maintain=1.77883
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.28112  	subsolve=5.66282  	maintain=1.79894
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.28745  	subsolve=5.743  	maintain=1.80931
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.29801  	subsolve=5.80398  	maintain=1.81833
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.30485  	subsolve=5.85792  	maintain=1.82727
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.30738  	subsolve=5.89927  	maintain=1.83095
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.30986  	subsolve=5.93239  	maintain=1.8346
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.31684  	subsolve=5.95567  	maintain=1.83691
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.31763  	subsolve=5.97517  	maintain=1.83683
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.32497  	subsolve=5.99248  	maintain=1.83828
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.326  	subsolve=6.00972  	maintain=1.83799
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.33008  	subsolve=6.02299  	maintain=1.83741
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.33695  	subsolve=6.0334  	maintain=1.8387
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.33676  	subsolve=6.04993  	maintain=1.83872
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.34227  	subsolve=6.05767  	maintain=1.83667
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.3389  	subsolve=6.06387  	maintain=1.83478
+.nnz_a_i=7.79836  	nnz_w_j=21.2363  	search=3.34758  	subsolve=6.06809  	maintain=1.83418
+.nnz_a_i=7.81876  	nnz_w_j=21.2417  	search=3.34692  	subsolve=6.07971  	maintain=1.83471
+.nnz_a_i=7.84257  	nnz_w_j=21.2553  	search=3.34802  	subsolve=6.08661  	maintain=1.83388
+.nnz_a_i=7.86034  	nnz_w_j=21.259  	search=3.34948  	subsolve=6.09185  	maintain=1.83251
+.nnz_a_i=7.87328  	nnz_w_j=21.2621  	search=3.34596  	subsolve=6.09873  	maintain=1.83374
+
+dual_obj=-49898.9
+nSV=736248 (NK=1153238670)
+nnz_w=3702036 (DK=2140557516)
+train time=312.26
+search time=97.2709
+subsolve time=161.607
+maintain time=51.7466
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.924492
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.245237
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 20 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.24845  	subsolve=2.0398  	maintain=1.11518
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.92674  	subsolve=2.80903  	maintain=1.20878
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.06711  	subsolve=3.44115  	maintain=1.28508
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.1385  	subsolve=3.91362  	maintain=1.43081
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.17072  	subsolve=4.28319  	maintain=1.54248
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.20045  	subsolve=4.59164  	maintain=1.62041
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.21848  	subsolve=4.87772  	maintain=1.67895
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25363  	subsolve=5.1801  	maintain=1.72761
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.25633  	subsolve=5.40299  	maintain=1.76102
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.26588  	subsolve=5.54878  	maintain=1.77983
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.27773  	subsolve=5.65821  	maintain=1.80006
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.28225  	subsolve=5.73474  	maintain=1.81245
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.29739  	subsolve=5.80031  	maintain=1.82112
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.2995  	subsolve=5.8507  	maintain=1.8296
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.30464  	subsolve=5.89465  	maintain=1.83425
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.303  	subsolve=5.92505  	maintain=1.83588
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.31131  	subsolve=5.94919  	maintain=1.84047
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.3134  	subsolve=5.96662  	maintain=1.83943
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.32063  	subsolve=5.98766  	maintain=1.84064
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.32007  	subsolve=6.00183  	maintain=1.83983
+
+dual_obj=-48640.8
+nSV=712143 (NK=1153238670)
+nnz_w=3677317 (DK=2140557516)
+train time=199.168
+search time=63.7762
+subsolve time=100.857
+maintain time=33.4439
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.906551
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.241742
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 25 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.25925  	subsolve=2.04546  	maintain=1.117
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.93708  	subsolve=2.81364  	maintain=1.21032
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.07478  	subsolve=3.4453  	maintain=1.28664
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.14634  	subsolve=3.91788  	maintain=1.43306
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.17909  	subsolve=4.28612  	maintain=1.54377
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.2062  	subsolve=4.58849  	maintain=1.62195
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.22619  	subsolve=4.88191  	maintain=1.68006
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25986  	subsolve=5.18341  	maintain=1.72881
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.26222  	subsolve=5.40489  	maintain=1.75935
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.27608  	subsolve=5.55955  	maintain=1.78217
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.28576  	subsolve=5.66834  	maintain=1.80279
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.2926  	subsolve=5.7433  	maintain=1.81348
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.30483  	subsolve=5.80807  	maintain=1.82309
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.30904  	subsolve=5.8587  	maintain=1.83166
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.31283  	subsolve=5.90064  	maintain=1.8367
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.31201  	subsolve=5.93384  	maintain=1.83737
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.31954  	subsolve=5.95774  	maintain=1.84029
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.32156  	subsolve=5.97518  	maintain=1.84122
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.32779  	subsolve=5.99528  	maintain=1.84352
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.32746  	subsolve=6.01198  	maintain=1.84204
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.334  	subsolve=6.02552  	maintain=1.8413
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.34199  	subsolve=6.0348  	maintain=1.84263
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.33843  	subsolve=6.04665  	maintain=1.84243
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.34382  	subsolve=6.05704  	maintain=1.84125
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.34266  	subsolve=6.06415  	maintain=1.83914
+
+dual_obj=-49392.3
+nSV=726721 (NK=1153238670)
+nnz_w=3695175 (DK=2140557516)
+train time=255.891
+search time=80.6414
+subsolve time=131.208
+maintain time=42.682
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.917712
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.24518
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 30 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.24581  	subsolve=2.04225  	maintain=1.11135
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.92032  	subsolve=2.80885  	maintain=1.20427
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.05962  	subsolve=3.44309  	maintain=1.28089
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.13264  	subsolve=3.91471  	maintain=1.42796
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.16211  	subsolve=4.28352  	maintain=1.5389
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.19062  	subsolve=4.58553  	maintain=1.61629
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.21005  	subsolve=4.87843  	maintain=1.67499
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.24405  	subsolve=5.18056  	maintain=1.72377
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.24752  	subsolve=5.40226  	maintain=1.75475
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.26058  	subsolve=5.55549  	maintain=1.7771
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.27163  	subsolve=5.6625  	maintain=1.79906
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.2769  	subsolve=5.73786  	maintain=1.80921
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.28898  	subsolve=5.80039  	maintain=1.81811
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.29501  	subsolve=5.85454  	maintain=1.82586
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.29799  	subsolve=5.89627  	maintain=1.83114
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.29755  	subsolve=5.92961  	maintain=1.83395
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.30653  	subsolve=5.95857  	maintain=1.83734
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.30833  	subsolve=5.97599  	maintain=1.83672
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.31577  	subsolve=5.99453  	maintain=1.83826
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.3142  	subsolve=6.0069  	maintain=1.83723
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.3201  	subsolve=6.02094  	maintain=1.83609
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.32721  	subsolve=6.03188  	maintain=1.83716
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.32542  	subsolve=6.0456  	maintain=1.83676
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.33055  	subsolve=6.05317  	maintain=1.83636
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.32923  	subsolve=6.06501  	maintain=1.83386
+.nnz_a_i=7.79836  	nnz_w_j=21.2363  	search=3.33759  	subsolve=6.06477  	maintain=1.83391
+.nnz_a_i=7.81876  	nnz_w_j=21.2417  	search=3.33558  	subsolve=6.07496  	maintain=1.83153
+.nnz_a_i=7.84257  	nnz_w_j=21.2553  	search=3.33511  	subsolve=6.07844  	maintain=1.83219
+.nnz_a_i=7.86034  	nnz_w_j=21.259  	search=3.3375  	subsolve=6.08868  	maintain=1.83247
+.nnz_a_i=7.87328  	nnz_w_j=21.2621  	search=3.33841  	subsolve=6.09987  	maintain=1.83262
+
+dual_obj=-49898.9
+nSV=736248 (NK=1153238670)
+nnz_w=3702036 (DK=2140557516)
+train time=311.851
+search time=96.9629
+subsolve time=161.535
+maintain time=51.7201
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.924492
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.245237
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 20 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.25564  	subsolve=2.04359  	maintain=1.11735
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.93557  	subsolve=2.81215  	maintain=1.21007
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.07609  	subsolve=3.44688  	maintain=1.28702
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.14878  	subsolve=3.91633  	maintain=1.43251
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.18082  	subsolve=4.28676  	maintain=1.54472
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.2065  	subsolve=4.58731  	maintain=1.62236
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.22749  	subsolve=4.88154  	maintain=1.68079
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25914  	subsolve=5.18192  	maintain=1.72841
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.26361  	subsolve=5.40361  	maintain=1.75999
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.27637  	subsolve=5.55819  	maintain=1.78218
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.28665  	subsolve=5.66262  	maintain=1.80228
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.29176  	subsolve=5.73785  	maintain=1.81312
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.30316  	subsolve=5.8012  	maintain=1.82285
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.30961  	subsolve=5.85376  	maintain=1.83149
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.3135  	subsolve=5.89849  	maintain=1.83613
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.3128  	subsolve=5.92978  	maintain=1.83768
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.32199  	subsolve=5.9545  	maintain=1.84219
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.32266  	subsolve=5.97331  	maintain=1.8408
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.33162  	subsolve=5.9935  	maintain=1.84262
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.32932  	subsolve=6.00526  	maintain=1.84241
+
+dual_obj=-48640.8
+nSV=712143 (NK=1153238670)
+nnz_w=3677317 (DK=2140557516)
+train time=199.444
+search time=63.9531
+subsolve time=100.929
+maintain time=33.477
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.906551
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.241742
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 25 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.24878  	subsolve=2.04028  	maintain=1.11352
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.92847  	subsolve=2.81128  	maintain=1.20761
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.06623  	subsolve=3.44379  	maintain=1.28363
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.13661  	subsolve=3.91134  	maintain=1.43032
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.16988  	subsolve=4.28625  	maintain=1.54192
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.19683  	subsolve=4.58643  	maintain=1.62012
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.21728  	subsolve=4.88047  	maintain=1.6785
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25121  	subsolve=5.18082  	maintain=1.72597
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.25802  	subsolve=5.40451  	maintain=1.75801
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.26776  	subsolve=5.55345  	maintain=1.78092
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.27882  	subsolve=5.66185  	maintain=1.80138
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.28468  	subsolve=5.73815  	maintain=1.81167
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.29708  	subsolve=5.80318  	maintain=1.82028
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.30037  	subsolve=5.85369  	maintain=1.82891
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.30731  	subsolve=5.8966  	maintain=1.83346
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.30486  	subsolve=5.92763  	maintain=1.83715
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.31478  	subsolve=5.953  	maintain=1.83955
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.31563  	subsolve=5.97187  	maintain=1.83877
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.32316  	subsolve=5.99006  	maintain=1.84154
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.32247  	subsolve=6.00514  	maintain=1.83938
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.32864  	subsolve=6.02078  	maintain=1.83978
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.3356  	subsolve=6.03301  	maintain=1.8408
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.33447  	subsolve=6.04898  	maintain=1.84132
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.33916  	subsolve=6.0541  	maintain=1.84029
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.33671  	subsolve=6.05944  	maintain=1.83808
+
+dual_obj=-49392.3
+nSV=726721 (NK=1153238670)
+nnz_w=3695175 (DK=2140557516)
+train time=255.568
+search time=80.4648
+subsolve time=131.116
+maintain time=42.6329
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.917712
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.24518
+./multiTrain -s 3 -l 0.025 -c 1 -r 10 -m 30 -q 10 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.9349  	nnz_w_j=10.3164  	search=2.25181  	subsolve=2.0458  	maintain=1.11633
+.nnz_a_i=2.78404  	nnz_w_j=14.4829  	search=2.92992  	subsolve=2.81439  	maintain=1.20994
+.nnz_a_i=3.55775  	nnz_w_j=16.6193  	search=3.0681  	subsolve=3.44919  	maintain=1.28455
+.nnz_a_i=4.23338  	nnz_w_j=17.8854  	search=3.14116  	subsolve=3.92159  	maintain=1.43137
+.nnz_a_i=4.81499  	nnz_w_j=18.6927  	search=3.17181  	subsolve=4.29017  	maintain=1.54256
+.nnz_a_i=5.30448  	nnz_w_j=19.2393  	search=3.20049  	subsolve=4.59293  	maintain=1.62061
+.nnz_a_i=5.71896  	nnz_w_j=19.6193  	search=3.21908  	subsolve=4.88455  	maintain=1.67841
+.nnz_a_i=6.06566  	nnz_w_j=19.9151  	search=3.25366  	subsolve=5.18768  	maintain=1.726
+.nnz_a_i=6.35062  	nnz_w_j=20.1486  	search=3.25625  	subsolve=5.4108  	maintain=1.757
+.nnz_a_i=6.58736  	nnz_w_j=20.3329  	search=3.26887  	subsolve=5.56097  	maintain=1.78049
+.nnz_a_i=6.78257  	nnz_w_j=20.4888  	search=3.28051  	subsolve=5.66889  	maintain=1.80078
+.nnz_a_i=6.95128  	nnz_w_j=20.6163  	search=3.28952  	subsolve=5.75766  	maintain=1.81135
+.nnz_a_i=7.09452  	nnz_w_j=20.7152  	search=3.29806  	subsolve=5.81137  	maintain=1.82051
+.nnz_a_i=7.21096  	nnz_w_j=20.8047  	search=3.30493  	subsolve=5.86332  	maintain=1.82858
+.nnz_a_i=7.3088  	nnz_w_j=20.8753  	search=3.3059  	subsolve=5.90442  	maintain=1.83284
+.nnz_a_i=7.38864  	nnz_w_j=20.9435  	search=3.30679  	subsolve=5.93759  	maintain=1.83775
+.nnz_a_i=7.45832  	nnz_w_j=21.0018  	search=3.31489  	subsolve=5.95995  	maintain=1.83794
+.nnz_a_i=7.5223  	nnz_w_j=21.0447  	search=3.31724  	subsolve=5.98275  	maintain=1.83859
+.nnz_a_i=7.57202  	nnz_w_j=21.0855  	search=3.32314  	subsolve=6.0004  	maintain=1.84008
+.nnz_a_i=7.61741  	nnz_w_j=21.1202  	search=3.3245  	subsolve=6.01823  	maintain=1.83843
+.nnz_a_i=7.65793  	nnz_w_j=21.1476  	search=3.32963  	subsolve=6.02985  	maintain=1.83874
+.nnz_a_i=7.69607  	nnz_w_j=21.1805  	search=3.3368  	subsolve=6.04  	maintain=1.83967
+.nnz_a_i=7.72282  	nnz_w_j=21.1964  	search=3.33488  	subsolve=6.05244  	maintain=1.83956
+.nnz_a_i=7.74888  	nnz_w_j=21.215  	search=3.33971  	subsolve=6.06142  	maintain=1.83807
+.nnz_a_i=7.77213  	nnz_w_j=21.2227  	search=3.33867  	subsolve=6.07252  	maintain=1.83716
+.nnz_a_i=7.79836  	nnz_w_j=21.2363  	search=3.34682  	subsolve=6.0759  	maintain=1.8363
+.nnz_a_i=7.81876  	nnz_w_j=21.2417  	search=3.34497  	subsolve=6.08549  	maintain=1.83513
+.nnz_a_i=7.84257  	nnz_w_j=21.2553  	search=3.34418  	subsolve=6.08778  	maintain=1.83424
+.nnz_a_i=7.86034  	nnz_w_j=21.259  	search=3.34799  	subsolve=6.0955  	maintain=1.83378
+.nnz_a_i=7.87328  	nnz_w_j=21.2621  	search=3.34633  	subsolve=6.10473  	maintain=1.83469
+
+dual_obj=-49898.9
+nSV=736248 (NK=1153238670)
+nnz_w=3702036 (DK=2140557516)
+train time=312.464
+search time=97.2366
+subsolve time=161.768
+maintain time=51.8014
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.924492
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.245237
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 20 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.61207  	subsolve=2.03385  	maintain=1.11015
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97545  	subsolve=2.75051  	maintain=1.23107
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.06665  	subsolve=3.36484  	maintain=1.28162
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10989  	subsolve=3.83212  	maintain=1.41012
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.13201  	subsolve=4.20664  	maintain=1.51832
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14895  	subsolve=4.5159  	maintain=1.59736
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.15974  	subsolve=4.82323  	maintain=1.66534
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.17203  	subsolve=5.15182  	maintain=1.71279
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.18058  	subsolve=5.4006  	maintain=1.75026
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.183  	subsolve=5.58613  	maintain=1.78086
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.19004  	subsolve=5.72166  	maintain=1.80699
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.19478  	subsolve=5.81987  	maintain=1.82578
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.19835  	subsolve=5.89501  	maintain=1.84
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.20242  	subsolve=5.95279  	maintain=1.84877
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.20533  	subsolve=5.9975  	maintain=1.85549
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.20394  	subsolve=6.03361  	maintain=1.86028
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.20772  	subsolve=6.05945  	maintain=1.86432
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.21322  	subsolve=6.08476  	maintain=1.86549
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.21018  	subsolve=6.10284  	maintain=1.86796
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21486  	subsolve=6.11669  	maintain=1.86897
+
+dual_obj=-46763.4
+nSV=737018 (NK=1153238670)
+nnz_w=3822040 (DK=2140557516)
+train time=179.052
+search time=42.7812
+subsolve time=101.45
+maintain time=33.562
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.874175
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.233606
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 25 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.60937  	subsolve=2.03513  	maintain=1.11501
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97414  	subsolve=2.7517  	maintain=1.23607
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.0693  	subsolve=3.36118  	maintain=1.28743
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.11027  	subsolve=3.83157  	maintain=1.41628
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.13498  	subsolve=4.20548  	maintain=1.52487
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.15446  	subsolve=4.5138  	maintain=1.60453
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.1651  	subsolve=4.82176  	maintain=1.67192
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.17559  	subsolve=5.15393  	maintain=1.71968
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.18479  	subsolve=5.40032  	maintain=1.75778
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.18817  	subsolve=5.58859  	maintain=1.7886
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.19466  	subsolve=5.71819  	maintain=1.81427
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.1989  	subsolve=5.82248  	maintain=1.83277
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.20315  	subsolve=5.8971  	maintain=1.84747
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.20678  	subsolve=5.95547  	maintain=1.85676
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.2154  	subsolve=6.01743  	maintain=1.86474
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.20805  	subsolve=6.03492  	maintain=1.86815
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.21105  	subsolve=6.0612  	maintain=1.87154
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.21755  	subsolve=6.08759  	maintain=1.87374
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.21387  	subsolve=6.10295  	maintain=1.87581
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21957  	subsolve=6.12199  	maintain=1.87752
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.22474  	subsolve=6.14242  	maintain=1.87783
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.22359  	subsolve=6.14822  	maintain=1.87793
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.22151  	subsolve=6.15705  	maintain=1.87686
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.22857  	subsolve=6.15959  	maintain=1.87465
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.22618  	subsolve=6.16003  	maintain=1.87259
+
+dual_obj=-47678.8
+nSV=751996 (NK=1153238670)
+nnz_w=3858347 (DK=2140557516)
+train time=230.967
+search time=53.9797
+subsolve time=132.25
+maintain time=43.0848
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.892916
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.240023
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 30 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.61016  	subsolve=2.03545  	maintain=1.11039
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97507  	subsolve=2.75274  	maintain=1.23149
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.06721  	subsolve=3.36758  	maintain=1.28382
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.11022  	subsolve=3.83642  	maintain=1.41147
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.13199  	subsolve=4.21194  	maintain=1.51952
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.15044  	subsolve=4.52099  	maintain=1.59839
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.16023  	subsolve=4.82799  	maintain=1.66641
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.17265  	subsolve=5.15511  	maintain=1.71409
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.18121  	subsolve=5.40561  	maintain=1.75192
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.18337  	subsolve=5.59103  	maintain=1.78201
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.20505  	subsolve=5.77699  	maintain=1.81375
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.19674  	subsolve=5.82793  	maintain=1.8273
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.20037  	subsolve=5.90571  	maintain=1.84101
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.20365  	subsolve=5.95959  	maintain=1.85156
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.20626  	subsolve=6.00471  	maintain=1.85612
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.20503  	subsolve=6.04064  	maintain=1.86328
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.21007  	subsolve=6.07135  	maintain=1.86688
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.21677  	subsolve=6.10162  	maintain=1.86894
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.21064  	subsolve=6.10907  	maintain=1.8695
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21627  	subsolve=6.126  	maintain=1.87174
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.22066  	subsolve=6.14122  	maintain=1.87188
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.22016  	subsolve=6.15476  	maintain=1.87515
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.21723  	subsolve=6.15788  	maintain=1.87044
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.22216  	subsolve=6.16271  	maintain=1.86817
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.22195  	subsolve=6.16465  	maintain=1.86603
+.nnz_a_i=8.06343  	nnz_w_j=22.1805  	search=2.2236  	subsolve=6.16956  	maintain=1.86331
+.nnz_a_i=8.07285  	nnz_w_j=22.2118  	search=2.22359  	subsolve=6.17015  	maintain=1.86204
+.nnz_a_i=8.08106  	nnz_w_j=22.2299  	search=2.22404  	subsolve=6.1703  	maintain=1.85941
+.nnz_a_i=8.09054  	nnz_w_j=22.2431  	search=2.22425  	subsolve=6.16754  	maintain=1.85782
+.nnz_a_i=8.09706  	nnz_w_j=22.2613  	search=2.22812  	subsolve=6.16946  	maintain=1.85613
+
+dual_obj=-48343.2
+nSV=756839 (NK=1153238670)
+nnz_w=3876010 (DK=2140557516)
+train time=282.437
+search time=65.0391
+subsolve time=163.257
+maintain time=52.25
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.90234
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.242258
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 20 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.62389  	subsolve=2.03253  	maintain=1.11467
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.99143  	subsolve=2.7489  	maintain=1.23529
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.08619  	subsolve=3.36296  	maintain=1.28617
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.1308  	subsolve=3.83102  	maintain=1.41336
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.15374  	subsolve=4.20509  	maintain=1.5232
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.16679  	subsolve=4.51359  	maintain=1.59989
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.17841  	subsolve=4.82022  	maintain=1.66856
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.19077  	subsolve=5.15025  	maintain=1.71553
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.19928  	subsolve=5.4  	maintain=1.75243
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.20137  	subsolve=5.58334  	maintain=1.78319
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.20723  	subsolve=5.71724  	maintain=1.80877
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.21452  	subsolve=5.81844  	maintain=1.82846
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.21881  	subsolve=5.89904  	maintain=1.84309
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.22063  	subsolve=5.95056  	maintain=1.85172
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.22377  	subsolve=5.9964  	maintain=1.85701
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.22225  	subsolve=6.02963  	maintain=1.8634
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.22592  	subsolve=6.06088  	maintain=1.86646
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.23073  	subsolve=6.08445  	maintain=1.86793
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.22904  	subsolve=6.10318  	maintain=1.8712
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.23195  	subsolve=6.11517  	maintain=1.87175
+
+dual_obj=-46763.4
+nSV=737018 (NK=1153238670)
+nnz_w=3822040 (DK=2140557516)
+train time=179.488
+search time=43.1475
+subsolve time=101.423
+maintain time=33.6221
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.874175
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.233606
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 25 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.6084  	subsolve=2.03574  	maintain=1.11474
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.96896  	subsolve=2.74927  	maintain=1.23246
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.06575  	subsolve=3.3668  	maintain=1.28454
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10758  	subsolve=3.83514  	maintain=1.41183
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.12435  	subsolve=4.20542  	maintain=1.51799
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14588  	subsolve=4.51734  	maintain=1.59705
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.1535  	subsolve=4.82817  	maintain=1.66539
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.16358  	subsolve=5.15912  	maintain=1.71158
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17318  	subsolve=5.40487  	maintain=1.74942
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.17287  	subsolve=5.58843  	maintain=1.7789
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.18095  	subsolve=5.72197  	maintain=1.80364
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.18169  	subsolve=5.82592  	maintain=1.82211
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.18596  	subsolve=5.9015  	maintain=1.83558
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.18803  	subsolve=5.95901  	maintain=1.84752
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.18762  	subsolve=6.00393  	maintain=1.85184
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.18544  	subsolve=6.03682  	maintain=1.85585
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.18686  	subsolve=6.06472  	maintain=1.85958
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.19337  	subsolve=6.09064  	maintain=1.86084
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.18746  	subsolve=6.10519  	maintain=1.86321
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.19116  	subsolve=6.12286  	maintain=1.8649
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.19222  	subsolve=6.1349  	maintain=1.8642
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.18295  	subsolve=6.14873  	maintain=1.86336
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.1655  	subsolve=6.16296  	maintain=1.86159
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.16907  	subsolve=6.16261  	maintain=1.8585
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.1682  	subsolve=6.16216  	maintain=1.85636
+
+dual_obj=-47678.8
+nSV=751996 (NK=1153238670)
+nnz_w=3858347 (DK=2140557516)
+train time=230.109
+search time=53.4305
+subsolve time=132.294
+maintain time=42.833
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.892916
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.240023
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 30 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.61139  	subsolve=2.038  	maintain=1.11312
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.96549  	subsolve=2.75238  	maintain=1.23039
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.06646  	subsolve=3.36983  	maintain=1.28434
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10692  	subsolve=3.84232  	maintain=1.41072
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.12775  	subsolve=4.21423  	maintain=1.51894
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14033  	subsolve=4.5221  	maintain=1.59629
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.15314  	subsolve=4.83066  	maintain=1.66435
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.16051  	subsolve=5.16049  	maintain=1.71179
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17264  	subsolve=5.41098  	maintain=1.7507
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.17172  	subsolve=5.59272  	maintain=1.77881
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.17646  	subsolve=5.73013  	maintain=1.80465
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.18235  	subsolve=5.82724  	maintain=1.82355
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.18497  	subsolve=5.90988  	maintain=1.83822
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.18882  	subsolve=5.96976  	maintain=1.8484
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.18483  	subsolve=6.011  	maintain=1.85335
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.18297  	subsolve=6.04181  	maintain=1.85803
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.18468  	subsolve=6.06885  	maintain=1.86169
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.18832  	subsolve=6.0941  	maintain=1.86162
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.18629  	subsolve=6.10955  	maintain=1.86465
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.18614  	subsolve=6.12665  	maintain=1.86695
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.18892  	subsolve=6.14234  	maintain=1.86593
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.17574  	subsolve=6.15333  	maintain=1.86479
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.16479  	subsolve=6.16147  	maintain=1.86401
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.16784  	subsolve=6.16868  	maintain=1.86021
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.16991  	subsolve=6.16621  	maintain=1.85756
+.nnz_a_i=8.06343  	nnz_w_j=22.1805  	search=2.1694  	subsolve=6.17495  	maintain=1.85579
+.nnz_a_i=8.07285  	nnz_w_j=22.2118  	search=2.16899  	subsolve=6.17524  	maintain=1.85442
+.nnz_a_i=8.08106  	nnz_w_j=22.2299  	search=2.16968  	subsolve=6.1781  	maintain=1.85136
+.nnz_a_i=8.09054  	nnz_w_j=22.2431  	search=2.16963  	subsolve=6.16965  	maintain=1.84822
+.nnz_a_i=8.09706  	nnz_w_j=22.2613  	search=2.17543  	subsolve=6.17051  	maintain=1.84661
+
+dual_obj=-48343.2
+nSV=756839 (NK=1153238670)
+nnz_w=3876010 (DK=2140557516)
+train time=281.505
+search time=64.2425
+subsolve time=163.283
+maintain time=52.1095
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.90234
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.242258
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 20 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.6034  	subsolve=2.03508  	maintain=1.11032
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97291  	subsolve=2.75375  	maintain=1.23224
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.05853  	subsolve=3.36691  	maintain=1.28401
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10814  	subsolve=3.83932  	maintain=1.41265
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.12899  	subsolve=4.20985  	maintain=1.52107
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14638  	subsolve=4.5223  	maintain=1.59986
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.15263  	subsolve=4.83007  	maintain=1.66765
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.16402  	subsolve=5.15685  	maintain=1.71415
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17314  	subsolve=5.40717  	maintain=1.75163
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.17503  	subsolve=5.58811  	maintain=1.78112
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.17599  	subsolve=5.72372  	maintain=1.81351
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.17857  	subsolve=5.82103  	maintain=1.82467
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.18478  	subsolve=5.90233  	maintain=1.84002
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.18722  	subsolve=5.95712  	maintain=1.84892
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.19056  	subsolve=6.00778  	maintain=1.8557
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.18805  	subsolve=6.03426  	maintain=1.85864
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.18587  	subsolve=6.06439  	maintain=1.86576
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.18939  	subsolve=6.08902  	maintain=1.86547
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.18521  	subsolve=6.10617  	maintain=1.86622
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.18804  	subsolve=6.12066  	maintain=1.8668
+
+dual_obj=-46763.4
+nSV=737018 (NK=1153238670)
+nnz_w=3822040 (DK=2140557516)
+train time=178.899
+search time=42.5369
+subsolve time=101.536
+maintain time=33.5804
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.874175
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.233606
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 25 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.60579  	subsolve=2.03422  	maintain=1.10946
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97073  	subsolve=2.75189  	maintain=1.23022
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.06162  	subsolve=3.36286  	maintain=1.28206
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.1053  	subsolve=3.83229  	maintain=1.41048
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.1269  	subsolve=4.2075  	maintain=1.51844
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14379  	subsolve=4.51485  	maintain=1.59733
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.15501  	subsolve=4.82359  	maintain=1.66495
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.1668  	subsolve=5.15213  	maintain=1.71261
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17551  	subsolve=5.40181  	maintain=1.75117
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.17926  	subsolve=5.58584  	maintain=1.78109
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.18564  	subsolve=5.723  	maintain=1.80719
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.1903  	subsolve=5.81896  	maintain=1.82594
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.19459  	subsolve=5.89758  	maintain=1.84035
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.19817  	subsolve=5.95274  	maintain=1.84951
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.20161  	subsolve=6.00092  	maintain=1.8551
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.19947  	subsolve=6.0338  	maintain=1.86087
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.20475  	subsolve=6.06302  	maintain=1.86461
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.20888  	subsolve=6.08619  	maintain=1.86599
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.20618  	subsolve=6.10198  	maintain=1.86831
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21148  	subsolve=6.11888  	maintain=1.86981
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.21509  	subsolve=6.13298  	maintain=1.86949
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.21494  	subsolve=6.14564  	maintain=1.87094
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.2133  	subsolve=6.15553  	maintain=1.86883
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.21841  	subsolve=6.15618  	maintain=1.86775
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.22003  	subsolve=6.1647  	maintain=1.86569
+
+dual_obj=-47678.8
+nSV=751996 (NK=1153238670)
+nnz_w=3858347 (DK=2140557516)
+train time=230.471
+search time=53.7735
+subsolve time=132.219
+maintain time=42.9082
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.892916
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.240023
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 30 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.60733  	subsolve=2.03324  	maintain=1.11431
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97478  	subsolve=2.75166  	maintain=1.23519
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.0656  	subsolve=3.36342  	maintain=1.28606
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10899  	subsolve=3.831  	maintain=1.41415
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.13104  	subsolve=4.20581  	maintain=1.52218
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14793  	subsolve=4.51615  	maintain=1.60048
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.15927  	subsolve=4.82269  	maintain=1.66904
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.17045  	subsolve=5.15144  	maintain=1.7165
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17911  	subsolve=5.40014  	maintain=1.7539
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.18177  	subsolve=5.58405  	maintain=1.78331
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.18798  	subsolve=5.7192  	maintain=1.80869
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.19372  	subsolve=5.82002  	maintain=1.82811
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.19858  	subsolve=5.89961  	maintain=1.8438
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.201  	subsolve=5.95294  	maintain=1.85179
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.20462  	subsolve=6.00071  	maintain=1.85761
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.20291  	subsolve=6.03578  	maintain=1.86364
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.20728  	subsolve=6.0639  	maintain=1.8667
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.21305  	subsolve=6.08935  	maintain=1.86899
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.20837  	subsolve=6.10244  	maintain=1.87076
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21284  	subsolve=6.11693  	maintain=1.87173
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.21689  	subsolve=6.13129  	maintain=1.87146
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.21641  	subsolve=6.14495  	maintain=1.87281
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.21546  	subsolve=6.15193  	maintain=1.8718
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.21914  	subsolve=6.15549  	maintain=1.86952
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.21963  	subsolve=6.15837  	maintain=1.86719
+.nnz_a_i=8.06343  	nnz_w_j=22.1805  	search=2.22126  	subsolve=6.16226  	maintain=1.8644
+.nnz_a_i=8.07285  	nnz_w_j=22.2118  	search=2.21996  	subsolve=6.16611  	maintain=1.86353
+.nnz_a_i=8.08106  	nnz_w_j=22.2299  	search=2.22152  	subsolve=6.16348  	maintain=1.85938
+.nnz_a_i=8.09054  	nnz_w_j=22.2431  	search=2.22133  	subsolve=6.16215  	maintain=1.85734
+.nnz_a_i=8.09706  	nnz_w_j=22.2613  	search=2.22513  	subsolve=6.16259  	maintain=1.85497
+
+dual_obj=-48343.2
+nSV=756839 (NK=1153238670)
+nnz_w=3876010 (DK=2140557516)
+train time=282.178
+search time=64.9533
+subsolve time=163.019
+maintain time=52.2794
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.90234
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.242258
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 20 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.60931  	subsolve=2.03782  	maintain=1.11594
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97086  	subsolve=2.75068  	maintain=1.2349
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.06257  	subsolve=3.36683  	maintain=1.28579
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10486  	subsolve=3.83336  	maintain=1.41394
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.12735  	subsolve=4.20897  	maintain=1.52173
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.1451  	subsolve=4.52155  	maintain=1.60064
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.15661  	subsolve=4.83084  	maintain=1.67029
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.16814  	subsolve=5.15781  	maintain=1.71633
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17517  	subsolve=5.40227  	maintain=1.75466
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.17747  	subsolve=5.58881  	maintain=1.78414
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.18536  	subsolve=5.72456  	maintain=1.80948
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.19039  	subsolve=5.82386  	maintain=1.8284
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.1941  	subsolve=5.90288  	maintain=1.84326
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.19824  	subsolve=5.95581  	maintain=1.85172
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.20146  	subsolve=6.00374  	maintain=1.85807
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.20038  	subsolve=6.0357  	maintain=1.86416
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.20408  	subsolve=6.06642  	maintain=1.86769
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.20925  	subsolve=6.09009  	maintain=1.8684
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.20607  	subsolve=6.10573  	maintain=1.87148
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21015  	subsolve=6.12006  	maintain=1.87311
+
+dual_obj=-46763.4
+nSV=737018 (NK=1153238670)
+nnz_w=3822040 (DK=2140557516)
+train time=179.135
+search time=42.6969
+subsolve time=101.528
+maintain time=33.6341
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.874175
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.233606
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 25 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.60536  	subsolve=2.03489  	maintain=1.1107
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.96988  	subsolve=2.75165  	maintain=1.23251
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.06225  	subsolve=3.36551  	maintain=1.28458
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10458  	subsolve=3.83469  	maintain=1.41263
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.1272  	subsolve=4.20946  	maintain=1.51995
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14358  	subsolve=4.51684  	maintain=1.59959
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.1548  	subsolve=4.82685  	maintain=1.66728
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.16755  	subsolve=5.15488  	maintain=1.71482
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17565  	subsolve=5.40425  	maintain=1.75353
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.17779  	subsolve=5.58638  	maintain=1.78249
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.18501  	subsolve=5.72256  	maintain=1.80821
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.18959  	subsolve=5.82204  	maintain=1.82689
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.19451  	subsolve=5.90041  	maintain=1.84201
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.19665  	subsolve=5.95519  	maintain=1.85078
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.20024  	subsolve=6.00268  	maintain=1.85631
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.19876  	subsolve=6.03385  	maintain=1.86222
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.20267  	subsolve=6.0636  	maintain=1.86635
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.20953  	subsolve=6.08852  	maintain=1.86732
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.20567  	subsolve=6.10631  	maintain=1.87013
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21151  	subsolve=6.12109  	maintain=1.87075
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.21282  	subsolve=6.13605  	maintain=1.87158
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.21483  	subsolve=6.1497  	maintain=1.87197
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.21256  	subsolve=6.1556  	maintain=1.87109
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.21704  	subsolve=6.15989  	maintain=1.86855
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.21969  	subsolve=6.16219  	maintain=1.86755
+
+dual_obj=-47678.8
+nSV=751996 (NK=1153238670)
+nnz_w=3858347 (DK=2140557516)
+train time=230.559
+search time=53.7597
+subsolve time=132.265
+maintain time=42.9498
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.892916
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.240023
+./multiTrain -s 3 -l 0.025 -c 1 -r 15 -m 30 -q 15 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.86248  	nnz_w_j=9.61588  	search=1.60941  	subsolve=2.03772  	maintain=1.1095
+.nnz_a_i=2.66811  	nnz_w_j=14.1581  	search=1.97082  	subsolve=2.75163  	maintain=1.22903
+.nnz_a_i=3.41678  	nnz_w_j=16.5055  	search=2.0626  	subsolve=3.365  	maintain=1.2802
+.nnz_a_i=4.08684  	nnz_w_j=17.9025  	search=2.10886  	subsolve=3.83434  	maintain=1.40962
+.nnz_a_i=4.68487  	nnz_w_j=18.8163  	search=2.12851  	subsolve=4.20656  	maintain=1.51673
+.nnz_a_i=5.20419  	nnz_w_j=19.4397  	search=2.14544  	subsolve=4.51598  	maintain=1.59615
+.nnz_a_i=5.65582  	nnz_w_j=19.9189  	search=2.15752  	subsolve=4.8234  	maintain=1.66421
+.nnz_a_i=6.03793  	nnz_w_j=20.2789  	search=2.16918  	subsolve=5.15339  	maintain=1.71116
+.nnz_a_i=6.3688  	nnz_w_j=20.5672  	search=2.17729  	subsolve=5.40256  	maintain=1.74992
+.nnz_a_i=6.65176  	nnz_w_j=20.799  	search=2.18147  	subsolve=5.58923  	maintain=1.77916
+.nnz_a_i=6.88942  	nnz_w_j=21.003  	search=2.18742  	subsolve=5.7225  	maintain=1.80465
+.nnz_a_i=7.09238  	nnz_w_j=21.1672  	search=2.19217  	subsolve=5.82152  	maintain=1.82341
+.nnz_a_i=7.25829  	nnz_w_j=21.3242  	search=2.19764  	subsolve=5.90166  	maintain=1.8384
+.nnz_a_i=7.39873  	nnz_w_j=21.4537  	search=2.20033  	subsolve=5.95729  	maintain=1.8478
+.nnz_a_i=7.51682  	nnz_w_j=21.5662  	search=2.20336  	subsolve=6.00169  	maintain=1.85384
+.nnz_a_i=7.61708  	nnz_w_j=21.6775  	search=2.2013  	subsolve=6.03572  	maintain=1.85949
+.nnz_a_i=7.70109  	nnz_w_j=21.7605  	search=2.20609  	subsolve=6.06908  	maintain=1.86303
+.nnz_a_i=7.77253  	nnz_w_j=21.8268  	search=2.21347  	subsolve=6.10127  	maintain=1.86502
+.nnz_a_i=7.83515  	nnz_w_j=21.8991  	search=2.2086  	subsolve=6.10814  	maintain=1.86745
+.nnz_a_i=7.88763  	nnz_w_j=21.9514  	search=2.21376  	subsolve=6.12561  	maintain=1.86809
+.nnz_a_i=7.93436  	nnz_w_j=21.9966  	search=2.21752  	subsolve=6.1379  	maintain=1.86776
+.nnz_a_i=7.97101  	nnz_w_j=22.0507  	search=2.21816  	subsolve=6.15156  	maintain=1.86924
+.nnz_a_i=7.99881  	nnz_w_j=22.0886  	search=2.21734  	subsolve=6.16278  	maintain=1.86832
+.nnz_a_i=8.0232  	nnz_w_j=22.1243  	search=2.22199  	subsolve=6.16629  	maintain=1.86583
+.nnz_a_i=8.04621  	nnz_w_j=22.1599  	search=2.22051  	subsolve=6.16562  	maintain=1.86317
+.nnz_a_i=8.06343  	nnz_w_j=22.1805  	search=2.2207  	subsolve=6.16658  	maintain=1.86069
+.nnz_a_i=8.07285  	nnz_w_j=22.2118  	search=2.22129  	subsolve=6.17047  	maintain=1.85855
+.nnz_a_i=8.08106  	nnz_w_j=22.2299  	search=2.22259  	subsolve=6.17001  	maintain=1.85589
+.nnz_a_i=8.09054  	nnz_w_j=22.2431  	search=2.22134  	subsolve=6.16587  	maintain=1.85436
+.nnz_a_i=8.09706  	nnz_w_j=22.2613  	search=2.22601  	subsolve=6.16742  	maintain=1.85144
+
+dual_obj=-48343.2
+nSV=756839 (NK=1153238670)
+nnz_w=3876010 (DK=2140557516)
+train time=282.146
+search time=64.9427
+subsolve time=163.149
+maintain time=52.1521
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.90234
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.242258
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 20 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.32326  	subsolve=2.03533  	maintain=1.07817
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56075  	subsolve=2.70506  	maintain=1.22719
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62503  	subsolve=3.30362  	maintain=1.27474
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.66058  	subsolve=3.76913  	maintain=1.38597
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67681  	subsolve=4.14488  	maintain=1.49097
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68489  	subsolve=4.45543  	maintain=1.57553
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69221  	subsolve=4.76617  	maintain=1.64159
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69834  	subsolve=5.10297  	maintain=1.69493
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.7036  	subsolve=5.37814  	maintain=1.73998
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70713  	subsolve=5.58485  	maintain=1.77365
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.71032  	subsolve=5.74074  	maintain=1.80209
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.7129  	subsolve=5.85746  	maintain=1.82604
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.7159  	subsolve=5.94949  	maintain=1.84305
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.71758  	subsolve=6.02262  	maintain=1.8591
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.71974  	subsolve=6.08451  	maintain=1.87064
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.72403  	subsolve=6.13283  	maintain=1.87832
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.72282  	subsolve=6.16718  	maintain=1.88554
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.72288  	subsolve=6.19326  	maintain=1.89054
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.72542  	subsolve=6.21409  	maintain=1.89305
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.72568  	subsolve=6.23224  	maintain=1.89483
+
+dual_obj=-45226.7
+nSV=755728 (NK=1153238670)
+nnz_w=3951688 (DK=2140557516)
+train time=170.361
+search time=33.5299
+subsolve time=101.84
+maintain time=33.5259
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.860796
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.234293
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 25 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.31768  	subsolve=2.03235  	maintain=1.07687
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56192  	subsolve=2.70621  	maintain=1.23164
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62183  	subsolve=3.30675  	maintain=1.27408
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.65636  	subsolve=3.76691  	maintain=1.38694
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67178  	subsolve=4.14339  	maintain=1.49227
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68282  	subsolve=4.45703  	maintain=1.57616
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.68988  	subsolve=4.76619  	maintain=1.64049
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.68885  	subsolve=5.09645  	maintain=1.69271
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.69911  	subsolve=5.37905  	maintain=1.73807
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.69929  	subsolve=5.58397  	maintain=1.77184
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70421  	subsolve=5.73574  	maintain=1.79935
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.70137  	subsolve=5.85279  	maintain=1.82499
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.70479  	subsolve=5.94417  	maintain=1.83946
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.70396  	subsolve=6.01558  	maintain=1.85561
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.7041  	subsolve=6.07842  	maintain=1.86829
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.70507  	subsolve=6.12904  	maintain=1.8747
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.70516  	subsolve=6.16586  	maintain=1.8822
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.70249  	subsolve=6.18695  	maintain=1.88615
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.70604  	subsolve=6.20758  	maintain=1.88841
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.70317  	subsolve=6.23003  	maintain=1.89055
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.70441  	subsolve=6.24258  	maintain=1.89231
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.70253  	subsolve=6.26029  	maintain=1.89188
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.69538  	subsolve=6.25994  	maintain=1.8929
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.67896  	subsolve=6.26304  	maintain=1.88493
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.67943  	subsolve=6.2716  	maintain=1.88573
+
+dual_obj=-46191.6
+nSV=774843 (NK=1153238670)
+nnz_w=4010872 (DK=2140557516)
+train time=219.623
+search time=41.7906
+subsolve time=133.082
+maintain time=42.9385
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.873919
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.237129
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 30 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.32456  	subsolve=2.04088  	maintain=1.08321
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.57393  	subsolve=2.72467  	maintain=1.23686
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.63078  	subsolve=3.32022  	maintain=1.28057
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.67199  	subsolve=3.78699  	maintain=1.39087
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.68452  	subsolve=4.16938  	maintain=1.49728
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.69483  	subsolve=4.48575  	maintain=1.5816
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69605  	subsolve=4.79293  	maintain=1.64731
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.70322  	subsolve=5.1312  	maintain=1.69921
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70517  	subsolve=5.40594  	maintain=1.74336
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70896  	subsolve=5.60797  	maintain=1.7788
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70815  	subsolve=5.75318  	maintain=1.80605
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.71049  	subsolve=5.87108  	maintain=1.8264
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71098  	subsolve=5.95969  	maintain=1.8423
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.70811  	subsolve=6.01377  	maintain=1.85589
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.70977  	subsolve=6.0833  	maintain=1.868
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.70917  	subsolve=6.12453  	maintain=1.87399
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.70494  	subsolve=6.16487  	maintain=1.88213
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.70394  	subsolve=6.18833  	maintain=1.88613
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.70678  	subsolve=6.20815  	maintain=1.88774
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.70419  	subsolve=6.22998  	maintain=1.89014
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.70569  	subsolve=6.24336  	maintain=1.89282
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.70473  	subsolve=6.25835  	maintain=1.89179
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.69974  	subsolve=6.26701  	maintain=1.89033
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.6824  	subsolve=6.26901  	maintain=1.88434
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.68336  	subsolve=6.2725  	maintain=1.88493
+.nnz_a_i=8.31922  	nnz_w_j=23.0807  	search=1.68118  	subsolve=6.27577  	maintain=1.88262
+.nnz_a_i=8.33501  	nnz_w_j=23.1223  	search=1.68145  	subsolve=6.27618  	maintain=1.88073
+.nnz_a_i=8.34605  	nnz_w_j=23.1691  	search=1.68097  	subsolve=6.27413  	maintain=1.87969
+.nnz_a_i=8.35502  	nnz_w_j=23.204  	search=1.68174  	subsolve=6.2747  	maintain=1.87737
+.nnz_a_i=8.36313  	nnz_w_j=23.2325  	search=1.68511  	subsolve=6.27328  	maintain=1.87462
+
+dual_obj=-46945.5
+nSV=781393 (NK=1153238670)
+nnz_w=4045106 (DK=2140557516)
+train time=269.671
+search time=50.3569
+subsolve time=164.747
+maintain time=52.3971
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.882597
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.238304
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 20 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.31702  	subsolve=2.02946  	maintain=1.0732
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56592  	subsolve=2.7049  	maintain=1.23062
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62293  	subsolve=3.30109  	maintain=1.27377
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.66288  	subsolve=3.76383  	maintain=1.38468
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67322  	subsolve=4.14344  	maintain=1.49234
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.6821  	subsolve=4.45557  	maintain=1.57578
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.68647  	subsolve=4.7614  	maintain=1.64044
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.6978  	subsolve=5.09607  	maintain=1.69268
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70095  	subsolve=5.38179  	maintain=1.74007
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70059  	subsolve=5.58416  	maintain=1.77251
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70421  	subsolve=5.7372  	maintain=1.80096
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.70374  	subsolve=5.86004  	maintain=1.82381
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.70762  	subsolve=5.94593  	maintain=1.8409
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.70902  	subsolve=6.01918  	maintain=1.85704
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.70906  	subsolve=6.08409  	maintain=1.87186
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.71219  	subsolve=6.12983  	maintain=1.87699
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.70643  	subsolve=6.16658  	maintain=1.88552
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.70927  	subsolve=6.19038  	maintain=1.88705
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.70646  	subsolve=6.21182  	maintain=1.88991
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.70736  	subsolve=6.23192  	maintain=1.89228
+
+dual_obj=-45226.7
+nSV=755728 (NK=1153238670)
+nnz_w=3951688 (DK=2140557516)
+train time=170.139
+search time=33.3852
+subsolve time=101.799
+maintain time=33.5024
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.860796
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.234293
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 25 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.3215  	subsolve=2.0305  	maintain=1.07739
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56645  	subsolve=2.70846  	maintain=1.23183
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.6261  	subsolve=3.30327  	maintain=1.27663
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.66269  	subsolve=3.77089  	maintain=1.38921
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67972  	subsolve=4.14558  	maintain=1.49329
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68293  	subsolve=4.4567  	maintain=1.57712
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69651  	subsolve=4.76747  	maintain=1.64489
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69828  	subsolve=5.10496  	maintain=1.69836
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70104  	subsolve=5.38017  	maintain=1.73988
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70307  	subsolve=5.58767  	maintain=1.77422
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70822  	subsolve=5.74617  	maintain=1.80165
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.70758  	subsolve=5.86117  	maintain=1.82574
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.7111  	subsolve=5.9598  	maintain=1.84414
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.70989  	subsolve=6.0198  	maintain=1.86008
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.71273  	subsolve=6.08381  	maintain=1.87083
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.71214  	subsolve=6.13195  	maintain=1.87636
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.70846  	subsolve=6.1701  	maintain=1.88444
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.70659  	subsolve=6.1922  	maintain=1.88796
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.70902  	subsolve=6.21348  	maintain=1.89106
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.70997  	subsolve=6.2303  	maintain=1.89358
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.70891  	subsolve=6.2462  	maintain=1.89506
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.70723  	subsolve=6.26308  	maintain=1.89471
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.70618  	subsolve=6.26249  	maintain=1.89276
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.67993  	subsolve=6.2709  	maintain=1.88554
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.68027  	subsolve=6.27665  	maintain=1.8852
+
+dual_obj=-46191.6
+nSV=774843 (NK=1153238670)
+nnz_w=4010872 (DK=2140557516)
+train time=219.903
+search time=41.9165
+subsolve time=133.184
+maintain time=42.9919
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.873919
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.237129
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 30 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.32203  	subsolve=2.02912  	maintain=1.07656
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56121  	subsolve=2.70311  	maintain=1.22693
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62604  	subsolve=3.30187  	maintain=1.27459
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.66002  	subsolve=3.76249  	maintain=1.38555
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67545  	subsolve=4.14008  	maintain=1.4911
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68357  	subsolve=4.45279  	maintain=1.57532
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69148  	subsolve=4.76088  	maintain=1.64201
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69678  	subsolve=5.09354  	maintain=1.69415
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70319  	subsolve=5.37187  	maintain=1.73997
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70686  	subsolve=5.57953  	maintain=1.77309
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70915  	subsolve=5.72975  	maintain=1.80055
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.71124  	subsolve=5.84855  	maintain=1.82518
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71513  	subsolve=5.94281  	maintain=1.84329
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.71681  	subsolve=6.01106  	maintain=1.85739
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.7184  	subsolve=6.0774  	maintain=1.86916
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.72226  	subsolve=6.12431  	maintain=1.87812
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.72285  	subsolve=6.15923  	maintain=1.88549
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.72217  	subsolve=6.1831  	maintain=1.88992
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.72406  	subsolve=6.20591  	maintain=1.89257
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.7253  	subsolve=6.22796  	maintain=1.894
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.72714  	subsolve=6.24044  	maintain=1.89659
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.72604  	subsolve=6.25491  	maintain=1.89518
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.72786  	subsolve=6.2557  	maintain=1.89381
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.72909  	subsolve=6.26525  	maintain=1.89087
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.72805  	subsolve=6.26594  	maintain=1.89111
+.nnz_a_i=8.31922  	nnz_w_j=23.0807  	search=1.72902  	subsolve=6.27097  	maintain=1.8897
+.nnz_a_i=8.33501  	nnz_w_j=23.1223  	search=1.7276  	subsolve=6.27585  	maintain=1.88824
+.nnz_a_i=8.34605  	nnz_w_j=23.1691  	search=1.72821  	subsolve=6.27158  	maintain=1.88698
+.nnz_a_i=8.35502  	nnz_w_j=23.204  	search=1.73139  	subsolve=6.27697  	maintain=1.88613
+.nnz_a_i=8.36313  	nnz_w_j=23.2325  	search=1.73246  	subsolve=6.27037  	maintain=1.88216
+
+dual_obj=-46945.5
+nSV=781393 (NK=1153238670)
+nnz_w=4045106 (DK=2140557516)
+train time=269.749
+search time=50.8009
+subsolve time=164.353
+maintain time=52.4157
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.882597
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.238304
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 20 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.32229  	subsolve=2.02884  	maintain=1.07615
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56125  	subsolve=2.70318  	maintain=1.2265
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62523  	subsolve=3.29992  	maintain=1.27361
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.66023  	subsolve=3.76279  	maintain=1.38438
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67577  	subsolve=4.13855  	maintain=1.48992
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68472  	subsolve=4.45102  	maintain=1.57356
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69254  	subsolve=4.75944  	maintain=1.64058
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69855  	subsolve=5.09335  	maintain=1.69334
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70325  	subsolve=5.37038  	maintain=1.73811
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70876  	subsolve=5.57864  	maintain=1.77177
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.71051  	subsolve=5.73147  	maintain=1.80048
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.71266  	subsolve=5.84847  	maintain=1.8245
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71581  	subsolve=5.93957  	maintain=1.84183
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.7174  	subsolve=6.01364  	maintain=1.857
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.72004  	subsolve=6.07942  	maintain=1.87054
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.72275  	subsolve=6.12483  	maintain=1.87692
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.72454  	subsolve=6.16735  	maintain=1.88402
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.72314  	subsolve=6.18636  	maintain=1.88868
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.7247  	subsolve=6.20691  	maintain=1.89332
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.7266  	subsolve=6.2278  	maintain=1.89393
+
+dual_obj=-45226.7
+nSV=755728 (NK=1153238670)
+nnz_w=3951688 (DK=2140557516)
+train time=170.214
+search time=33.5307
+subsolve time=101.712
+maintain time=33.4992
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.860796
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.234293
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 25 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.31901  	subsolve=2.02876  	maintain=1.07822
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.55826  	subsolve=2.70211  	maintain=1.22941
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62346  	subsolve=3.30025  	maintain=1.27745
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.65763  	subsolve=3.76161  	maintain=1.38813
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67318  	subsolve=4.13788  	maintain=1.49426
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68101  	subsolve=4.44971  	maintain=1.57791
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69214  	subsolve=4.76523  	maintain=1.64559
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69489  	subsolve=5.09258  	maintain=1.69672
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70049  	subsolve=5.37202  	maintain=1.74245
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70495  	subsolve=5.57895  	maintain=1.77465
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70751  	subsolve=5.73271  	maintain=1.80386
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.71127  	subsolve=5.85301  	maintain=1.82836
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71277  	subsolve=5.94012  	maintain=1.84544
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.7158  	subsolve=6.01554  	maintain=1.85976
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.71712  	subsolve=6.07625  	maintain=1.87213
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.7198  	subsolve=6.12046  	maintain=1.87966
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.72164  	subsolve=6.16274  	maintain=1.88755
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.71948  	subsolve=6.18478  	maintain=1.89139
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.72311  	subsolve=6.20545  	maintain=1.89519
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.72217  	subsolve=6.22351  	maintain=1.89589
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.72528  	subsolve=6.23863  	maintain=1.89775
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.7224  	subsolve=6.25207  	maintain=1.89753
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.72956  	subsolve=6.27561  	maintain=1.89911
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.72665  	subsolve=6.26114  	maintain=1.89371
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.72583  	subsolve=6.26453  	maintain=1.89216
+
+dual_obj=-46191.6
+nSV=774843 (NK=1153238670)
+nnz_w=4010872 (DK=2140557516)
+train time=219.948
+search time=42.1054
+subsolve time=132.996
+maintain time=43.0443
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.873919
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.237129
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 30 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.32399  	subsolve=2.02884  	maintain=1.07751
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56474  	subsolve=2.70584  	maintain=1.22886
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62809  	subsolve=3.29959  	maintain=1.27573
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.66224  	subsolve=3.76173  	maintain=1.38652
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67833  	subsolve=4.14249  	maintain=1.49345
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68676  	subsolve=4.45072  	maintain=1.57666
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69429  	subsolve=4.75921  	maintain=1.64219
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69996  	subsolve=5.09396  	maintain=1.69609
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70444  	subsolve=5.37165  	maintain=1.74109
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70971  	subsolve=5.5783  	maintain=1.77484
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.71098  	subsolve=5.72961  	maintain=1.80369
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.71378  	subsolve=5.8483  	maintain=1.8269
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71761  	subsolve=5.94098  	maintain=1.8444
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.71849  	subsolve=6.01054  	maintain=1.85954
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.72022  	subsolve=6.07717  	maintain=1.87162
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.72434  	subsolve=6.12249  	maintain=1.87898
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.72495  	subsolve=6.1602  	maintain=1.88617
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.72609  	subsolve=6.18656  	maintain=1.89248
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.7264  	subsolve=6.20763  	maintain=1.89529
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.72669  	subsolve=6.22533  	maintain=1.89685
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.72918  	subsolve=6.24078  	maintain=1.89769
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.72736  	subsolve=6.25381  	maintain=1.89751
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.72928  	subsolve=6.25422  	maintain=1.89638
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.72981  	subsolve=6.26134  	maintain=1.89312
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.72985  	subsolve=6.26428  	maintain=1.89319
+.nnz_a_i=8.31922  	nnz_w_j=23.0807  	search=1.73055  	subsolve=6.26811  	maintain=1.89201
+.nnz_a_i=8.33501  	nnz_w_j=23.1223  	search=1.72999  	subsolve=6.27089  	maintain=1.89044
+.nnz_a_i=8.34605  	nnz_w_j=23.1691  	search=1.7308  	subsolve=6.27013  	maintain=1.88864
+.nnz_a_i=8.35502  	nnz_w_j=23.204  	search=1.73151  	subsolve=6.26644  	maintain=1.88653
+.nnz_a_i=8.36313  	nnz_w_j=23.2325  	search=1.73399  	subsolve=6.26454  	maintain=1.88378
+
+dual_obj=-46945.5
+nSV=781393 (NK=1153238670)
+nnz_w=4045106 (DK=2140557516)
+train time=269.861
+search time=50.8644
+subsolve time=164.316
+maintain time=52.4681
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.882597
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.238304
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 20 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.31775  	subsolve=2.0291  	maintain=1.07535
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.55727  	subsolve=2.7043  	maintain=1.22722
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62322  	subsolve=3.30092  	maintain=1.27409
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.65724  	subsolve=3.76226  	maintain=1.38484
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67337  	subsolve=4.13942  	maintain=1.49126
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.68109  	subsolve=4.45257  	maintain=1.57481
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69036  	subsolve=4.76173  	maintain=1.64143
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69598  	subsolve=5.09367  	maintain=1.69471
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70038  	subsolve=5.37324  	maintain=1.73905
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.705  	subsolve=5.57982  	maintain=1.77353
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70638  	subsolve=5.73246  	maintain=1.80154
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.70939  	subsolve=5.85006  	maintain=1.82523
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71399  	subsolve=5.9418  	maintain=1.84309
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.71548  	subsolve=6.01261  	maintain=1.859
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.71694  	subsolve=6.07691  	maintain=1.86985
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.71953  	subsolve=6.1233  	maintain=1.87824
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.71952  	subsolve=6.16252  	maintain=1.8861
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.72016  	subsolve=6.18565  	maintain=1.89116
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.72179  	subsolve=6.20737  	maintain=1.89365
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.72266  	subsolve=6.22563  	maintain=1.89601
+
+dual_obj=-45226.7
+nSV=755728 (NK=1153238670)
+nnz_w=3951688 (DK=2140557516)
+train time=170.168
+search time=33.4675
+subsolve time=101.715
+maintain time=33.5202
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.860796
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.234293
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 25 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.31786  	subsolve=2.02665  	maintain=1.07263
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.55744  	subsolve=2.70143  	maintain=1.22798
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.62202  	subsolve=3.29728  	maintain=1.27391
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.65617  	subsolve=3.75924  	maintain=1.38389
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67141  	subsolve=4.13536  	maintain=1.48937
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.679  	subsolve=4.44747  	maintain=1.57385
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.6868  	subsolve=4.75735  	maintain=1.6397
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69262  	subsolve=5.08998  	maintain=1.69211
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.69827  	subsolve=5.36762  	maintain=1.73823
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70226  	subsolve=5.57566  	maintain=1.77214
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70444  	subsolve=5.7265  	maintain=1.7999
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.70682  	subsolve=5.8444  	maintain=1.82382
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71016  	subsolve=5.93754  	maintain=1.84079
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.71116  	subsolve=6.00708  	maintain=1.8571
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.71367  	subsolve=6.07329  	maintain=1.86894
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.71703  	subsolve=6.1182  	maintain=1.87593
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.7183  	subsolve=6.1573  	maintain=1.88391
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.72007  	subsolve=6.19164  	maintain=1.88996
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.71983  	subsolve=6.20488  	maintain=1.89159
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.72166  	subsolve=6.22747  	maintain=1.89361
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.72255  	subsolve=6.2377  	maintain=1.89496
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.72029  	subsolve=6.25081  	maintain=1.89472
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.72227  	subsolve=6.25248  	maintain=1.89306
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.72399  	subsolve=6.2607  	maintain=1.89028
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.72366  	subsolve=6.26151  	maintain=1.89001
+
+dual_obj=-46191.6
+nSV=774843 (NK=1153238670)
+nnz_w=4010872 (DK=2140557516)
+train time=219.723
+search time=42.0397
+subsolve time=132.91
+maintain time=42.9524
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.873919
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.237129
+./multiTrain -s 3 -l 0.025 -c 1 -r 20 -m 30 -q 20 -i /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+N=93805
+D=174114
+K=12294
+lambda=0.025, C=1
+.nnz_a_i=1.79248  	nnz_w_j=8.95603  	search=1.32418  	subsolve=2.03218  	maintain=1.08189
+.nnz_a_i=2.55325  	nnz_w_j=13.7723  	search=1.56082  	subsolve=2.70386  	maintain=1.22838
+.nnz_a_i=3.26827  	nnz_w_j=16.3496  	search=1.63032  	subsolve=3.30725  	maintain=1.27785
+.nnz_a_i=3.92422  	nnz_w_j=17.8991  	search=1.66253  	subsolve=3.76736  	maintain=1.38702
+.nnz_a_i=4.5171  	nnz_w_j=18.9287  	search=1.67554  	subsolve=4.14112  	maintain=1.49106
+.nnz_a_i=5.04619  	nnz_w_j=19.6529  	search=1.6893  	subsolve=4.45633  	maintain=1.57608
+.nnz_a_i=5.51576  	nnz_w_j=20.1913  	search=1.69302  	subsolve=4.76688  	maintain=1.64053
+.nnz_a_i=5.92751  	nnz_w_j=20.6088  	search=1.69643  	subsolve=5.10053  	maintain=1.69319
+.nnz_a_i=6.28572  	nnz_w_j=20.9462  	search=1.70078  	subsolve=5.38044  	maintain=1.73914
+.nnz_a_i=6.59372  	nnz_w_j=21.2251  	search=1.70697  	subsolve=5.59249  	maintain=1.77287
+.nnz_a_i=6.86574  	nnz_w_j=21.4635  	search=1.70763  	subsolve=5.73873  	maintain=1.8012
+.nnz_a_i=7.09996  	nnz_w_j=21.6777  	search=1.70676  	subsolve=5.85613  	maintain=1.82431
+.nnz_a_i=7.30006  	nnz_w_j=21.8621  	search=1.71059  	subsolve=5.94699  	maintain=1.84147
+.nnz_a_i=7.4784  	nnz_w_j=22.0286  	search=1.70601  	subsolve=6.01489  	maintain=1.8551
+.nnz_a_i=7.62782  	nnz_w_j=22.1624  	search=1.71283  	subsolve=6.08814  	maintain=1.86977
+.nnz_a_i=7.75148  	nnz_w_j=22.29  	search=1.71644  	subsolve=6.13622  	maintain=1.87669
+.nnz_a_i=7.85719  	nnz_w_j=22.4082  	search=1.71316  	subsolve=6.17215  	maintain=1.88357
+.nnz_a_i=7.94604  	nnz_w_j=22.5134  	search=1.71037  	subsolve=6.19245  	maintain=1.88797
+.nnz_a_i=8.02777  	nnz_w_j=22.6057  	search=1.70933  	subsolve=6.21321  	maintain=1.88975
+.nnz_a_i=8.09258  	nnz_w_j=22.696  	search=1.70895  	subsolve=6.23419  	maintain=1.89196
+.nnz_a_i=8.14694  	nnz_w_j=22.779  	search=1.70972  	subsolve=6.24937  	maintain=1.89312
+.nnz_a_i=8.18845  	nnz_w_j=22.8553  	search=1.70558  	subsolve=6.26269  	maintain=1.89247
+.nnz_a_i=8.23243  	nnz_w_j=22.9234  	search=1.7091  	subsolve=6.25935  	maintain=1.89029
+.nnz_a_i=8.26478  	nnz_w_j=22.9804  	search=1.70651  	subsolve=6.27059  	maintain=1.88735
+.nnz_a_i=8.29459  	nnz_w_j=23.0359  	search=1.70508  	subsolve=6.27484  	maintain=1.88625
+.nnz_a_i=8.31922  	nnz_w_j=23.0807  	search=1.70394  	subsolve=6.2778  	maintain=1.8836
+.nnz_a_i=8.33501  	nnz_w_j=23.1223  	search=1.68459  	subsolve=6.27746  	maintain=1.8809
+.nnz_a_i=8.34605  	nnz_w_j=23.1691  	search=1.67939  	subsolve=6.27394  	maintain=1.88047
+.nnz_a_i=8.35502  	nnz_w_j=23.204  	search=1.68236  	subsolve=6.27385  	maintain=1.87731
+.nnz_a_i=8.36313  	nnz_w_j=23.2325  	search=1.6824  	subsolve=6.27404  	maintain=1.87392
+
+dual_obj=-46945.5
+nSV=781393 (NK=1153238670)
+nnz_w=4045106 (DK=2140557516)
+train time=269.476
+search time=50.4106
+subsolve time=164.535
+maintain time=52.3555
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//train.tfidf.scale model
+Ntest=93805
+Acc=0.882597
+./multiPred /scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData//val.tfidf.scale  model
+Ntest=34905
+Acc=0.238304

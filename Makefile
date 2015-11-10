@@ -1,7 +1,7 @@
 all: train predict
 	
 train:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
+	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp -DMULTISELECT
 predict:
 	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
@@ -9,12 +9,13 @@ s=3
 r=1
 m=20
 q=1
+g=1
 model=model
 LSHTC=/scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData/
 sample_opt=-i
 
 ocr:
-	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) $(sample_opt) data/data20.subtrain.svm $(model)
+	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) data/data20.subtrain.svm $(model)
 	./multiPred data/data20.subtrain.svm $(model)
 	./multiPred data/data20.test.svm $(model)
 rcv1:
