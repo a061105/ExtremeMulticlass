@@ -1,7 +1,8 @@
 all: train predict
 	
+FLAG=-DMULTISELECT
 train:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp -DMULTISELECT
+	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp #$(FLAG)
 predict:
 	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
@@ -19,15 +20,15 @@ ocr:
 	./multiPred data/data20.subtrain.svm $(model)
 	./multiPred data/data20.test.svm $(model)
 rcv1:
-	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) $(sample_opt) data/rcv1_train.multiclass $(model)
+	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) data/rcv1_train.multiclass $(model)
 	./multiPred data/rcv1_train.multiclass $(model)
 	./multiPred data/rcv1_test.multiclass.10k $(model)
 aloi:
-	./multiTrain -s $(s) -l 0.01 -m $(m) -q $(q) $(sample_opt) data/aloi.bin.subtrain $(model)
+	./multiTrain -s $(s) -l 0.01 -m $(m) -q $(q) -g $(g) $(sample_opt) data/aloi.bin.subtrain $(model)
 	./multiPred data/aloi.bin.subtrain $(model)
 	./multiPred data/aloi.bin.test $(model)
 
 LSHTC:
-	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) $(sample_opt) ${LSHTC}/train.tfidf.scale $(model)
+	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) ${LSHTC}/train.tfidf.scale $(model)
 	./multiPred ${LSHTC}/train.tfidf.scale $(model)
 	./multiPred ${LSHTC}/val.tfidf.scale  $(model)
