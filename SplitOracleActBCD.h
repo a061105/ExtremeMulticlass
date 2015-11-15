@@ -1,6 +1,6 @@
 #include "util.h"
 #include "multi.h"
-
+#include <cassert>
 #define INFI 1e9
 #define loc(k) k*split_up_rate/K
 
@@ -35,6 +35,9 @@ class SplitOracleActBCD{
 		}
 		labels = &(prob->labels);
 		max_iter = param->max_iter;
+		
+		//DEBUG
+		cccc= 0;
 	}
 	
 	~SplitOracleActBCD(){
@@ -55,7 +58,6 @@ class SplitOracleActBCD{
 				v[j][k] = 0.0;
 			}
 		}
-		
 		w_nnz_index = new vector<int>**[D];
 		for(int j=0;j<D;j++){
 			w_nnz_index[j] = new vector<int>*[split_up_rate];
@@ -72,16 +74,18 @@ class SplitOracleActBCD{
 				sq_sum += it->second*it->second;
 			Q_diag[i] = sq_sum;
 		}
-		
 		//indexes for permutation of [N]
 		int* index = new int[N];
 		for(int i=0;i<N;i++)
 			index[i] = i;
 		//initialize active set out of [K] for each sample i
 		vector<int>* act_k_index = new vector<int>[N];
-		for(int i=0;i<N;i++)
-			act_k_index[i].push_back(labels->at(i));
-		
+		for(int i=0;i<N;i++){
+			Labels* yi = &(labels->at(i));
+			for (Labels::iterator it = yi->begin(); it < yi->end(); it++){
+				act_k_index[i].push_back(*it);
+			}
+		}
 		
 		//main loop
 		double starttime = omp_get_wtime();
@@ -106,14 +110,14 @@ class SplitOracleActBCD{
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
 					continue;
-				
+					
 				subsolve_time -= omp_get_wtime();
 				subSolve(i, act_k_index[i], alpha_i_new);
 				subsolve_time += omp_get_wtime();
 				
 				//maintain v =  X^T\alpha;  w = prox_{l1}(v);
 				SparseVec* x_i = data->at(i);
-				int yi = labels->at(i);
+				Labels* yi = &(labels->at(i));
 				maintain_time -= omp_get_wtime();
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){	
 					int j = it->first; 
@@ -146,14 +150,18 @@ class SplitOracleActBCD{
 				}
 				//shrink act_k_index
 				if( has_zero ){
+					//cerr << "before size=" << act_k_index[i].size() << endl;
 					vector<int> tmp_vec;
 					tmp_vec.reserve(act_k_index[i].size());
 					for(vector<int>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
 						int k = *it;
-						if( fabs(alpha_i[k]) > 1e-12 || k==yi )
+					//	cerr << alpha_i[k] << " ";
+						if( fabs(alpha_i[k]) > 1e-12 || find(yi->begin(), yi->end(), k)!=yi->end() )
 							tmp_vec.push_back(k);
 					}
+					//cerr << endl;
 					act_k_index[i] = tmp_vec;
+					//cerr << "after size=" << act_k_index[i].size() << endl;
 				}
 				maintain_time += omp_get_wtime();
 			}
@@ -177,7 +185,7 @@ class SplitOracleActBCD{
 				cerr << "maintain=" << maintain_time-last_maintain_time << endl;
 				last_search_time = search_time; last_subsolve_time = subsolve_time; last_maintain_time = maintain_time;
 			}
-			
+				
 			iter++;
 		}
 		double endtime = omp_get_wtime();
@@ -198,9 +206,9 @@ class SplitOracleActBCD{
 		}
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
-			int yi = labels->at(i);
+			Labels* yi = &(labels->at(i));
 			for(int k=0;k<K;k++){
-				if(k!=yi)
+				if(find(yi->begin(), yi->end(), k) == yi->end())
 					d_obj += alpha[i][k];
 				if( fabs( alpha[i][k] ) > 1e-12 )
 					nSV++;
@@ -237,43 +245,201 @@ class SplitOracleActBCD{
 		delete[] v;
 		return new Model(prob, w_temp); //v is w
 	}
-	
-	void subSolve(int i, vector<int>& act_k_index, double* alpha_i_new){
+	int cccc;	
+	void subSolve(int I, vector<int>& act_k_index, double* alpha_i_new){
 		
-		int act_k_size = act_k_index.size();
+		Labels* yi = &(labels->at(I));
+		int m = yi->size(), n = act_k_index.size() - m;
+		double* b = new double[n];
+		double* c = new double[m];
+		int* act_index_b = new int[n];
+		int* act_index_c = new int[m];
 		
-		double* grad = new double[act_k_size];
-		double* Dk = new double[act_k_size];
-		
-		int yi = labels->at(i);
-		SparseVec* x_i = data->at(i);
-		double Qii = Q_diag[i];
-		double* alpha_i = alpha[i];
+		SparseVec* x_i = data->at(I);
+		double A = Q_diag[I];
+		double* alpha_i = alpha[I];
 		//compute gradient of each k
-		for(int j=0;j<act_k_size;j++){
-			int k = act_k_index[j];
-			if( k!=yi )
-				grad[j] = 1.0 - Qii*alpha_i[k];
+		int i = 0, j = 0;
+		//cerr << "act_size= " << act_k_index.size() << endl;
+		//cerr << "(m,n)= " << m << "," << n << endl;
+//		cerr << "alpha: ";
+		for(int k=0;k<m+n;k++){
+			int p = act_k_index[k];
+	//		cerr << p << " ";
+			if( find(yi->begin(), yi->end(), p) == yi->end() )
+				act_index_b[i++] = p;
 			else
-				grad[j] = - Qii*alpha_i[k];
+				act_index_c[j++] = p;
+//			cerr << alpha_i[p] << " ";
 		}
-		
+//		cerr << endl;
+		//cerr << endl;
+		//cerr << "actual bar_Y_i size = " << i << endl;
+		//cerr << "actual Y_i size = " << j << endl;
+		assert(i==n); assert(j==m);
+		int* index_b = new int[n];
+		int* index_c = new int[m];
+	//	cerr << "n= " << n << ",m= " << m << endl;
+		for(int i=0; i < n; i++){
+			int k = act_index_b[i];
+			b[i] = 1.0 - A*alpha_i[k];
+			index_b[i] = i;
+		}
+
+		for(int j=0; j < m; j++){ 
+                        int k = act_index_c[j];
+                        c[j] = A*alpha_i[k];
+//			cerr << "update c to " << c[j] << endl;
+			index_c[j] = j;
+                }
+
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 			int fea_ind = it->first;
 			double fea_val = it->second;
-			for(int j=0;j<act_k_size;j++){
-				int k = act_k_index[j];
+			for(int i = 0; i < n; i++){
+				int k = act_index_b[i];
+				double vjk = v[fea_ind][k];
+				if (fabs(vjk) > lambda){
+					if (vjk > 0)
+						b[i] += (vjk-lambda)*fea_val;
+					else
+						b[i] += (vjk+lambda)*fea_val;
+				}	
+			}
+			for(int j = 0; j < m; j++){
+				int k = act_index_c[j];
 				//grad[j] += W[fea_ind][k]*fea_val;
 				double vjk = v[fea_ind][k];
 				if( fabs(vjk) > lambda ){
 					if( vjk > 0 )
-						grad[j] += (vjk-lambda)*fea_val;
+						c[j] -= (vjk-lambda)*fea_val;
 					else
-						grad[j] += (vjk+lambda)*fea_val;
+						c[j] -= (vjk+lambda)*fea_val;
+//					cerr << "update c to " << c[j] << " using (j,k)=" << fea_ind << "," << k  << " val=" << vjk << endl;
 				}
 			}
 		}
-		for(int j=0;j<act_k_size;j++){
+			
+		sort(index_b, index_b+n, ScoreComp(b));
+		sort(index_c, index_c+m, ScoreComp(c));				
+		double* S_b = new double[n];
+		double* S_c = new double[m];
+		double r_b = 0.0, r_c = 0.0;
+//		cerr << "b: ";
+		for (int i = 0; i < n; i++){
+			b[index_b[i]] /= A;
+//			cerr << b[index_b[i]] << " ";
+			r_b += b[index_b[i]]*b[index_b[i]];
+			if (i == 0)
+				S_b[i] = b[index_b[i]];
+			else
+				S_b[i] = S_b[i-1] + b[index_b[i]];
+		}
+//		cerr << endl;
+//		cerr << "c: ";
+		for (int j = 0; j < m; j++){
+                        c[index_c[j]] /= A;
+//			cerr << c[index_c[j]] << " ";
+			r_c += c[index_c[j]]*c[index_c[j]];
+			if (j == 0)
+				S_c[j] = c[index_c[j]];
+			else
+                        	S_c[j] = S_c[j-1] + c[index_c[j]];
+                }
+//		cerr << endl;
+		i = 0; j = 0; 
+		while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= 0){
+			r_b -= b[index_b[i]]*b[index_b[i]];
+			i++;
+		} 
+		while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= 0) { 
+                        r_c -= c[index_c[j]]*c[index_c[j]];
+                        j++;
+                }
+		//update for b_{0..i-1} c_{0..j-1}
+		//i,j is the indices of coordinate that we will going to include, but not now!
+		//cerr << "init i,j = " << i << "," << j << endl;
+		double t = 0.0;
+		double ans_t_star = 0; //(sqrt(i)*S_c[j-1] + sqrt(j)*S_b[i-1])/(sqrt(i)+sqrt(j));
+		double ans = INFI; //r_b + r_c + (S_b[i-1] - ans_t_star)*(S_b[i-1] - ans_t_star)/i + (S_c[j-1] - ans_t_star)*(S_c[j-1] - ans_t_star)/j;
+		int ansi = i, ansj = j;
+		int lasti = 0, lastj = 0;
+		do{
+			lasti = i; lastj = j;
+			// l = t; t = min(f_b(i), f_c(j));
+			double l = t;
+			if (i == n){
+				if (j == m){
+					t = C;
+				} else {
+					t = S_c[j] - (j+1)*c[index_c[j]];
+				}
+			} else {
+				if (j == m){
+					t = S_b[i] - (i+1)*b[index_b[i]];
+				} else {
+					t = S_b[i] - (i+1)*b[index_b[i]];
+					if (S_c[j] - (j+1)*c[index_c[j]] < t){ 
+                                		t = S_c[j] - (j+1)*c[index_c[j]]; 
+                        		}
+				}
+			}
+			if (t > C){
+				t = C;
+			}
+//			cerr << l << " " << t << endl;
+			assert(t >= 0 && l >= 0);
+		//	cerr << "set t = " << t << endl;
+			double t_star = (i*S_c[j-1] + j*S_b[i-1])/(i+j);
+		//	cerr << "get t_star = " << t_star << endl;
+			if (t_star < l){
+				t_star = l;
+			}
+			if (t_star > t){
+				t_star = t;
+			}
+			double candidate = r_b + r_c + (S_b[i-1] - t_star)*(S_b[i-1] - t_star)/i + (S_c[j-1] - t_star)*(S_c[j-1] - t_star)/j;
+			if (candidate < ans){
+				ans = candidate;
+				ansi = i;
+				ansj = j;
+				ans_t_star = t_star;
+			}
+			while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= t){
+               	         	r_b -= b[index_b[i]]*b[index_b[i]];
+               	        	i++;
+               	 	}
+               	 	while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= t) {
+               	         	r_c -= c[index_c[j]]*c[index_c[j]];
+               	        	j++;
+               	 	}
+		} while (i != lasti || j != lastj);
+		i = ansi; j = ansj;
+		for(int i = 0; i < n; i++){
+			int k = act_index_b[index_b[i]];
+			if (i < ansi)
+				alpha_i_new[k] = -(b[index_b[i]] + (ans_t_star - S_b[ansi-1])/ansi);
+			else
+				alpha_i_new[k] = 0.0;
+//			cerr << I << " " << k  << " " << alpha_i_new[k] << " ";
+		}
+//		cerr << endl;
+		for(int j = 0; j < m; j++){
+                        int k = act_index_c[index_c[j]];
+			if (j < ansj)
+                        	alpha_i_new[k] = c[index_c[j]] + (ans_t_star - S_c[ansj-1])/ansj;
+			else
+				alpha_i_new[k] = 0.0;
+//			cerr << I << " " << k << " " << alpha_i_new[k] << " ";
+                }
+//		cerr << endl;
+//		cerr << "ans="<< ans << " i_star="<< ansi << " j_star=" << ansj << " t_star=" << ans_t_star << endl;	
+//		cerr << endl;
+//		cccc++;
+//		cerr << cccc << endl;
+//		if (cccc == 15580)
+//			exit(0);
+		/*for(int j=0;j<act_k_size;j++){
 			int k = act_k_index[j];
 			if( k!=yi )
 				Dk[j] = grad[j];
@@ -296,24 +462,30 @@ class SplitOracleActBCD{
 		for(int j=0;j<act_k_size;j++){
 			int k = act_k_index[j];
 			alpha_i_new[k] = min( (k!=yi)?0.0:C, (beta-grad[j])/Qii );
-		}
+		}*/
 	
 			
-		delete[] grad;
-		delete[] Dk;
+		/*delete[] b; delete[] c;
+		delete[] act_index_b; delete[] act_index_c;
+		delete[] S_b; delete[] S_c;
+		delete[] alpha_i;
+		delete[] index_b; delete[] index_c; */
+		//delete[] Dk;
 	}
 		
 	void search_active_i_importance( int i, vector<int>& act_k_index ){
 		int S = rand()%split_up_rate;
                 //compute <xi,wk> for k=1...K
-                int yi = labels->at(i);
+                Labels* yi = &(labels->at(i));
 		memset(prod, 0, sizeof(double)*K);
                 SparseVec* xi = data->at(i);
 		int nnz = xi->size();
 		for(int j = 0; j < act_k_index.size(); j++){
 			prod[act_k_index[j]] = -INFI;
 		}
-		prod[yi] = -INFI;
+		for (Labels::iterator it = yi->begin(); it < yi->end(); it++){
+			prod[*it] = -INFI;
+		}
 		int n = nnz/speed_up_rate;
 		double th = -n/(1.0*nnz);
 		vector<double>* rand_nums = new vector<double>();
@@ -334,7 +506,7 @@ class SplitOracleActBCD{
 		double current_sum = current_index->second;
 		vector<double>::iterator current_rand_index = rand_nums->begin();
 		double cdf_sumi = cdf_sum->at(i);
-		
+			
 		while (current_rand_index < rand_nums->end()){
 			while (current_sum < (*current_rand_index)*cdf_sumi){
 				current_index++;
@@ -390,6 +562,7 @@ class SplitOracleActBCD{
 				#endif
 			}
                 }
+		rand_nums->clear();
 		#ifdef MULTISELECT
 		for (int j = 0; j < max_select; j++){
 			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
@@ -428,21 +601,31 @@ class SplitOracleActBCD{
 			}
 		}
 		if (prod[max_index] > th){
+			for (int k = 0; k < act_k_index.size(); k++){
+				//cerr << prod[max_index] << " " << th<< endl;
+				assert(act_k_index[k] != max_index);
+			}
 			act_k_index.push_back(max_index);
+//			cerr << "yes" << endl;
+		} else{
+//			cerr << "no" << endl;
 		}
+ 
 		#endif
         }
 
 	void search_active_i_uniform(int i, vector<int>& act_k_index){
 		int S = rand()%split_up_rate;
-		int yi = labels->at(i);
+		Labels* yi = &(labels->at(i));
                 memset(prod, 0, sizeof(double)*K);
                 SparseVec* xi = data->at(i);
                 int nnz = xi->size();
                 for(int j = 0; j < act_k_index.size(); j++){
                         prod[act_k_index[j]] = -INFI;
                 }
-                prod[yi] = -INFI;
+		for(Labels::iterator it = yi->begin(); it < yi->end(); it++){
+                	prod[*it] = -INFI;
+		}
                 int n = nnz/speed_up_rate;
                 vector<double>* rand_nums = new vector<double>();
                 for (int tt = 0; tt < n; tt++){
@@ -494,7 +677,7 @@ class SplitOracleActBCD{
 	double lambda;
 	double C;
 	vector<SparseVec*>* data;
-	vector<int>* labels;
+	vector<Labels>* labels;
 	int D; 
 	int N;
 	int K;

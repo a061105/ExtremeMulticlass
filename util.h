@@ -16,6 +16,7 @@ using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;
 typedef unordered_map<int,double> HashVec;
+typedef vector<int> Labels;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 

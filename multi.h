@@ -8,7 +8,7 @@ class Problem{
 	map<string,int> label_index_map;
 	vector<string> label_name_list;
 	vector<SparseVec*> data;
-	vector<int> labels;
+	vector<Labels> labels;
 	int N;//number of samples
 	int D;//dimension
 	int K;
@@ -83,35 +83,43 @@ void readData(char* fname, Problem* prob)
 
 		vector<string> tokens = split(line_str, " ");
 		//get label index
-		int lab_ind;
+		Labels lab_indices;
+		lab_indices.clear();
 		map<string,int>::iterator it;
-		if(  (it=label_index_map->find(tokens[0])) == label_index_map->end() ){
-			lab_ind = label_index_map->size();
-			label_index_map->insert(make_pair(tokens[0],lab_ind));
-		}else
-			lab_ind = it->second;
-		
+		int st = 0;
+		while (st < tokens.size() && tokens[st].find(":") == string::npos){
+			// truncate , out
+			while (*(tokens[st].end()-1) == ','){
+				tokens[st].erase(tokens[st].end()-1);
+			}
+			if( (it=label_index_map->find(tokens[st])) == label_index_map->end() ){
+				lab_indices.push_back(label_index_map->size());
+				label_index_map->insert(make_pair(tokens[st],lab_indices.at(st)));
+			}else{
+				lab_indices.push_back(it->second);
+			}
+			st++;
+		}
 		
 		SparseVec* ins = new SparseVec();
-		for(int i=1;i<tokens.size();i++){
+		for(int i=st;i<tokens.size();i++){
 			vector<string> kv = split(tokens[i],":");
 			int ind = atoi(kv[0].c_str());
 			double val = atof(kv[1].c_str());
 			ins->push_back(make_pair(ind,val));
-
 			if( ind > d )
 				d = ind;
 		}
 		
 		prob->data.push_back(ins);
-		prob->labels.push_back(lab_ind);
+		prob->labels.push_back(lab_indices);
 	}
 	fin.close();
 
 	prob->D = d+1; //adding bias
 	prob->N = prob->data.size();
 	prob->K = label_index_map->size();
-
+	cerr << prob->labels.at(3).size() << endl;
 	label_name_list->resize(prob->K);
 	for(map<string,int>::iterator it=label_index_map->begin();
 			it!=label_index_map->end();

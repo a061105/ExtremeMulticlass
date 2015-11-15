@@ -1,12 +1,11 @@
 #include "util.h"
 #include "multi.h"
-#include "SBCDsolve.h"
-#include "ActBCDsolve.h"
-#include "OracleActBCD.h"
+//#include "SBCDsolve.h"
+//#include "ActBCDsolve.h"
+//#include "OracleActBCD.h"
 #include "SplitOracleActBCD.h"
 
 void exit_with_help(){
-
 	cerr << "Usage: ./multiTrain (options) [train_data] (model)" << endl;
 	cerr << "options:" << endl;
 	cerr << "-s solver: (default 0)" << endl;
@@ -16,9 +15,11 @@ void exit_with_help(){
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 10)" << endl;
 	cerr << "-r speed_up_rate: using 1/r fraction of samples (default 1)" << endl;
+	cerr << "-q split_up_rate: choose 1/q fraction of [K]" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
 	cerr << "-i im_sampling: Importance sampling instead of uniform (default not)" << endl;
 	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 1)" << endl;
+	
 	exit(0);
 }
 
@@ -108,25 +109,25 @@ int main(int argc, char** argv){
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << endl;
 	//param->lambda /= prob->N;
 	
-	if( param->solver == 0 ){
-		
-		SBCDsolve* solver = new SBCDsolve(param);
-		Model* model = solver->solve();
-		writeModel(param->modelFname, model);
-	}else if( param->solver==1 ){
-		
-		ActBCDsolve* solver = new ActBCDsolve(param);
-		Model* model = solver->solve();
-		writeModel(param->modelFname, model);
-	}else if( param->solver==2 ){
-		
-		OracleActBCD* solver = new OracleActBCD(param);
-		Model* model = solver->solve();
-		writeModel(param->modelFname, model);
-	}else if( param->solver==3 ){
+//	if( param->solver == 0 ){
+//		
+//		SBCDsolve* solver = new SBCDsolve(param);
+//		Model* model = solver->solve();
+//		writeModel(param->modelFname, model);
+//	}else if( param->solver==1 ){
+//		
+//		ActBCDsolve* solver = new ActBCDsolve(param);
+//		Model* model = solver->solve();
+//		writeModel(param->modelFname, model);
+//	}else if( param->solver==2 ){
+//		
+//		OracleActBCD* solver = new OracleActBCD(param);
+//		Model* model = solver->solve();
+//		writeModel(param->modelFname, model);
+//	}else if( param->solver==3 ){
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
 		writeModel(param->modelFname, model);
-	}
+//	}
 	
 }

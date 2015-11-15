@@ -2,7 +2,7 @@ all: train predict
 	
 FLAG=-DMULTISELECT
 train:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp #$(FLAG)
+	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp 
 predict:
 	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
@@ -13,6 +13,7 @@ q=1
 g=1
 model=model
 LSHTC=/scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData/
+LSHTCmulti=/scratch/cluster/ianyen/data/LSHTC/LSHTC2/wiki_large/multiData.sub100
 sample_opt=-i
 
 ocr:
@@ -32,3 +33,8 @@ LSHTC:
 	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) ${LSHTC}/train.tfidf.scale $(model)
 	./multiPred ${LSHTC}/train.tfidf.scale $(model)
 	./multiPred ${LSHTC}/val.tfidf.scale  $(model)
+
+multi:
+	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) ${LSHTCmulti} $(model)
+	./multiPred ${LSHTCmulti} $(model)
+	#./multiPred ${LSHTC}/val.tfidf.scale  $(model)

@@ -41,12 +41,17 @@ Model* readModel(char* file){
 int main(int argc, char** argv){
 	
 	if( argc < 1+2 ){
-		cerr << "multiPred [testfile] [model]" << endl;
+		cerr << "multiPred [testfile] [model] (top k, default auto)" << endl;
 		exit(0);
 	}
+	
 
 	char* testFile = argv[1];
 	char* modelFile = argv[2];
+	int T = -1;
+	if (argc > 3){
+		T = atoi(argv[3]);
+	}
 	
 	Model* model;
 	model = readModel(modelFile);
@@ -58,17 +63,24 @@ int main(int argc, char** argv){
 	
 	//compute accuracy
 	vector<SparseVec*>* data = &(prob->data);
-	vector<int>* labels = &(prob->labels);
-	int hit=0;
+	vector<Labels>* labels = &(prob->labels);
+	double hit=0.0;
 	double* prod = new double[model->K];
+	int* k_index = new int[model->K];
+	for(int k = 0; k < model->K; k++){
+		k_index[k] = k;
+	}
 	for(int i=0;i<prob->N;i++){
 		for(int k=0;k<model->K;k++)
 			prod[k] = 0.0;
 		
 		SparseVec* xi = data->at(i);
-		int yi = labels->at(i);
+		Labels* yi = &(labels->at(i));
+		int top = T;
+		if (top == -1)
+			top = yi->size();
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
-
+			
 			int j= it->first;
 			double xij = it->second;
 			if( j >= model->D )
@@ -79,17 +91,13 @@ int main(int argc, char** argv){
 				prod[it2->first] += it2->second*xij;
 			}
 		}
-
+		sort(k_index, k_index + model->K, ScoreComp(prod));
 		double max_val = -1e300;
 		int argmax;
-		for(int k=0;k<model->K;k++)
-			if( prod[k] > max_val ){
-				max_val = prod[k];
-				argmax = k;
+		for(int k=0;k<top;k++)
+			if( find(yi->begin(), yi->end(), k_index[k]) != yi->end() ){
+				hit+=1.0/top;
 			}
-
-		if( prob->label_name_list[yi] == model->label_name_list->at(argmax) )
-			hit++;
 	}
 
 	cerr << "Acc=" << ((double)hit/prob->N) << endl;
