@@ -150,6 +150,22 @@ class SBCDsolve{
 				//maintain w = prox_{\lambda}( X^T\alpha )
 				maintain_time -= omp_get_wtime();
 				SparseVec* x_i = data->at(i);
+				#ifdef USING_HASHVEC
+				float_type* alpha_i_k = new float_type[act_size];
+				for(int j = 0; j < act_size; j++){
+                                	int act_indexj = act_index[j];
+					int index_alpha = hashindices[act_indexj];//% size_alphai;
+                                        //hash_top++; hash_bottom++;
+                                        if (alpha_i[index_alpha].first != act_indexj)
+                                        while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
+                                                index_alpha++;
+                                                if (index_alpha == size_alphai)
+                                                        index_alpha = 0;
+                                                //hash_top++;
+                                        }
+					alpha_i_k[j] = alpha_i[index_alpha].second; 
+				}
+				#endif
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 
 					int j = it->first;
@@ -158,30 +174,30 @@ class SBCDsolve{
 					pair<int, float_type>* vj = v[j];
 					int size_vj = size_v[j];
 					for(int j = 0; j < act_size; j++){
-						int act_indexj = act_index[j];	
+						int act_indexj = act_index[j];
 						//v_j_k(it->first, act_indexj)->second += f_val*(alpha_i_new[act_indexj] - alpha_i_k(i, act_indexj)->second);
-						//v_j_k(it->first, act_indexj)->first = act_indexj;				
-						int index_v = hashindices[act_indexj] % size_vj;
-						//hash_top++; hash_bottom++;
+						//v_j_k(it->first, act_indexj)->first = act_indexj;
+						int index_v = hashindices[act_indexj];// % size_vj;
+						if (vj[index_v].first != act_indexj)
                 				while (vj[index_v].first != act_indexj && vj[index_v].first != -1){
                 				        index_v++;
                 				        if (index_v == size_vj)
                 				                index_v = 0;
-						//	hash_top++;
                 				}
 						//if (vj[index_v].first == act_indexj)	hash_top++;
 						
-						int index_alpha = hashindices[act_indexj] % size_alphai;
+						/*int index_alpha = hashindices[act_indexj] ;//% size_alphai;
 						//hash_top++; hash_bottom++;
+						if (alpha_i[index_alpha].first != act_indexj)
                 				while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
                 				        index_alpha++;
                 				        if (index_alpha == size_alphai)
                 				                index_alpha = 0;
 							//hash_top++;
-                				}
+                				}*/
 						//if (alpha_i[index_alpha].first == act_indexj)	hash_top++;
 						vj[index_v].first = act_indexj;
-						vj[index_v].second += f_val*(alpha_i_new[act_indexj] - alpha_i[index_alpha].second);
+						vj[index_v].second += f_val*(alpha_i_new[act_indexj] - alpha_i_k[j]);
 					}
 					#else
 					double* vj = v[j];
@@ -207,6 +223,7 @@ class SBCDsolve{
 					alpha_i[index_alpha].first = act_indexj;
 					alpha_i[index_alpha].second = alpha_i_new[act_indexj];
 				}
+				delete[] alpha_i_k;
 				#else
 				for(int j=0;j<act_size;j++){
 					int k = act_index[j];
@@ -307,25 +324,69 @@ class SBCDsolve{
 		double A = Q_diag[I];
 		#ifdef USING_HASHVEC
 		pair<int, float_type>* alpha_i = alpha[I];
+		int size_alphai = size_alpha[I];
 		#else
 		double* alpha_i = alpha[I];
 		#endif
 		int i = 0, j = 0;
-		for(int k=0;k<m+n;k++){
-			int p = act_k_index[k];
-			if( find(yi->begin(), yi->end(), p) == yi->end() )
-				act_index_b[i++] = p;
-			else
-				act_index_c[j++] = p;
-		}
 		int* index_b = new int[n];
 		int* index_c = new int[m];
-		for(int i=0; i < n; i++){
-			int k = act_index_b[i];
+		for(int k=0;k<m+n;k++){
+			int p = act_k_index[k];
 			#ifdef USING_HASHVEC
-			b[i] = 1.0 - A*alpha_i_k(alpha[I], I, k)->second;
+			if( find(yi->begin(), yi->end(), p) == yi->end() ){
+				int index_alpha = hashindices[p] % size_alphai;
+                        	if (alpha_i[index_alpha].first != p){
+                        	        while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
+                        	                index_alpha++;
+                        	                if (index_alpha == size_alphai)
+                        	                        index_alpha = 0;
+                        	        }
+                        	}
+				b[i] = 1.0 - A*alpha_i[index_alpha].second;
+				index_b[i] = i;
+				act_index_b[i++] = p;
+			}else{
+				int index_alpha = hashindices[p] % size_alphai;
+                                if (alpha_i[index_alpha].first != p){
+                                        while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
+                                                index_alpha++;
+                                                if (index_alpha == size_alphai)
+                                                        index_alpha = 0;
+                                        }
+                                }
+                                c[j] = A*alpha_i[index_alpha].second;
+                                index_c[j] = j;
+				act_index_c[j++] = p;
+			}
 			#else
-			b[i] = 1.0 - A*alpha_i[k];
+			if( find(yi->begin(), yi->end(), p) == yi->end() ){
+				b[i] = 1.0 - A*alpha_i[p];
+				index_b[i] = i;
+				act_index_b[i++] = p;
+			}else{
+				c[j] = A*alpha_i[p];
+				index_c[j] = j;
+				act_index_c[j++] = p;
+			}
+			#endif
+		}
+		/*for(int i=0; i < n; i++){
+			int act_indexj = act_index_b[i];
+			#ifdef USING_HASHVEC
+			int index_alpha = hashindices[act_indexj] % size_alphai;
+			hash_bottom++; hash_top++;
+			if (alpha_i[index_alpha].first != -1){
+                		while (alpha_i[index_alpha].first != -1 && alpha_i[index_alpha].first != act_indexj){
+                		        index_alpha++;
+                		        if (index_alpha == size_alphai)
+                		                index_alpha = 0;
+                		}
+			}
+			b[i] = 1.0 - A*alpha_i[index_alpha].second;
+			//b[i] = 1.0 - A*alpha_i_k(alpha[I], I, k)->second;
+			#else
+			b[i] = 1.0 - A*alpha_i[act_indexj];
 			#endif
 			index_b[i] = i;
 		}
@@ -333,22 +394,39 @@ class SBCDsolve{
 		for(int j=0; j < m; j++){ 
                         int k = act_index_c[j];
 			#ifdef USING_HASHVEC
+			
 			c[j] = A*alpha_i_k(alpha[I], I, k)->second;
+			
 			#else
                         c[j] = A*alpha_i[k];
 			#endif
 			index_c[j] = j;
-                }
+                }*/
 
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 			int fea_ind = it->first;
 			double fea_val = it->second;
+			#ifdef USING_HASHVEC
+			pair<int, float_type>* vj = v[fea_ind];
+			int size_vj = size_v[fea_ind];
+			#else
+			double* vj = v[fea_ind];
+			#endif
 			for(int i = 0; i < n; i++){
 				int k = act_index_b[i];
 				#ifdef USING_HASHVEC
-				double vjk = v_j_k(v[fea_ind], fea_ind, k)->second;
+				
+				int index_v = hashindices[k];// % size_vj;
+				if (vj[index_v].first != k){
+                			while (vj[index_v].first != k && vj[index_v].first != -1){
+                			        index_v++;
+                			        if (index_v == size_vj)
+                			                index_v = 0;
+                			}
+				}
+				double vjk = vj[index_v].second;
 				#else
-				double vjk = v[fea_ind][k];
+				double vjk = vj[k];
 				#endif
 				if (fabs(vjk) > lambda){
 					if (vjk > 0)
@@ -360,7 +438,15 @@ class SBCDsolve{
 			for(int j = 0; j < m; j++){
 				int k = act_index_c[j];
 				#ifdef USING_HASHVEC
-				double vjk = v_j_k(v[fea_ind], fea_ind, k)->second;
+				int index_v = hashindices[k];// % size_vj;
+				if (vj[index_v].first != k){
+                			while (vj[index_v].first != k && vj[index_v].first != -1){
+                			        index_v++;
+                			        if (index_v == size_vj)
+                			                index_v = 0;
+                			}
+				}
+				double vjk = vj[index_v].second;	
 				#else	
 				double vjk = v[fea_ind][k];
 				#endif
