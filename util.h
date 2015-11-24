@@ -68,7 +68,7 @@ class HashFunc{
 		b = rand() % p;
 		hashindices = new int[K];
 		for (int i = 0; i < K; i++){
-			hashindices[i] = (a*i + b) % p;
+			hashindices[i] = (a*i + b) % p % INIT_SIZE;
 			//if (i < INIT_SIZE) cerr << hashindices[i] % INIT_SIZE << " ";
 		}
 		//cerr << endl;
