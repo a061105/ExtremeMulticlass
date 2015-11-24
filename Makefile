@@ -1,12 +1,12 @@
 all: train predict
 	
-FLAG=-DMULTISELECT
+FLAG= -DUSING_HASHVEC#-DMULTISELECT
 train:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp 
+	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
 predict:
 	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
-s=3
+s=0
 r=1
 m=20
 q=1

@@ -1,8 +1,10 @@
 #include "util.h"
 #include "multi.h"
 #include <cassert>
-#define INFI 1e9
+
 #define loc(k) k*split_up_rate/K
+#define PRIME_RANGE_LEFT 100000
+#define PRIME_RANGE_RIGHT 10000000
 
 class SplitOracleActBCD{
 	
@@ -14,7 +16,8 @@ class SplitOracleActBCD{
 		N = prob->N;
 		D = prob->D;
 		K = prob->K;
-	
+		//hashfunc = HashFunc(K, PRIME_RANGE_LEFT, PRIME_RANGE_RIGHT);
+
 		//sampling 	
 		speed_up_rate = param->speed_up_rate;	
 		split_up_rate = param->split_up_rate;
@@ -258,28 +261,16 @@ class SplitOracleActBCD{
 		SparseVec* x_i = data->at(I);
 		double A = Q_diag[I];
 		double* alpha_i = alpha[I];
-		//compute gradient of each k
 		int i = 0, j = 0;
-		//cerr << "act_size= " << act_k_index.size() << endl;
-		//cerr << "(m,n)= " << m << "," << n << endl;
-//		cerr << "alpha: ";
 		for(int k=0;k<m+n;k++){
 			int p = act_k_index[k];
-	//		cerr << p << " ";
 			if( find(yi->begin(), yi->end(), p) == yi->end() )
 				act_index_b[i++] = p;
 			else
 				act_index_c[j++] = p;
-//			cerr << alpha_i[p] << " ";
 		}
-//		cerr << endl;
-		//cerr << endl;
-		//cerr << "actual bar_Y_i size = " << i << endl;
-		//cerr << "actual Y_i size = " << j << endl;
-		assert(i==n); assert(j==m);
 		int* index_b = new int[n];
 		int* index_c = new int[m];
-	//	cerr << "n= " << n << ",m= " << m << endl;
 		for(int i=0; i < n; i++){
 			int k = act_index_b[i];
 			b[i] = 1.0 - A*alpha_i[k];
@@ -289,7 +280,6 @@ class SplitOracleActBCD{
 		for(int j=0; j < m; j++){ 
                         int k = act_index_c[j];
                         c[j] = A*alpha_i[k];
-//			cerr << "update c to " << c[j] << endl;
 			index_c[j] = j;
                 }
 
@@ -308,14 +298,12 @@ class SplitOracleActBCD{
 			}
 			for(int j = 0; j < m; j++){
 				int k = act_index_c[j];
-				//grad[j] += W[fea_ind][k]*fea_val;
 				double vjk = v[fea_ind][k];
 				if( fabs(vjk) > lambda ){
 					if( vjk > 0 )
 						c[j] -= (vjk-lambda)*fea_val;
 					else
 						c[j] -= (vjk+lambda)*fea_val;
-//					cerr << "update c to " << c[j] << " using (j,k)=" << fea_ind << "," << k  << " val=" << vjk << endl;
 				}
 			}
 		}
@@ -325,28 +313,22 @@ class SplitOracleActBCD{
 		double* S_b = new double[n];
 		double* S_c = new double[m];
 		double r_b = 0.0, r_c = 0.0;
-//		cerr << "b: ";
 		for (int i = 0; i < n; i++){
 			b[index_b[i]] /= A;
-//			cerr << b[index_b[i]] << " ";
 			r_b += b[index_b[i]]*b[index_b[i]];
 			if (i == 0)
 				S_b[i] = b[index_b[i]];
 			else
 				S_b[i] = S_b[i-1] + b[index_b[i]];
 		}
-//		cerr << endl;
-//		cerr << "c: ";
 		for (int j = 0; j < m; j++){
                         c[index_c[j]] /= A;
-//			cerr << c[index_c[j]] << " ";
 			r_c += c[index_c[j]]*c[index_c[j]];
 			if (j == 0)
 				S_c[j] = c[index_c[j]];
 			else
                         	S_c[j] = S_c[j-1] + c[index_c[j]];
                 }
-//		cerr << endl;
 		i = 0; j = 0; 
 		while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= 0){
 			r_b -= b[index_b[i]]*b[index_b[i]];
@@ -358,10 +340,9 @@ class SplitOracleActBCD{
                 }
 		//update for b_{0..i-1} c_{0..j-1}
 		//i,j is the indices of coordinate that we will going to include, but not now!
-		//cerr << "init i,j = " << i << "," << j << endl;
 		double t = 0.0;
-		double ans_t_star = 0; //(sqrt(i)*S_c[j-1] + sqrt(j)*S_b[i-1])/(sqrt(i)+sqrt(j));
-		double ans = INFI; //r_b + r_c + (S_b[i-1] - ans_t_star)*(S_b[i-1] - ans_t_star)/i + (S_c[j-1] - ans_t_star)*(S_c[j-1] - ans_t_star)/j;
+		double ans_t_star = 0; 
+		double ans = INFI;
 		int ansi = i, ansj = j;
 		int lasti = 0, lastj = 0;
 		do{
@@ -387,11 +368,8 @@ class SplitOracleActBCD{
 			if (t > C){
 				t = C;
 			}
-//			cerr << l << " " << t << endl;
 			assert(t >= 0 && l >= 0);
-		//	cerr << "set t = " << t << endl;
 			double t_star = (i*S_c[j-1] + j*S_b[i-1])/(i+j);
-		//	cerr << "get t_star = " << t_star << endl;
 			if (t_star < l){
 				t_star = l;
 			}
@@ -421,56 +399,19 @@ class SplitOracleActBCD{
 				alpha_i_new[k] = -(b[index_b[i]] + (ans_t_star - S_b[ansi-1])/ansi);
 			else
 				alpha_i_new[k] = 0.0;
-//			cerr << I << " " << k  << " " << alpha_i_new[k] << " ";
 		}
-//		cerr << endl;
 		for(int j = 0; j < m; j++){
                         int k = act_index_c[index_c[j]];
 			if (j < ansj)
                         	alpha_i_new[k] = c[index_c[j]] + (ans_t_star - S_c[ansj-1])/ansj;
 			else
 				alpha_i_new[k] = 0.0;
-//			cerr << I << " " << k << " " << alpha_i_new[k] << " ";
                 }
-//		cerr << endl;
-//		cerr << "ans="<< ans << " i_star="<< ansi << " j_star=" << ansj << " t_star=" << ans_t_star << endl;	
-//		cerr << endl;
-//		cccc++;
-//		cerr << cccc << endl;
-//		if (cccc == 15580)
-//			exit(0);
-		/*for(int j=0;j<act_k_size;j++){
-			int k = act_k_index[j];
-			if( k!=yi )
-				Dk[j] = grad[j];
-			else
-				Dk[j] = grad[j] + Qii*C;
-		}
-		
-		//sort according to D_k = grad_k + Qii*((k==yi)?C:0)
-		sort( Dk, Dk+act_k_size, greater<double>() );
-		
-		//compute beta by traversing k in descending order of D_k
-		double beta = Dk[0] - Qii*C;
-		int r;
-		for(r=1;r<act_k_size && beta<r*Dk[r];r++){
-			beta += Dk[r];
-		}
-		beta = beta / r;
-		
-		//update alpha
-		for(int j=0;j<act_k_size;j++){
-			int k = act_k_index[j];
-			alpha_i_new[k] = min( (k!=yi)?0.0:C, (beta-grad[j])/Qii );
-		}*/
-	
 			
-		/*delete[] b; delete[] c;
+		delete[] b; delete[] c;
 		delete[] act_index_b; delete[] act_index_c;
 		delete[] S_b; delete[] S_c;
-		delete[] alpha_i;
-		delete[] index_b; delete[] index_c; */
-		//delete[] Dk;
+		delete[] index_b; delete[] index_c; 
 	}
 		
 	void search_active_i_importance( int i, vector<int>& act_k_index ){
@@ -689,7 +630,8 @@ class SplitOracleActBCD{
 	vector<int>*** w_nnz_index;
 	int max_iter;
 	vector<int>* k_index;
-	
+	HashFunc hashfunc;
+		
 	//sampling 
 	bool using_importance_sampling;
 	int max_select;

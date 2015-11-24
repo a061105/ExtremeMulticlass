@@ -119,7 +119,6 @@ void readData(char* fname, Problem* prob)
 	prob->D = d+1; //adding bias
 	prob->N = prob->data.size();
 	prob->K = label_index_map->size();
-	cerr << prob->labels.at(3).size() << endl;
 	label_name_list->resize(prob->K);
 	for(map<string,int>::iterator it=label_index_map->begin();
 			it!=label_index_map->end();

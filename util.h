@@ -3,7 +3,7 @@
 
 #include<cmath>
 #include<vector>
-#include <map>
+#include<map>
 #include<string>
 #include<cstring>
 #include<stdlib.h>
@@ -17,8 +17,12 @@ using namespace std;
 typedef vector<pair<int,double> > SparseVec;
 typedef unordered_map<int,double> HashVec;
 typedef vector<int> Labels;
+typedef double float_type;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
+
+#define INFI 1e10
+#define INIT_SIZE 100
 
 class ScoreComp{
 	
@@ -31,6 +35,73 @@ class ScoreComp{
 	}
 	private:
 	double* score;
+};
+
+// Hash function [K] ->[m]
+
+class HashFunc{
+	
+	public:
+	int* hashindices;
+	HashFunc(){
+	}
+	HashFunc(int _K, int _l, int _r){
+		K = _K;
+		l = _l;
+		r = _r;
+		// pick random prime number in [l, r]
+		p = rand() % (r - l) + l - 1;
+		bool isprime;
+		do {
+			p++;
+			isprime = true;
+			for (int i = 2; i * i <= p; i++){
+				if (p % i == 0){
+					isprime = false;
+					break;
+				}
+			}
+		} while (!isprime);
+		a = rand() % p;
+		b = rand() % p;
+		hashindices = new int[K];
+		for (int i = 0; i < K; i++){
+			hashindices[i] = (a*i + b) % p;
+			if (i < INIT_SIZE) cerr << hashindices[i] % INIT_SIZE << " ";
+		}
+		cerr << endl;
+	}
+	void rehash(){
+		p = rand() % (r - l) + l - 1;
+                bool isprime;
+                do {
+                        p++;
+                        isprime = true;
+                        for (int i = 2; i * i <= p; i++){
+                                if (p % i == 0){
+                                        isprime = false;
+                                        break;
+                                }
+                        }
+                } while (!isprime);
+		a = rand() % p;
+                b = rand() % p;
+		for (int i = 0; i < K; i++){
+                        hashindices[i] = (a * i + b) % p;
+                }
+	}
+	private:
+	int K, l, r;
+	int a,b,p;
+};
+
+class PermutationHash{
+	public:
+	PermutationHash(){
+		K = 0;	
+	}
+	private:
+	int K;
 };
 
 vector<string> split(string str, string pattern){
@@ -89,5 +160,6 @@ double norm_sq( double* v, int size ){
 	}
 	return sum;
 }
+
 
 #endif

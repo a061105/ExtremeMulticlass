@@ -1,6 +1,9 @@
 #include "util.h"
 #include "multi.h"
 
+#define UPPER_UTIL_RATE 0.75
+#define LOWER_UTIL_RATE 0.5
+
 class SBCDsolve{
 	
 	public:
@@ -16,15 +19,70 @@ class SBCDsolve{
 		N = prob->N;
 		K = prob->K;
 		max_iter = param->max_iter;
-		
+		#ifdef USING_HASHVEC
+		hash_top = 0; hash_bottom = 0;
+		hashfunc = new HashFunc(K, 10000, 100000);
+		hashindices = hashfunc->hashindices;
+		#endif
 	}
 	
 	~SBCDsolve(){
 	}
+	
+	#ifdef USING_HASHVEC
+	long long hash_top = 0, hash_bottom = 0;
+	pair<int, float_type>* alpha_i_k(pair<int, float_type>* alpha_i, int i, int act_indexj){
+		int size_alphai = size_alpha[i];
+		int index_alpha = hashindices[act_indexj] % size_alphai;
+		hash_bottom++; hash_top++;
+                while (alpha_i[index_alpha].first != -1 && alpha_i[index_alpha].first != act_indexj){
+                        index_alpha++;
+                        if (index_alpha == size_alphai)
+                                index_alpha = 0;
+			hash_top++;
+                }
+		//if (alpha_i[index_alpha].first == act_indexj)	hash_top++;
+		return &(alpha_i[index_alpha]);
+	}
 
+	pair<int, float_type>* v_j_k(pair<int, float_type>* vj, int j, int act_indexj){
+		int size_vj = size_v[j];
+		int index_v = hashindices[act_indexj] % size_vj;
+		//hash_bottom++; hash_top++;
+                while (vj[index_v].first != -1 && vj[index_v].first != act_indexj){
+                        index_v++;
+                        if (index_v == size_vj)
+                                index_v = 0;
+		//	hash_top++;
+                }
+		//if (vj[index_v].first == act_indexj)	hash_top++;
+		return &(vj[index_v]);
+	}
+	#endif
+	
 	Model* solve(){
 		
 		//initialize alpha and v ( s.t. v = X^Talpha )
+		#ifdef USING_HASHVEC
+		alpha = new pair<int, float_type>*[N];
+		size_alpha = new int[N];
+		for (int i = 0; i < N; i++){
+			size_alpha[i] = INIT_SIZE;
+			alpha[i] = new pair<int, float_type>[size_alpha[i]];
+			for (int k = 0; k < size_alpha[i]; k++){
+				alpha[i][k] = make_pair(-1, 0.0);
+			}
+		}
+		v = new pair<int, float_type>*[D];
+		size_v = new int[D];
+		for (int j = 0; j < D; j++){
+			size_v[j] = INIT_SIZE;
+			v[j] = new pair<int, float_type>[size_v[j]];
+			for(int k = 0; k < size_v[j]; k++){
+				v[j][k] = make_pair(-1, 0.0);
+			}
+		}
+		#else
 		alpha = new double*[N];
 		for(int i=0;i<N;i++){
 			alpha[i] = new double[K];
@@ -37,7 +95,7 @@ class SBCDsolve{
 			for(int k=0;k<K;k++)
 				v[j][k] = 0.0;
 		}
-		
+		#endif
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
 		Q_diag = new double[N];
 		for(int i=0;i<N;i++){
@@ -63,21 +121,24 @@ class SBCDsolve{
 			for(int k=0;k<K;k++)
 				act_k_index[i][k] = k;
 		}
-		
 		//main loop
 		double starttime = omp_get_wtime();
 		double subsolve_time = 0.0, maintain_time = 0.0;
 		double* alpha_i_new = new double[K];
 		int iter = 0;
 		while( iter < max_iter ){
-			
 			random_shuffle( index, index+N );
-			for(int r=0;r<N;r++){	
+			for(int r=0;r<N;r++){
 				
 				int i = index[r];
 				int act_size = act_k_size[i];
 				int* act_index = act_k_index[i];
+				#ifdef USING_HASHVEC
+				pair<int, float_type>* alpha_i = alpha[i];
+				int size_alphai = size_alpha[i];
+				#else
 				double* alpha_i = alpha[i];
+				#endif
 				if( act_size < 2 )
 					continue;
 				
@@ -93,17 +154,65 @@ class SBCDsolve{
 
 					int j = it->first;
 					double f_val = it->second;
+					#ifdef USING_HASHVEC
+					pair<int, float_type>* vj = v[j];
+					int size_vj = size_v[j];
+					for(int j = 0; j < act_size; j++){
+						int act_indexj = act_index[j];	
+						//v_j_k(it->first, act_indexj)->second += f_val*(alpha_i_new[act_indexj] - alpha_i_k(i, act_indexj)->second);
+						//v_j_k(it->first, act_indexj)->first = act_indexj;				
+						int index_v = hashindices[act_indexj] % size_vj;
+						//hash_top++; hash_bottom++;
+                				while (vj[index_v].first != act_indexj && vj[index_v].first != -1){
+                				        index_v++;
+                				        if (index_v == size_vj)
+                				                index_v = 0;
+						//	hash_top++;
+                				}
+						//if (vj[index_v].first == act_indexj)	hash_top++;
+						
+						int index_alpha = hashindices[act_indexj] % size_alphai;
+						//hash_top++; hash_bottom++;
+                				while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
+                				        index_alpha++;
+                				        if (index_alpha == size_alphai)
+                				                index_alpha = 0;
+							//hash_top++;
+                				}
+						//if (alpha_i[index_alpha].first == act_indexj)	hash_top++;
+						vj[index_v].first = act_indexj;
+						vj[index_v].second += f_val*(alpha_i_new[act_indexj] - alpha_i[index_alpha].second);
+					}
+					#else
 					double* vj = v[j];
 					for(int j=0;j<act_size;j++){
 						int k = act_index[j];
 						vj[k] += f_val*(alpha_i_new[k]-alpha_i[k]);
 					}
+					#endif
 				}
+				
 				//update alpha
+				#ifdef USING_HASHVEC
+				for(int j=0;j<act_size;j++){
+					int act_indexj = act_index[j];
+					int index_alpha = hashindices[act_indexj] % size_alphai;
+                             //         hash_top++; hash_bottom++;
+                                        while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1 ){
+                                                index_alpha++;
+                                                if (index_alpha == size_alphai)
+                                                        index_alpha = 0;
+                             //                 hash_top++;
+                                        }
+					alpha_i[index_alpha].first = act_indexj;
+					alpha_i[index_alpha].second = alpha_i_new[act_indexj];
+				}
+				#else
 				for(int j=0;j<act_size;j++){
 					int k = act_index[j];
 					alpha_i[k] = alpha_i_new[k];
 				}
+				#endif
 				maintain_time += omp_get_wtime();
 			}
 			
@@ -121,9 +230,13 @@ class SBCDsolve{
 			w[j] = new HashVec();
 		for(int j=0;j<D;j++)
 			for(int k=0;k<K;k++){
+				#ifdef USING_HASHVEC
+				double wjk = prox_l1(v_j_k(v[j], j, k)->second, lambda);
+				#else
 				double wjk = prox_l1(v[j][k],lambda);
+				#endif
 				if( wjk != 0.0 )
-					w[j]->insert(make_pair(k,wjk));
+					w[j]->insert(make_pair(k, wjk));
 			}
 		
 		double d_obj = 0.0;
@@ -137,12 +250,21 @@ class SBCDsolve{
 		}
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
-			int yi = labels->at(i);
+			Labels* yi = &(labels->at(i));
+			
 			for(int k=0;k<K;k++){
-				if(k!=yi)
+				
+				#ifdef USING_HASHVEC
+				if(find(yi->begin(), yi->end(), k) ==yi->end())
+					d_obj += alpha_i_k(alpha[i], i, k)->second;
+				if( fabs( alpha_i_k(alpha[i], i, k)->second ) > 1e-12 )
+					nSV++;
+				#else
+				if(find(yi->begin(), yi->end(), k) ==yi->end())
 					d_obj += alpha[i][k];
 				if( fabs( alpha[i][k] ) > 1e-12 )
 					nSV++;
+				#endif
 			}
 		}
 		cerr << "dual_obj=" << d_obj << endl;
@@ -151,7 +273,10 @@ class SBCDsolve{
 		cerr << "train time=" << endtime-starttime << endl;
 		cerr << "subsolve time=" << subsolve_time << endl;
 		cerr << "maintain time=" << maintain_time << endl;
-
+		//debug
+		//cerr << hash_top << " / " << hash_bottom << endl;
+		/////////////////////////
+		
 		//delete algorithm-specific variables
 		delete[] alpha_i_new;
 		delete[] act_k_size;
@@ -170,64 +295,192 @@ class SBCDsolve{
 		return new Model(prob, w);
 	}
 	
-	void subSolve(int i, int* act_k_index, int act_k_size, double* alpha_i_new){
+	void subSolve(int I, int* act_k_index, int act_k_size, double* alpha_i_new){
+		Labels* yi = &(labels->at(I));
+		int m = yi->size(), n = act_k_size - m;
+		double* b = new double[n];
+		double* c = new double[m];
+		int* act_index_b = new int[n];
+		int* act_index_c = new int[m];
 		
-		grad = new double[act_k_size];
-		Dk = new double[act_k_size];
-		
-		int yi = labels->at(i);
-		SparseVec* x_i = data->at(i);
-		double Qii = Q_diag[i];
-		double* alpha_i = alpha[i];
-		//compute gradient of each k
-		for(int j=0;j<act_k_size;j++){
-			int k = act_k_index[j];
-			if( k!=yi )
-				grad[j] = 1.0 - Qii*alpha_i[k];
+		SparseVec* x_i = data->at(I);
+		double A = Q_diag[I];
+		#ifdef USING_HASHVEC
+		pair<int, float_type>* alpha_i = alpha[I];
+		#else
+		double* alpha_i = alpha[I];
+		#endif
+		int i = 0, j = 0;
+		for(int k=0;k<m+n;k++){
+			int p = act_k_index[k];
+			if( find(yi->begin(), yi->end(), p) == yi->end() )
+				act_index_b[i++] = p;
 			else
-				grad[j] = - Qii*alpha_i[k];
+				act_index_c[j++] = p;
 		}
+		int* index_b = new int[n];
+		int* index_c = new int[m];
+		for(int i=0; i < n; i++){
+			int k = act_index_b[i];
+			#ifdef USING_HASHVEC
+			b[i] = 1.0 - A*alpha_i_k(alpha[I], I, k)->second;
+			#else
+			b[i] = 1.0 - A*alpha_i[k];
+			#endif
+			index_b[i] = i;
+		}
+
+		for(int j=0; j < m; j++){ 
+                        int k = act_index_c[j];
+			#ifdef USING_HASHVEC
+			c[j] = A*alpha_i_k(alpha[I], I, k)->second;
+			#else
+                        c[j] = A*alpha_i[k];
+			#endif
+			index_c[j] = j;
+                }
+
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 			int fea_ind = it->first;
 			double fea_val = it->second;
-			for(int j=0;j<act_k_size;j++){
-				int k = act_k_index[j];
+			for(int i = 0; i < n; i++){
+				int k = act_index_b[i];
+				#ifdef USING_HASHVEC
+				double vjk = v_j_k(v[fea_ind], fea_ind, k)->second;
+				#else
 				double vjk = v[fea_ind][k];
+				#endif
+				if (fabs(vjk) > lambda){
+					if (vjk > 0)
+						b[i] += (vjk-lambda)*fea_val;
+					else
+						b[i] += (vjk+lambda)*fea_val;
+				}	
+			}
+			for(int j = 0; j < m; j++){
+				int k = act_index_c[j];
+				#ifdef USING_HASHVEC
+				double vjk = v_j_k(v[fea_ind], fea_ind, k)->second;
+				#else	
+				double vjk = v[fea_ind][k];
+				#endif
 				if( fabs(vjk) > lambda ){
 					if( vjk > 0 )
-						grad[j] += (vjk-lambda)*fea_val;
+						c[j] -= (vjk-lambda)*fea_val;
 					else
-						grad[j] += (vjk+lambda)*fea_val;
+						c[j] -= (vjk+lambda)*fea_val;
 				}
 			}
 		}
-		for(int j=0;j<act_k_size;j++){
-			int k = act_k_index[j];
-			if( k!=yi )
-				Dk[j] = grad[j];
+
+		//sort by non-increasing order
+		sort(index_b, index_b+n, ScoreComp(b));
+		sort(index_c, index_c+m, ScoreComp(c));	
+
+		//partial sums
+		double* S_b = new double[n];
+		double* S_c = new double[m];
+		//l_2 residuals
+		double r_b = 0.0, r_c = 0.0;
+		for (int i = 0; i < n; i++){
+			b[index_b[i]] /= A;
+			r_b += b[index_b[i]]*b[index_b[i]];
+			if (i == 0)
+				S_b[i] = b[index_b[i]];
 			else
-				Dk[j] = grad[j] + Qii*C;
+				S_b[i] = S_b[i-1] + b[index_b[i]];
 		}
-		
-		//sort according to D_k = grad_k + Qii*((k==yi)?C:0)
-		sort( Dk, Dk+act_k_size, greater<double>() );
-		
-		//compute beta by traversing k in descending order of D_k
-		double beta = Dk[0] - Qii*C;
-		int r;
-		for(r=1;r<act_k_size && beta<r*Dk[r];r++){
-			beta += Dk[r];
+		for (int j = 0; j < m; j++){
+                        c[index_c[j]] /= A;
+			r_c += c[index_c[j]]*c[index_c[j]];
+			if (j == 0)
+				S_c[j] = c[index_c[j]];
+			else
+                        	S_c[j] = S_c[j-1] + c[index_c[j]];
+                }
+		i = 0; j = 0; 
+		while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= 0){
+			r_b -= b[index_b[i]]*b[index_b[i]];
+			i++;
+		} 
+		while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= 0) { 
+                        r_c -= c[index_c[j]]*c[index_c[j]];
+                        j++;
+                }
+		//update for b_{0..i-1} c_{0..j-1}
+		//i,j is the indices of coordinate that we will going to include, but not now!
+		double t = 0.0;
+		double ans_t_star = 0; 
+		double ans = INFI; 
+		int ansi = i, ansj = j;
+		int lasti = 0, lastj = 0;
+		do{
+			lasti = i; lastj = j;
+			// l = t; t = min(f_b(i), f_c(j));
+			double l = t;
+			if (i == n){
+				if (j == m){
+					t = C;
+				} else {
+					t = S_c[j] - (j+1)*c[index_c[j]];
+				}
+			} else {
+				if (j == m){
+					t = S_b[i] - (i+1)*b[index_b[i]];
+				} else {
+					t = S_b[i] - (i+1)*b[index_b[i]];
+					if (S_c[j] - (j+1)*c[index_c[j]] < t){ 
+                                		t = S_c[j] - (j+1)*c[index_c[j]]; 
+                        		}
+				}
+			}
+			if (t > C){
+				t = C;
+			}
+			double t_star = (i*S_c[j-1] + j*S_b[i-1])/(i+j);
+			if (t_star < l){
+				t_star = l;
+			}
+			if (t_star > t){
+				t_star = t;
+			}
+			double candidate = r_b + r_c + (S_b[i-1] - t_star)*(S_b[i-1] - t_star)/i + (S_c[j-1] - t_star)*(S_c[j-1] - t_star)/j;
+			if (candidate < ans){
+				ans = candidate;
+				ansi = i;
+				ansj = j;
+				ans_t_star = t_star;
+			}
+			while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= t){
+               	         	r_b -= b[index_b[i]]*b[index_b[i]];
+               	        	i++;
+               	 	}
+               	 	while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= t) {
+               	         	r_c -= c[index_c[j]]*c[index_c[j]];
+               	        	j++;
+               	 	}
+		} while (i != lasti || j != lastj);
+		i = ansi; j = ansj;
+		for(int i = 0; i < n; i++){
+			int k = act_index_b[index_b[i]];
+			if (i < ansi)
+				alpha_i_new[k] = -(b[index_b[i]] + (ans_t_star - S_b[ansi-1])/ansi);
+			else
+				alpha_i_new[k] = 0.0;
 		}
-		beta = beta / r;
-		
-		//update alpha
-		for(int j=0;j<act_k_size;j++){
-			int k = act_k_index[j];
-			alpha_i_new[k] = min( (k!=yi)?0.0:C, (beta-grad[j])/Qii );
-		}
-		
-		delete[] grad;
-		delete[] Dk;
+		for(int j = 0; j < m; j++){
+                        int k = act_index_c[index_c[j]];
+			if (j < ansj)
+                        	alpha_i_new[k] = c[index_c[j]] + (ans_t_star - S_c[ansj-1])/ansj;
+			else
+				alpha_i_new[k] = 0.0;
+                }
+			
+		delete[] b; delete[] c;
+		delete[] act_index_b; delete[] act_index_c;
+		delete[] S_b; delete[] S_c;
+		delete[] index_b; delete[] index_c; 
+		//delete[] Dk;	
 	}
 
 	private:
@@ -235,14 +488,23 @@ class SBCDsolve{
 	double lambda;
 	double C;
 	vector<SparseVec*>* data ;
-	vector<int>* labels ;
+	vector<Labels>* labels ;
 	int D; 
 	int N;
 	int K;
 	double* Q_diag;
+	#ifdef USING_HASHVEC
+	pair<int, float_type>** v;
+	pair<int, float_type>** alpha;
+	HashFunc* hashfunc;
+	int* hashindices;
+	int* size_v;
+	int* size_alpha;
+	#else
 	double** alpha;
 	double** v;
-	
+	#endif
+		
 	int max_iter;
 	double* grad;
 	double* Dk;

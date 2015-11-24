@@ -1,6 +1,6 @@
 #include "util.h"
 #include "multi.h"
-//#include "SBCDsolve.h"
+#include "SBCDsolve.h"
 //#include "ActBCDsolve.h"
 //#include "OracleActBCD.h"
 #include "SplitOracleActBCD.h"
@@ -109,11 +109,11 @@ int main(int argc, char** argv){
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << endl;
 	//param->lambda /= prob->N;
 	
-//	if( param->solver == 0 ){
-//		
-//		SBCDsolve* solver = new SBCDsolve(param);
-//		Model* model = solver->solve();
-//		writeModel(param->modelFname, model);
+	if( param->solver == 0 ){
+		
+		SBCDsolve* solver = new SBCDsolve(param);
+		Model* model = solver->solve();
+		writeModel(param->modelFname, model);
 //	}else if( param->solver==1 ){
 //		
 //		ActBCDsolve* solver = new ActBCDsolve(param);
@@ -124,10 +124,10 @@ int main(int argc, char** argv){
 //		OracleActBCD* solver = new OracleActBCD(param);
 //		Model* model = solver->solve();
 //		writeModel(param->modelFname, model);
-//	}else if( param->solver==3 ){
+	}else if( param->solver==3 ){
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
 		writeModel(param->modelFname, model);
-//	}
+	}
 	
 }
