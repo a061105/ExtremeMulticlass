@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <omp.h>
 #include <unordered_map>
+#include <time.h>
 using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;
@@ -22,7 +23,7 @@ const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 
 #define INFI 1e10
-#define INIT_SIZE 100
+#define INIT_SIZE 128
 
 class ScoreComp{
 	
@@ -46,6 +47,7 @@ class HashFunc{
 	HashFunc(){
 	}
 	HashFunc(int _K, int _l, int _r){
+		srand(time(NULL));
 		K = _K;
 		l = _l;
 		r = _r;
@@ -66,10 +68,10 @@ class HashFunc{
 		b = rand() % p;
 		hashindices = new int[K];
 		for (int i = 0; i < K; i++){
-			hashindices[i] = (a*i + b) % p % INIT_SIZE;
-			if (i < INIT_SIZE) cerr << hashindices[i] % INIT_SIZE << " ";
+			hashindices[i] = (a*i + b) % p;
+			//if (i < INIT_SIZE) cerr << hashindices[i] % INIT_SIZE << " ";
 		}
-		cerr << endl;
+		//cerr << endl;
 	}
 	void rehash(){
 		p = rand() % (r - l) + l - 1;

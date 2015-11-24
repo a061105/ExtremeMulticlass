@@ -33,7 +33,7 @@ class SBCDsolve{
 	long long hash_top = 0, hash_bottom = 0;
 	pair<int, float_type>* alpha_i_k(pair<int, float_type>* alpha_i, int i, int act_indexj){
 		int size_alphai = size_alpha[i];
-		int index_alpha = hashindices[act_indexj] % size_alphai;
+		int index_alpha = hashindices[act_indexj] & (size_alphai - 1);
 		hash_bottom++; hash_top++;
                 while (alpha_i[index_alpha].first != -1 && alpha_i[index_alpha].first != act_indexj){
                         index_alpha++;
@@ -47,7 +47,7 @@ class SBCDsolve{
 
 	pair<int, float_type>* v_j_k(pair<int, float_type>* vj, int j, int act_indexj){
 		int size_vj = size_v[j];
-		int index_v = hashindices[act_indexj] % size_vj;
+		int index_v = hashindices[act_indexj] & (size_vj - 1);
 		//hash_bottom++; hash_top++;
                 while (vj[index_v].first != -1 && vj[index_v].first != act_indexj){
                         index_v++;
@@ -154,7 +154,7 @@ class SBCDsolve{
 				float_type* alpha_i_k = new float_type[act_size];
 				for(int j = 0; j < act_size; j++){
                                 	int act_indexj = act_index[j];
-					int index_alpha = hashindices[act_indexj];//% size_alphai;
+					int index_alpha = hashindices[act_indexj] & (size_alphai - 1);
                                         //hash_top++; hash_bottom++;
                                         if (alpha_i[index_alpha].first != act_indexj)
                                         while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
@@ -177,13 +177,14 @@ class SBCDsolve{
 						int act_indexj = act_index[j];
 						//v_j_k(it->first, act_indexj)->second += f_val*(alpha_i_new[act_indexj] - alpha_i_k(i, act_indexj)->second);
 						//v_j_k(it->first, act_indexj)->first = act_indexj;
-						int index_v = hashindices[act_indexj];// % size_vj;
-						if (vj[index_v].first != act_indexj)
-                				while (vj[index_v].first != act_indexj && vj[index_v].first != -1){
-                				        index_v++;
-                				        if (index_v == size_vj)
-                				                index_v = 0;
-                				}
+						int index_v = hashindices[act_indexj] & (size_vj-1);
+						if (vj[index_v].first != act_indexj){
+                					while (vj[index_v].first != act_indexj && vj[index_v].first != -1){
+                					        index_v++;
+                					        if (index_v == size_vj)
+                					                index_v = 0;
+                					}
+						}
 						//if (vj[index_v].first == act_indexj)	hash_top++;
 						
 						/*int index_alpha = hashindices[act_indexj] ;//% size_alphai;
@@ -212,7 +213,7 @@ class SBCDsolve{
 				#ifdef USING_HASHVEC
 				for(int j=0;j<act_size;j++){
 					int act_indexj = act_index[j];
-					int index_alpha = hashindices[act_indexj] % size_alphai;
+					int index_alpha = hashindices[act_indexj] & (size_alphai-1);
                              //         hash_top++; hash_bottom++;
                                         while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1 ){
                                                 index_alpha++;
@@ -335,7 +336,7 @@ class SBCDsolve{
 			int p = act_k_index[k];
 			#ifdef USING_HASHVEC
 			if( find(yi->begin(), yi->end(), p) == yi->end() ){
-				int index_alpha = hashindices[p] % size_alphai;
+				int index_alpha = hashindices[p] & (size_alphai-1);
                         	if (alpha_i[index_alpha].first != p){
                         	        while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
                         	                index_alpha++;
@@ -347,7 +348,7 @@ class SBCDsolve{
 				index_b[i] = i;
 				act_index_b[i++] = p;
 			}else{
-				int index_alpha = hashindices[p] % size_alphai;
+				int index_alpha = hashindices[p] & (size_alphai - 1);
                                 if (alpha_i[index_alpha].first != p){
                                         while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
                                                 index_alpha++;
@@ -416,7 +417,7 @@ class SBCDsolve{
 				int k = act_index_b[i];
 				#ifdef USING_HASHVEC
 				
-				int index_v = hashindices[k];// % size_vj;
+				int index_v = hashindices[k] & (size_vj - 1);
 				if (vj[index_v].first != k){
                 			while (vj[index_v].first != k && vj[index_v].first != -1){
                 			        index_v++;
@@ -438,7 +439,7 @@ class SBCDsolve{
 			for(int j = 0; j < m; j++){
 				int k = act_index_c[j];
 				#ifdef USING_HASHVEC
-				int index_v = hashindices[k];// % size_vj;
+				int index_v = hashindices[k] & (size_vj - 1);
 				if (vj[index_v].first != k){
                 			while (vj[index_v].first != k && vj[index_v].first != -1){
                 			        index_v++;
