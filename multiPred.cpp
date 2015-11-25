@@ -28,7 +28,7 @@ Model* readModel(char* file){
 			fin >> tmp;
 			ind_val = split(tmp,":");
 			int k = atoi(ind_val[0].c_str());
-			double val = atof(ind_val[1].c_str());
+			float_type val = atof(ind_val[1].c_str());
 			wj->insert(make_pair(k,val));
 		}
 		model->w[j] = wj;
@@ -64,8 +64,8 @@ int main(int argc, char** argv){
 	//compute accuracy
 	vector<SparseVec*>* data = &(prob->data);
 	vector<Labels>* labels = &(prob->labels);
-	double hit=0.0;
-	double* prod = new double[model->K];
+	float_type hit=0.0;
+	float_type* prod = new float_type[model->K];
 	int* k_index = new int[model->K];
 	for(int k = 0; k < model->K; k++){
 		k_index[k] = k;
@@ -82,7 +82,7 @@ int main(int argc, char** argv){
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			
 			int j= it->first;
-			double xij = it->second;
+			float_type xij = it->second;
 			if( j >= model->D )
 				continue;
 			
@@ -92,13 +92,19 @@ int main(int argc, char** argv){
 			}
 		}
 		sort(k_index, k_index + model->K, ScoreComp(prod));
-		double max_val = -1e300;
+		float_type max_val = -1e300;
 		int argmax;
-		for(int k=0;k<top;k++)
-			if( find(yi->begin(), yi->end(), k_index[k]) != yi->end() ){
-				hit+=1.0/top;
+		for(int k=0;k<top;k++){
+			bool flag = false;
+			for (int j = 0; j < yi->size(); j++){
+				if (prob->label_name_list[yi->at(j)] == model->label_name_list->at(k_index[k])){
+					flag = true;
+				}	
 			}
+			if (flag)
+				hit += 1.0/top;
+		}
 	}
 
-	cerr << "Acc=" << ((double)hit/prob->N) << endl;
+	cerr << "Acc=" << ((float_type)hit/prob->N) << endl;
 }

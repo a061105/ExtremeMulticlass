@@ -1,5 +1,6 @@
 #include "util.h"
 #include "multi.h"
+#include <cassert>
 
 #define UPPER_UTIL_RATE 0.75
 #define LOWER_UTIL_RATE 0.5
@@ -21,7 +22,7 @@ class SBCDsolve{
 		max_iter = param->max_iter;
 		#ifdef USING_HASHVEC
 		hash_top = 0; hash_bottom = 0;
-		hashfunc = new HashFunc(K, 10000, 100000);
+		hashfunc = new HashClass(K);
 		hashindices = hashfunc->hashindices;
 		#endif
 	}
@@ -48,12 +49,12 @@ class SBCDsolve{
 	pair<int, float_type>* v_j_k(pair<int, float_type>* vj, int j, int act_indexj){
 		int size_vj = size_v[j];
 		int index_v = hashindices[act_indexj] & (size_vj - 1);
-		//hash_bottom++; hash_top++;
+		hash_bottom++; hash_top++;
                 while (vj[index_v].first != -1 && vj[index_v].first != act_indexj){
                         index_v++;
                         if (index_v == size_vj)
                                 index_v = 0;
-		//	hash_top++;
+			hash_top++;
                 }
 		//if (vj[index_v].first == act_indexj)	hash_top++;
 		return &(vj[index_v]);
@@ -66,41 +67,50 @@ class SBCDsolve{
 		#ifdef USING_HASHVEC
 		alpha = new pair<int, float_type>*[N];
 		size_alpha = new int[N];
+		util_alpha = new int[N];
+		memset(util_alpha, 0, N*sizeof(int));
 		for (int i = 0; i < N; i++){
-			size_alpha[i] = INIT_SIZE;
+			size_alpha[i] = 1;
+			while(size_alpha[i] < K){
+				size_alpha[i] = size_alpha[i] << 1;
+			}
 			alpha[i] = new pair<int, float_type>[size_alpha[i]];
+			//memset(alpha[i], 255, sizeof(pair<int, float_type>)*size_alpha[i]);
 			for (int k = 0; k < size_alpha[i]; k++){
 				alpha[i][k] = make_pair(-1, 0.0);
 			}
 		}
 		v = new pair<int, float_type>*[D];
 		size_v = new int[D];
+		util_v = new int[D];
+		memset(util_v, 0, D*sizeof(int));
 		for (int j = 0; j < D; j++){
 			size_v[j] = INIT_SIZE;
 			v[j] = new pair<int, float_type>[size_v[j]];
+			//memset(v[j], 255, sizeof(pair<int, float_type>)*size_v[j]);
 			for(int k = 0; k < size_v[j]; k++){
 				v[j][k] = make_pair(-1, 0.0);
 			}
 		}
 		#else
-		alpha = new double*[N];
+		alpha = new float_type*[N];
 		for(int i=0;i<N;i++){
-			alpha[i] = new double[K];
+			alpha[i] = new float_type[K];
 			for(int k=0;k<K;k++)
 				alpha[i][k] = 0.0;
 		}
-		v = new double*[D]; //w = prox(v);
+		v = new float_type*[D]; //w = prox(v);
 		for(int j=0;j<D;j++){
-			v[j] = new double[K];
+			v[j] = new float_type[K];
 			for(int k=0;k<K;k++)
 				v[j][k] = 0.0;
 		}
 		#endif
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
-		Q_diag = new double[N];
+		Q_diag = new float_type[N];
 		for(int i=0;i<N;i++){
 			SparseVec* ins = data->at(i);
-			double sq_sum = 0.0;
+			float_type sq_sum = 0.0;
 			for(SparseVec::iterator it=ins->begin(); it!=ins->end(); it++)
 				sq_sum += it->second*it->second;
 			Q_diag[i] = sq_sum;
@@ -116,15 +126,19 @@ class SBCDsolve{
 			act_k_size[i] = K;
 
 		int** act_k_index = new int*[N];
+		//int** act_k_hashindex = new int*[N];
 		for(int i=0;i<N;i++){
 			act_k_index[i] = new int[K];
-			for(int k=0;k<K;k++)
+		//	act_k_hashindex[i] = new int[K];
+			for(int k=0;k<K;k++){
 				act_k_index[i][k] = k;
+		//		act_k_hashindex[i][k] = k & (size_alpha[i]-1);
+			}
 		}
 		//main loop
 		double starttime = omp_get_wtime();
 		double subsolve_time = 0.0, maintain_time = 0.0;
-		double* alpha_i_new = new double[K];
+		float_type* alpha_i_new = new float_type[K];
 		int iter = 0;
 		while( iter < max_iter ){
 			random_shuffle( index, index+N );
@@ -133,12 +147,14 @@ class SBCDsolve{
 				int i = index[r];
 				int act_size = act_k_size[i];
 				int* act_index = act_k_index[i];
+				int* act_hashindex = new int[K];
 				#ifdef USING_HASHVEC
 				pair<int, float_type>* alpha_i = alpha[i];
 				int size_alphai = size_alpha[i];
+				int util_alphai = util_alphai;
 				int size_alphai0 = size_alphai - 1;
 				#else
-				double* alpha_i = alpha[i];
+				float_type* alpha_i = alpha[i];
 				#endif
 				if( act_size < 2 )
 					continue;
@@ -159,51 +175,84 @@ class SBCDsolve{
                                         //hash_top++; hash_bottom++;
                                         if (alpha_i[index_alpha].first != act_indexj)
                                         while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
-                                                index_alpha++;
-                                                if (index_alpha == size_alphai)
-                                                        index_alpha = 0;
-                                                //hash_top++;
+						index_alpha++;
+                                                index_alpha &= size_alphai0;
+						//hash_top++;
                                         }
-					alpha_i_k[j] = alpha_i[index_alpha].second; 
+					alpha_i_k[j] = alpha_i_new[act_indexj] - alpha_i[index_alpha].second; 
+					act_hashindex[j] = hashindices[act_indexj] & size_alphai0;
 				}
 				#endif
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 
-					int j = it->first;
-					double f_val = it->second;
+					int J = it->first;
+					float_type f_val = it->second;
 					#ifdef USING_HASHVEC
-					pair<int, float_type>* vj = v[j];
-					int size_vj = size_v[j];
+					pair<int, float_type>* vj = v[J];
+					int size_vj = size_v[J];
+					float_type upper = size_vj*UPPER_UTIL_RATE;
+					int util_vj = util_v[J];
 					int size_vj0 = size_vj - 1;
 					for(int j = 0; j < act_size; j++){
 						int act_indexj = act_index[j];
 						//v_j_k(it->first, act_indexj)->second += f_val*(alpha_i_new[act_indexj] - alpha_i_k(i, act_indexj)->second);
 						//v_j_k(it->first, act_indexj)->first = act_indexj;
 						int index_v = hashindices[act_indexj] & size_vj0;
-						if (vj[index_v].first != act_indexj){
-                					while (vj[index_v].first != act_indexj && vj[index_v].first != -1){
-                					        index_v++;
-                					        if (index_v == size_vj)
-                					                index_v = 0;
-                					}
-						}
-						//if (vj[index_v].first == act_indexj)	hash_top++;
-						
-						/*int index_alpha = hashindices[act_indexj] ;//% size_alphai;
 						//hash_top++; hash_bottom++;
-						if (alpha_i[index_alpha].first != act_indexj)
-                				while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
-                				        index_alpha++;
-                				        if (index_alpha == size_alphai)
-                				                index_alpha = 0;
-							//hash_top++;
-                				}*/
-						//if (alpha_i[index_alpha].first == act_indexj)	hash_top++;
-						vj[index_v].first = act_indexj;
-						vj[index_v].second += f_val*(alpha_i_new[act_indexj] - alpha_i_k[j]);
+						if (vj[index_v].first != act_indexj){
+							if (vj[index_v].first != -1){
+                						while (vj[index_v].first != act_indexj && vj[index_v].first != -1){
+									//hash_top++;
+                						        index_v++;
+                						        index_v &= size_vj0;
+                						}
+							}
+							if (vj[index_v].first == -1){
+								vj[index_v].first = act_indexj;
+								if ((++util_vj) > upper){
+									//resize here
+									while (util_vj > size_vj * UPPER_UTIL_RATE){
+										size_vj = size_vj << 1;
+									}
+									//using size_vj as new size_v[j], and size_v[j] is old size
+									size_vj0 = size_vj - 1;
+									upper = size_vj*UPPER_UTIL_RATE;
+			
+									pair<int, float_type>* vj_new = new pair<int, float_type>[size_vj];
+									for (int tt = 0; tt < size_vj; tt++){
+										vj_new[tt] = make_pair(-1, 0.0);
+									}
+									for (int tt = 0; tt < size_v[J]; tt++){
+										//insert vj[tt]
+										pair<int, float_type>* temp_pair = &(vj[tt]);
+										int k = temp_pair->first;
+										if (k != -1){
+											int index_v = hashindices[k] & size_vj0;
+											if (vj_new[index_v].first != k){
+                										while (vj_new[index_v].first != k && vj_new[index_v].first != -1){
+                										        index_v++;
+													index_v &= size_vj0;
+                										}
+												if (vj_new[index_v].first == -1){
+													vj_new[index_v].first = k;
+												}
+											}
+											vj_new[index_v].second = temp_pair->second;
+										}
+									}
+				
+									delete[] vj;
+									vj = vj_new; v[J] = vj_new;
+									size_v[J] = size_vj;
+								}
+							}
+						}
+						//vj[index_v].first = act_indexj;
+						vj[index_v].second += f_val*alpha_i_k[j];
 					}
+					util_v[J] = util_vj;
 					#else
-					double* vj = v[j];
+					float_type* vj = v[J];
 					for(int j=0;j<act_size;j++){
 						int k = act_index[j];
 						vj[k] += f_val*(alpha_i_new[k]-alpha_i[k]);
@@ -216,16 +265,53 @@ class SBCDsolve{
 				for(int j=0;j<act_size;j++){
 					int act_indexj = act_index[j];
 					int index_alpha = hashindices[act_indexj] & size_alphai0;
-                             //         hash_top++; hash_bottom++;
-                                        while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1 ){
-                                                index_alpha++;
-                                                if (index_alpha == size_alphai)
-                                                        index_alpha = 0;
-                             //                 hash_top++;
-                                        }
-					alpha_i[index_alpha].first = act_indexj;
+                                      	hash_top++; hash_bottom++;
+                                       	while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1 ){
+                                               index_alpha++;
+                                               if (index_alpha == size_alphai)
+                                                       index_alpha = 0;
+                                               hash_top++;
+                                        };
+					if (alpha_i[index_alpha].first == -1 && (alpha_i_new[act_indexj] != 0.0)){
+						alpha_i[index_alpha].first = act_indexj;
+					};
 					alpha_i[index_alpha].second = alpha_i_new[act_indexj];
 				}
+				if (act_size > size_alphai * UPPER_UTIL_RATE){
+					//resize here
+					while (act_size > size_alphai * UPPER_UTIL_RATE){
+						size_alphai = size_alphai << 1;
+					}
+					//using size_vj as new size_v[j], and size_v[j] is old size
+			
+					pair<int, float_type>* alphai_new = new pair<int, float_type>[size_alphai];
+					for (int tt = 0; tt < size_alphai; tt++){
+						alphai_new[tt] = make_pair(-1, 0.0);
+					}
+					for (int tt = 0; tt < size_alpha[i]; tt++){
+						//insert vj[tt]
+						pair<int, float_type>* temp_pair = &(alpha_i[tt]);
+						int k = temp_pair->first;
+						if (k != -1){
+							int index_alpha = hashindices[k] & size_alphai0;
+							if (alphai_new[index_alpha].first != k){
+                						while (alphai_new[index_alpha].first != k && alphai_new[index_alpha].first != -1){
+                						        index_alpha++;
+									index_alpha &= size_alphai0;
+                						}
+								if (alphai_new[index_alpha].first == -1){
+									alphai_new[index_alpha].first = k;
+								}
+							}
+							alphai_new[index_alpha].second = temp_pair->second;
+						}
+					}
+					
+					delete[] alpha_i;
+					alpha_i = alphai_new; alpha[i] = alphai_new;
+					size_alpha[i] = size_alphai;
+				}
+				util_alpha[i] = util_alphai;
 				delete[] alpha_i_k;
 				#else
 				for(int j=0;j<act_size;j++){
@@ -251,15 +337,15 @@ class SBCDsolve{
 		for(int j=0;j<D;j++)
 			for(int k=0;k<K;k++){
 				#ifdef USING_HASHVEC
-				double wjk = prox_l1(v_j_k(v[j], j, k)->second, lambda);
+				float_type wjk = prox_l1(v_j_k(v[j], j, k)->second, lambda);
 				#else
-				double wjk = prox_l1(v[j][k],lambda);
+				float_type wjk = prox_l1(v[j][k],lambda);
 				#endif
 				if( wjk != 0.0 )
 					w[j]->insert(make_pair(k, wjk));
 			}
 		
-		double d_obj = 0.0;
+		float_type d_obj = 0.0;
 		int nSV = 0;
 		int nnz_w = 0;
 		for(int j=0;j<D;j++){
@@ -294,7 +380,9 @@ class SBCDsolve{
 		cerr << "subsolve time=" << subsolve_time << endl;
 		cerr << "maintain time=" << maintain_time << endl;
 		//debug
-		//cerr << hash_top << " / " << hash_bottom << endl;
+		#ifdef USING_HASHVEC
+		cerr << hash_top << " / " << hash_bottom << endl;
+		#endif
 		/////////////////////////
 		
 		//delete algorithm-specific variables
@@ -315,22 +403,22 @@ class SBCDsolve{
 		return new Model(prob, w);
 	}
 	
-	void subSolve(int I, int* act_k_index, int act_k_size, double* alpha_i_new){
+	void subSolve(int I, int* act_k_index, int act_k_size, float_type* alpha_i_new){
 		Labels* yi = &(labels->at(I));
 		int m = yi->size(), n = act_k_size - m;
-		double* b = new double[n];
-		double* c = new double[m];
+		float_type* b = new float_type[n];
+		float_type* c = new float_type[m];
 		int* act_index_b = new int[n];
 		int* act_index_c = new int[m];
 		
 		SparseVec* x_i = data->at(I);
-		double A = Q_diag[I];
+		float_type A = Q_diag[I];
 		#ifdef USING_HASHVEC
 		pair<int, float_type>* alpha_i = alpha[I];
 		int size_alphai = size_alpha[I];
 		int size_alphai0 = size_alphai - 1;
 		#else
-		double* alpha_i = alpha[I];
+		float_type* alpha_i = alpha[I];
 		#endif
 		int i = 0, j = 0;
 		int* index_b = new int[n];
@@ -341,10 +429,10 @@ class SBCDsolve{
 			if( find(yi->begin(), yi->end(), p) == yi->end() ){
 				int index_alpha = hashindices[p] & size_alphai0;
                         	if (alpha_i[index_alpha].first != p){
+					//hash_top++; hash_bottom++;
                         	        while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
-                        	                index_alpha++;
-                        	                if (index_alpha == size_alphai)
-                        	                        index_alpha = 0;
+                        	                index_alpha++; index_alpha &= size_alphai0;
+					//	hash_top++;
                         	        }
                         	}
 				b[i] = 1.0 - A*alpha_i[index_alpha].second;
@@ -353,10 +441,10 @@ class SBCDsolve{
 			}else{
 				int index_alpha = hashindices[p] & size_alphai0;
                                 if (alpha_i[index_alpha].first != p){
+					//hash_top++; hash_bottom++;
                                         while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
-                                                index_alpha++;
-                                                if (index_alpha == size_alphai)
-                                                        index_alpha = 0;
+                                                index_alpha++; index_alpha &= size_alphai0;
+					//	hash_top++;
                                         }
                                 }
                                 c[j] = A*alpha_i[index_alpha].second;
@@ -409,51 +497,55 @@ class SBCDsolve{
 
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 			int fea_ind = it->first;
-			double fea_val = it->second;
+			float_type fea_val = it->second;
 			#ifdef USING_HASHVEC
 			pair<int, float_type>* vj = v[fea_ind];
 			int size_vj = size_v[fea_ind];
 			int size_vj0 = size_vj - 1;
 			#else
-			double* vj = v[fea_ind];
+			float_type* vj = v[fea_ind];
 			#endif
 			for(int i = 0; i < n; i++){
 				int k = act_index_b[i];
 				#ifdef USING_HASHVEC
-				
 				int index_v = hashindices[k] & size_vj0;
+				//int first = vj[index_v].first;
 				if (vj[index_v].first != k){
-                			while (vj[index_v].first != k && vj[index_v].first != -1){
-                			        index_v++;
-                			        if (index_v == size_vj)
-                			                index_v = 0;
-                			}
+					//hash_top++; hash_bottom++;
+					if (vj[index_v].first != -1){
+						do{
+                				        index_v++; index_v &= size_vj0;
+							//hash_top++;
+                				}while (vj[index_v].first != k && vj[index_v].first != -1);
+					}
 				}
-				double vjk = vj[index_v].second;
+				float_type vjk = vj[index_v].second;
 				#else
-				double vjk = vj[k];
+				float_type vjk = vj[k];
 				#endif
 				if (fabs(vjk) > lambda){
 					if (vjk > 0)
 						b[i] += (vjk-lambda)*fea_val;
 					else
 						b[i] += (vjk+lambda)*fea_val;
-				}	
+				}
 			}
 			for(int j = 0; j < m; j++){
 				int k = act_index_c[j];
 				#ifdef USING_HASHVEC
 				int index_v = hashindices[k] & size_vj0;
 				if (vj[index_v].first != k){
-                			while (vj[index_v].first != k && vj[index_v].first != -1){
-                			        index_v++;
-                			        if (index_v == size_vj)
-                			                index_v = 0;
-                			}
+					//hash_top++; hash_bottom++;
+					if (vj[index_v].first != -1){
+						do{
+                				        index_v++; index_v &= size_vj0;
+							//hash_top++;
+                				}while (vj[index_v].first != k && vj[index_v].first != -1);
+					}
 				}
-				double vjk = vj[index_v].second;	
-				#else	
-				double vjk = v[fea_ind][k];
+				float_type vjk = vj[index_v].second;	
+				#else
+				float_type vjk = vj[k];
 				#endif
 				if( fabs(vjk) > lambda ){
 					if( vjk > 0 )
@@ -469,10 +561,10 @@ class SBCDsolve{
 		sort(index_c, index_c+m, ScoreComp(c));	
 
 		//partial sums
-		double* S_b = new double[n];
-		double* S_c = new double[m];
+		float_type* S_b = new float_type[n];
+		float_type* S_c = new float_type[m];
 		//l_2 residuals
-		double r_b = 0.0, r_c = 0.0;
+		float_type r_b = 0.0, r_c = 0.0;
 		for (int i = 0; i < n; i++){
 			b[index_b[i]] /= A;
 			r_b += b[index_b[i]]*b[index_b[i]];
@@ -500,15 +592,15 @@ class SBCDsolve{
                 }
 		//update for b_{0..i-1} c_{0..j-1}
 		//i,j is the indices of coordinate that we will going to include, but not now!
-		double t = 0.0;
-		double ans_t_star = 0; 
-		double ans = INFI; 
+		float_type t = 0.0;
+		float_type ans_t_star = 0; 
+		float_type ans = INFI; 
 		int ansi = i, ansj = j;
 		int lasti = 0, lastj = 0;
 		do{
 			lasti = i; lastj = j;
 			// l = t; t = min(f_b(i), f_c(j));
-			double l = t;
+			float_type l = t;
 			if (i == n){
 				if (j == m){
 					t = C;
@@ -528,14 +620,14 @@ class SBCDsolve{
 			if (t > C){
 				t = C;
 			}
-			double t_star = (i*S_c[j-1] + j*S_b[i-1])/(i+j);
+			float_type t_star = (i*S_c[j-1] + j*S_b[i-1])/(i+j);
 			if (t_star < l){
 				t_star = l;
 			}
 			if (t_star > t){
 				t_star = t;
 			}
-			double candidate = r_b + r_c + (S_b[i-1] - t_star)*(S_b[i-1] - t_star)/i + (S_c[j-1] - t_star)*(S_c[j-1] - t_star)/j;
+			float_type candidate = r_b + r_c + (S_b[i-1] - t_star)*(S_b[i-1] - t_star)/i + (S_c[j-1] - t_star)*(S_c[j-1] - t_star)/j;
 			if (candidate < ans){
 				ans = candidate;
 				ansi = i;
@@ -576,27 +668,29 @@ class SBCDsolve{
 
 	private:
 	Problem* prob;
-	double lambda;
-	double C;
+	float_type lambda;
+	float_type C;
 	vector<SparseVec*>* data ;
 	vector<Labels>* labels ;
 	int D; 
 	int N;
 	int K;
-	double* Q_diag;
+	float_type* Q_diag;
 	#ifdef USING_HASHVEC
 	pair<int, float_type>** v;
 	pair<int, float_type>** alpha;
-	HashFunc* hashfunc;
+	HashClass* hashfunc;
 	int* hashindices;
 	int* size_v;
 	int* size_alpha;
+	int* util_v;
+	int* util_alpha;
 	#else
-	double** alpha;
-	double** v;
+	float_type** alpha;
+	float_type** v;
 	#endif
 		
 	int max_iter;
-	double* grad;
-	double* Dk;
+	float_type* grad;
+	float_type* Dk;
 };

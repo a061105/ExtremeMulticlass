@@ -18,24 +18,25 @@ using namespace std;
 typedef vector<pair<int,double> > SparseVec;
 typedef unordered_map<int,double> HashVec;
 typedef vector<int> Labels;
-typedef double float_type;
+typedef float float_type;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 
 #define INFI 1e10
-#define INIT_SIZE 128
+#define INIT_SIZE 16
+#define PermutationHash HashClass
 
 class ScoreComp{
 	
 	public:
-	ScoreComp(double* _score){
+	ScoreComp(float_type* _score){
 		score = _score;
 	}
 	bool operator()(const int& ind1, const int& ind2){
 		return score[ind1] > score[ind2];
 	}
 	private:
-	double* score;
+	float_type* score;
 };
 
 // Hash function [K] ->[m]
@@ -46,11 +47,12 @@ class HashFunc{
 	int* hashindices;
 	HashFunc(){
 	}
-	HashFunc(int _K, int _l, int _r){
+	HashFunc(int _K){
 		srand(time(NULL));
 		K = _K;
-		l = _l;
-		r = _r;
+		l = 10000;
+		r = 100000;
+		
 		// pick random prime number in [l, r]
 		p = rand() % (r - l) + l - 1;
 		bool isprime;
@@ -66,12 +68,16 @@ class HashFunc{
 		} while (!isprime);
 		a = rand() % p;
 		b = rand() % p;
+		c = rand() % p;
 		hashindices = new int[K];
 		for (int i = 0; i < K; i++){
-			hashindices[i] = (a*i + b) % p % INIT_SIZE;
-			//if (i < INIT_SIZE) cerr << hashindices[i] % INIT_SIZE << " ";
+			hashindices[i] = ((a*i*i + b*i + c) % p) % INIT_SIZE;
+			if (i < INIT_SIZE) cerr << hashindices[i] % INIT_SIZE << " ";
 		}
-		//cerr << endl;
+		cerr << endl;
+	}
+	~HashFunc(){
+		delete [] hashindices;
 	}
 	void rehash(){
 		p = rand() % (r - l) + l - 1;
@@ -94,14 +100,25 @@ class HashFunc{
 	}
 	private:
 	int K, l, r;
-	int a,b,p;
+	int a,b,c,p;
 };
 
 class PermutationHash{
 	public:
-	PermutationHash(){
-		K = 0;	
+	PermutationHash(){};
+	PermutationHash(int _K){	
+		srand(time(NULL));
+		K = _K;
+		hashindices = new int[K];
+		for (int i = 0; i < K; i++){
+			hashindices[i] = i;
+		}
+		random_shuffle(hashindices, hashindices+K);
 	}
+	~PermutationHash(){
+		delete [] hashindices;
+	}
+	int* hashindices;
 	private:
 	int K;
 };

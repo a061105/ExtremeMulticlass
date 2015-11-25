@@ -19,8 +19,8 @@ class Param{
 	public:
 	char* trainFname;
 	char* modelFname;
-	double lambda; //for L1-norm (default 1/N)
-	double C; //weight of loss
+	float_type lambda; //for L1-norm (default 1/N)
+	float_type C; //weight of loss
 	int speed_up_rate; // speed up rate for sampling
 	int split_up_rate; // split up [K] into a number of subsets	
 	Problem* prob;
@@ -105,7 +105,7 @@ void readData(char* fname, Problem* prob)
 		for(int i=st;i<tokens.size();i++){
 			vector<string> kv = split(tokens[i],":");
 			int ind = atoi(kv[0].c_str());
-			double val = atof(kv[1].c_str());
+			float_type val = atof(kv[1].c_str());
 			ins->push_back(make_pair(ind,val));
 			if( ind > d )
 				d = ind;

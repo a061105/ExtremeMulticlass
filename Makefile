@@ -21,7 +21,7 @@ ocr:
 	./multiPred data/data20.subtrain.svm $(model)
 	./multiPred data/data20.test.svm $(model)
 rcv1:
-	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) data/rcv1_train.multiclass $(model)
+	./multiTrain -l 1 -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) data/rcv1_train.multiclass $(model)
 	./multiPred data/rcv1_train.multiclass $(model)
 	./multiPred data/rcv1_test.multiclass.10k $(model)
 aloi:
