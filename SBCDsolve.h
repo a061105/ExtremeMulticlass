@@ -32,7 +32,7 @@ class SBCDsolve{
 	
 	#ifdef USING_HASHVEC
 	long long hash_top = 0, hash_bottom = 0;
-	pair<int, float_type>* alpha_i_k(pair<int, float_type>* alpha_i, int i, int act_indexj){
+	inline pair<int, float_type>* alpha_i_k(pair<int, float_type>* alpha_i, int i, int act_indexj){
 		int size_alphai = size_alpha[i];
 		int index_alpha = hashindices[act_indexj] & (size_alphai - 1);
 		hash_bottom++; hash_top++;
@@ -46,7 +46,7 @@ class SBCDsolve{
 		return &(alpha_i[index_alpha]);
 	}
 
-	pair<int, float_type>* v_j_k(pair<int, float_type>* vj, int j, int act_indexj){
+	inline pair<int, float_type>* v_j_k(pair<int, float_type>* vj, int j, int act_indexj){
 		int size_vj = size_v[j];
 		int index_v = hashindices[act_indexj] & (size_vj - 1);
 		hash_bottom++; hash_top++;
@@ -58,6 +58,42 @@ class SBCDsolve{
                 }
 		//if (vj[index_v].first == act_indexj)	hash_top++;
 		return &(vj[index_v]);
+	}
+	inline void find_index(pair<int, float_type>* l, int& st, const int& index, const int& size0){
+		st = hashindices[index] & size0;
+		//cout << "start finding " << st << " " << size0 << endl;
+		if (l[st].first != index){
+			while (l[st].first != index && l[st].first != -1){
+				st++;
+				st &= size0;
+			}
+		}
+		//cout << "end finding " << endl;
+	}
+	inline void resize(pair<int, float_type>*& l, pair<int, float_type>*& L, int& size, int& new_size, int& new_size0, const int& util){
+		while (util > UPPER_UTIL_RATE * new_size){
+			new_size *= 2;
+		}
+		pair<int, float_type>* new_l = new pair<int, float_type>[new_size];
+		new_size0 = new_size - 1;
+		int index_l = 0;
+		for (int tt = 0; tt < new_size; tt++){
+			new_l[tt] = make_pair(-1, 0.0);
+		}
+		//cout << "middle:" << size << " " << new_size << " " << util << endl;
+		for (int tt = 0; tt < size; tt++){
+			//insert old elements into new array
+			pair<int, float_type> p = l[tt];
+			if (p.first != -1){
+				find_index(new_l, index_l, p.first, new_size0);
+				new_l[index_l] = p;
+			}
+		}
+		//cout << "end   :" << size << " " << new_size << " " << util << endl;
+		delete[] l;
+		l = new_l;
+		size = new_size;
+		L = new_l;
 	}
 	#endif
 	
@@ -151,8 +187,8 @@ class SBCDsolve{
 				#ifdef USING_HASHVEC
 				pair<int, float_type>* alpha_i = alpha[i];
 				int size_alphai = size_alpha[i];
-				int util_alphai = util_alphai;
 				int size_alphai0 = size_alphai - 1;
+				int index_alpha = 0, index_v = 0;
 				#else
 				float_type* alpha_i = alpha[i];
 				#endif
@@ -170,15 +206,16 @@ class SBCDsolve{
 				#ifdef USING_HASHVEC
 				float_type* alpha_i_k = new float_type[act_size];
 				for(int j = 0; j < act_size; j++){
-                                	int act_indexj = act_index[j];
-					int index_alpha = hashindices[act_indexj] & size_alphai0;
+					int act_indexj = act_index[j];
+					/*int index_alpha = hashindices[act_indexj] & size_alphai0;
                                         //hash_top++; hash_bottom++;
                                         if (alpha_i[index_alpha].first != act_indexj)
                                         while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
 						index_alpha++;
                                                 index_alpha &= size_alphai0;
 						//hash_top++;
-                                        }
+                                        }*/
+					find_index(alpha_i, index_alpha, act_indexj, size_alphai0);
 					alpha_i_k[j] = alpha_i_new[act_indexj] - alpha_i[index_alpha].second; 
 					act_hashindex[j] = hashindices[act_indexj] & size_alphai0;
 				}
@@ -197,56 +234,30 @@ class SBCDsolve{
 						int act_indexj = act_index[j];
 						//v_j_k(it->first, act_indexj)->second += f_val*(alpha_i_new[act_indexj] - alpha_i_k(i, act_indexj)->second);
 						//v_j_k(it->first, act_indexj)->first = act_indexj;
-						int index_v = hashindices[act_indexj] & size_vj0;
+						//int index_v = hashindices[act_indexj] & size_vj0;
 						//hash_top++; hash_bottom++;
-						if (vj[index_v].first != act_indexj){
+						//cout << "outside finding " << util_vj << " " << endl;
+						find_index(vj, index_v, act_indexj, size_vj0);
+						/*if (vj[index_v].first != act_indexj){
 							if (vj[index_v].first != -1){
                 						while (vj[index_v].first != act_indexj && vj[index_v].first != -1){
 									//hash_top++;
                 						        index_v++;
                 						        index_v &= size_vj0;
                 						}
-							}
+							}*/
 							if (vj[index_v].first == -1){
 								vj[index_v].first = act_indexj;
-								if ((++util_vj) > upper){
+								if ((++util_vj) > size_vj * UPPER_UTIL_RATE){
 									//resize here
-									while (util_vj > size_vj * UPPER_UTIL_RATE){
-										size_vj = size_vj << 1;
-									}
-									//using size_vj as new size_v[j], and size_v[j] is old size
-									size_vj0 = size_vj - 1;
-									upper = size_vj*UPPER_UTIL_RATE;
-			
-									pair<int, float_type>* vj_new = new pair<int, float_type>[size_vj];
-									for (int tt = 0; tt < size_vj; tt++){
-										vj_new[tt] = make_pair(-1, 0.0);
-									}
-									for (int tt = 0; tt < size_v[J]; tt++){
-										//insert vj[tt]
-										pair<int, float_type>* temp_pair = &(vj[tt]);
-										int k = temp_pair->first;
-										if (k != -1){
-											int index_v = hashindices[k] & size_vj0;
-											if (vj_new[index_v].first != k){
-                										while (vj_new[index_v].first != k && vj_new[index_v].first != -1){
-                										        index_v++;
-													index_v &= size_vj0;
-                										}
-												if (vj_new[index_v].first == -1){
-													vj_new[index_v].first = k;
-												}
-											}
-											vj_new[index_v].second = temp_pair->second;
-										}
-									}
-				
-									delete[] vj;
-									vj = vj_new; v[J] = vj_new;
-									size_v[J] = size_vj;
+									//cout << "enter_v" << vj << " " << v[J] << endl;
+									resize(vj, v[J], size_v[J], size_vj, size_vj0, util_vj);
+									//cout << "exit_v" << vj << " " << v[J] << endl;
+									//cout << size_vj0 << " " << size_vj << endl;
+									//assert(size_vj0 == size_vj - 1);
 								}
 							}
-						}
+						//}
 						//vj[index_v].first = act_indexj;
 						vj[index_v].second += f_val*alpha_i_k[j];
 					}
@@ -259,19 +270,21 @@ class SBCDsolve{
 					}
 					#endif
 				}
-				
+				//cout << "middle " << endl;
 				//update alpha
 				#ifdef USING_HASHVEC
 				for(int j=0;j<act_size;j++){
 					int act_indexj = act_index[j];
-					int index_alpha = hashindices[act_indexj] & size_alphai0;
-                                      	hash_top++; hash_bottom++;
-                                       	while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1 ){
-                                               index_alpha++;
-                                               if (index_alpha == size_alphai)
-                                                       index_alpha = 0;
-                                               hash_top++;
-                                        };
+					find_index(alpha_i, index_alpha, act_indexj, size_alphai0);
+					//int index_alpha = hashindices[act_indexj] & size_alphai0;
+                                      	//hash_top++; hash_bottom++;
+                                       	//while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1 ){
+                                        //       index_alpha++;
+                                        //       if (index_alpha == size_alphai)
+                                        //               index_alpha = 0;
+                                        //      hash_top++;
+                                        //};
+					
 					if (alpha_i[index_alpha].first == -1 && (alpha_i_new[act_indexj] != 0.0)){
 						alpha_i[index_alpha].first = act_indexj;
 					};
@@ -279,11 +292,14 @@ class SBCDsolve{
 				}
 				if (act_size > size_alphai * UPPER_UTIL_RATE){
 					//resize here
+					//cout << "enter_alpha" << endl;
+					//cout << size_alphai << " " << act_size << endl;
+					//resize(alpha_i, alpha[i], size_alpha[i], size_alphai, size_alphai0, act_size);
 					while (act_size > size_alphai * UPPER_UTIL_RATE){
 						size_alphai = size_alphai << 1;
 					}
 					//using size_vj as new size_v[j], and size_v[j] is old size
-			
+					size_alphai0 = size_alphai - 1;
 					pair<int, float_type>* alphai_new = new pair<int, float_type>[size_alphai];
 					for (int tt = 0; tt < size_alphai; tt++){
 						alphai_new[tt] = make_pair(-1, 0.0);
@@ -310,8 +326,8 @@ class SBCDsolve{
 					delete[] alpha_i;
 					alpha_i = alphai_new; alpha[i] = alphai_new;
 					size_alpha[i] = size_alphai;
+					//cout << "exit_alpha" << endl;*/
 				}
-				util_alpha[i] = util_alphai;
 				delete[] alpha_i_k;
 				#else
 				for(int j=0;j<act_size;j++){
@@ -417,6 +433,7 @@ class SBCDsolve{
 		pair<int, float_type>* alpha_i = alpha[I];
 		int size_alphai = size_alpha[I];
 		int size_alphai0 = size_alphai - 1;
+		int index_alpha = 0;
 		#else
 		float_type* alpha_i = alpha[I];
 		#endif
@@ -426,27 +443,21 @@ class SBCDsolve{
 		for(int k=0;k<m+n;k++){
 			int p = act_k_index[k];
 			#ifdef USING_HASHVEC
+			find_index(alpha_i, index_alpha, p, size_alphai0);
+			/*int index_alpha = hashindices[p] & size_alphai0;
+                        if (alpha_i[index_alpha].first != p){
+				//hash_top++; hash_bottom++;
+                                while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
+                                        index_alpha++; index_alpha &= size_alphai0;
+				//	hash_top++;
+                                }
+                        }*/
+			
 			if( find(yi->begin(), yi->end(), p) == yi->end() ){
-				int index_alpha = hashindices[p] & size_alphai0;
-                        	if (alpha_i[index_alpha].first != p){
-					//hash_top++; hash_bottom++;
-                        	        while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
-                        	                index_alpha++; index_alpha &= size_alphai0;
-					//	hash_top++;
-                        	        }
-                        	}
 				b[i] = 1.0 - A*alpha_i[index_alpha].second;
 				index_b[i] = i;
 				act_index_b[i++] = p;
 			}else{
-				int index_alpha = hashindices[p] & size_alphai0;
-                                if (alpha_i[index_alpha].first != p){
-					//hash_top++; hash_bottom++;
-                                        while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
-                                                index_alpha++; index_alpha &= size_alphai0;
-					//	hash_top++;
-                                        }
-                                }
                                 c[j] = A*alpha_i[index_alpha].second;
                                 index_c[j] = j;
 				act_index_c[j++] = p;
@@ -502,13 +513,14 @@ class SBCDsolve{
 			pair<int, float_type>* vj = v[fea_ind];
 			int size_vj = size_v[fea_ind];
 			int size_vj0 = size_vj - 1;
+			int index_v = 0;
 			#else
 			float_type* vj = v[fea_ind];
 			#endif
 			for(int i = 0; i < n; i++){
 				int k = act_index_b[i];
 				#ifdef USING_HASHVEC
-				int index_v = hashindices[k] & size_vj0;
+				/*int index_v = hashindices[k] & size_vj0;
 				//int first = vj[index_v].first;
 				if (vj[index_v].first != k){
 					//hash_top++; hash_bottom++;
@@ -518,7 +530,8 @@ class SBCDsolve{
 							//hash_top++;
                 				}while (vj[index_v].first != k && vj[index_v].first != -1);
 					}
-				}
+				}*/
+				find_index(vj, index_v, k, size_vj0);
 				float_type vjk = vj[index_v].second;
 				#else
 				float_type vjk = vj[k];
@@ -533,7 +546,7 @@ class SBCDsolve{
 			for(int j = 0; j < m; j++){
 				int k = act_index_c[j];
 				#ifdef USING_HASHVEC
-				int index_v = hashindices[k] & size_vj0;
+				/*int index_v = hashindices[k] & size_vj0;
 				if (vj[index_v].first != k){
 					//hash_top++; hash_bottom++;
 					if (vj[index_v].first != -1){
@@ -542,7 +555,8 @@ class SBCDsolve{
 							//hash_top++;
                 				}while (vj[index_v].first != k && vj[index_v].first != -1);
 					}
-				}
+				}*/
+				find_index(vj, index_v, k, size_vj0);
 				float_type vjk = vj[index_v].second;	
 				#else
 				float_type vjk = vj[k];

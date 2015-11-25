@@ -23,7 +23,7 @@ const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 
 #define INFI 1e10
-#define INIT_SIZE 16
+#define INIT_SIZE 32
 #define PermutationHash HashClass
 
 class ScoreComp{
