@@ -2,9 +2,6 @@
 #include "multi.h"
 #include <cassert>
 
-#define UPPER_UTIL_RATE 0.75
-#define LOWER_UTIL_RATE 0.5
-
 class SBCDsolve{
 	
 	public:
@@ -80,7 +77,6 @@ class SBCDsolve{
 		for (int tt = 0; tt < new_size; tt++){
 			new_l[tt] = make_pair(-1, 0.0);
 		}
-		//cout << "middle:" << size << " " << new_size << " " << util << endl;
 		for (int tt = 0; tt < size; tt++){
 			//insert old elements into new array
 			pair<int, float_type> p = l[tt];
@@ -89,7 +85,6 @@ class SBCDsolve{
 				new_l[index_l] = p;
 			}
 		}
-		//cout << "end   :" << size << " " << new_size << " " << util << endl;
 		delete[] l;
 		l = new_l;
 		size = new_size;
@@ -183,7 +178,7 @@ class SBCDsolve{
 				int i = index[r];
 				int act_size = act_k_size[i];
 				int* act_index = act_k_index[i];
-				int* act_hashindex = new int[K];
+				//int* act_hashindex = new int[K];
 				#ifdef USING_HASHVEC
 				pair<int, float_type>* alpha_i = alpha[i];
 				int size_alphai = size_alpha[i];
@@ -217,7 +212,7 @@ class SBCDsolve{
                                         }*/
 					find_index(alpha_i, index_alpha, act_indexj, size_alphai0);
 					alpha_i_k[j] = alpha_i_new[act_indexj] - alpha_i[index_alpha].second; 
-					act_hashindex[j] = hashindices[act_indexj] & size_alphai0;
+					//act_hashindex[j] = hashindices[act_indexj] & size_alphai0;
 				}
 				#endif
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
@@ -227,7 +222,7 @@ class SBCDsolve{
 					#ifdef USING_HASHVEC
 					pair<int, float_type>* vj = v[J];
 					int size_vj = size_v[J];
-					float_type upper = size_vj*UPPER_UTIL_RATE;
+					//float_type upper = size_vj*UPPER_UTIL_RATE;
 					int util_vj = util_v[J];
 					int size_vj0 = size_vj - 1;
 					for(int j = 0; j < act_size; j++){
@@ -294,8 +289,8 @@ class SBCDsolve{
 					//resize here
 					//cout << "enter_alpha" << endl;
 					//cout << size_alphai << " " << act_size << endl;
-					//resize(alpha_i, alpha[i], size_alpha[i], size_alphai, size_alphai0, act_size);
-					while (act_size > size_alphai * UPPER_UTIL_RATE){
+					resize(alpha_i, alpha[i], size_alpha[i], size_alphai, size_alphai0, act_size);
+					/*while (act_size > size_alphai * UPPER_UTIL_RATE){
 						size_alphai = size_alphai << 1;
 					}
 					//using size_vj as new size_v[j], and size_v[j] is old size
@@ -474,37 +469,6 @@ class SBCDsolve{
 			}
 			#endif
 		}
-		/*for(int i=0; i < n; i++){
-			int act_indexj = act_index_b[i];
-			#ifdef USING_HASHVEC
-			int index_alpha = hashindices[act_indexj] % size_alphai;
-			hash_bottom++; hash_top++;
-			if (alpha_i[index_alpha].first != -1){
-                		while (alpha_i[index_alpha].first != -1 && alpha_i[index_alpha].first != act_indexj){
-                		        index_alpha++;
-                		        if (index_alpha == size_alphai)
-                		                index_alpha = 0;
-                		}
-			}
-			b[i] = 1.0 - A*alpha_i[index_alpha].second;
-			//b[i] = 1.0 - A*alpha_i_k(alpha[I], I, k)->second;
-			#else
-			b[i] = 1.0 - A*alpha_i[act_indexj];
-			#endif
-			index_b[i] = i;
-		}
-
-		for(int j=0; j < m; j++){ 
-                        int k = act_index_c[j];
-			#ifdef USING_HASHVEC
-			
-			c[j] = A*alpha_i_k(alpha[I], I, k)->second;
-			
-			#else
-                        c[j] = A*alpha_i[k];
-			#endif
-			index_c[j] = j;
-                }*/
 
 		for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 			int fea_ind = it->first;

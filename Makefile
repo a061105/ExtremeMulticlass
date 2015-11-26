@@ -6,7 +6,7 @@ train:
 predict:
 	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
-s=0
+s=3
 r=1
 m=20
 q=1
