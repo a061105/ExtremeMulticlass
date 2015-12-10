@@ -4,6 +4,7 @@
 //#include "ActBCDsolve.h"
 //#include "OracleActBCD.h"
 #include "SplitOracleActBCD.h"
+#include "PostSolve.h"
 
 void exit_with_help(){
 	cerr << "Usage: ./multiTrain (options) [train_data] (model)" << endl;
@@ -51,6 +52,8 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 			case 'i': param->using_importance_sampling = true; --i;
 				  break;
 			case 'q': param->split_up_rate = atoi(argv[i]);
+				  break;
+			case 'p': param->post_solve_iter = atoi(argv[i]);
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;
@@ -127,6 +130,11 @@ int main(int argc, char** argv){
 	}else if( param->solver==3 ){
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
+
+		if( param->post_solve_iter > 0 ){
+			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->v );
+			model = postSolve->solve();
+		}
 		writeModel(param->modelFname, model);
 	}
 	
