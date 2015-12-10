@@ -30,7 +30,8 @@ class Param{
 	int max_iter;
 	int max_select;
 	bool using_importance_sampling;
-	
+	int post_solve_iter;
+
 	Param(){
 		solver = 0;
 		lambda = 1.0;
@@ -40,6 +41,7 @@ class Param{
 		speed_up_rate = 1;
 		split_up_rate = 1;
 		using_importance_sampling = false;
+		post_solve_iter = 0;
 	}
 };
 
