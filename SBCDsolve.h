@@ -359,9 +359,11 @@ class SBCDsolve{
 		float_type d_obj = 0.0;
 		int nSV = 0;
 		int nnz_w = 0;
+		double w_1norm=0.0;
 		for(int j=0;j<D;j++){
 			for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++){
 				d_obj += it->second*it->second;
+				w_1norm += fabs(it->second);
 			}
 			nnz_w += w[j]->size();
 		}
@@ -387,6 +389,7 @@ class SBCDsolve{
 		cerr << "dual_obj=" << d_obj << endl;
 		cerr << "nSV=" << nSV << " (NK=" << N*K << ")"<< endl;
 		cerr << "nnz_w=" << nnz_w << " (DK=" << D*K << ")" << endl;
+		cerr << "w_1norm=" << w_1norm << endl;
 		cerr << "train time=" << endtime-starttime << endl;
 		cerr << "subsolve time=" << subsolve_time << endl;
 		cerr << "maintain time=" << maintain_time << endl;

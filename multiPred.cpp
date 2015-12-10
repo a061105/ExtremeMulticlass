@@ -65,6 +65,7 @@ int main(int argc, char** argv){
 	vector<SparseVec*>* data = &(prob->data);
 	vector<Labels>* labels = &(prob->labels);
 	float_type hit=0.0;
+	float_type margin_hit = 0.0;
 	float_type* prod = new float_type[model->K];
 	int* k_index = new int[model->K];
 	for(int k = 0; k < model->K; k++){
@@ -103,8 +104,11 @@ int main(int argc, char** argv){
 			}
 			if (flag)
 				hit += 1.0/top;
+			if( top==1 && flag && prod[k_index[k]] >= prod[k_index[k+1]]+1.0 )
+				margin_hit += 1.0/top;
 		}
 	}
 
 	cerr << "Acc=" << ((float_type)hit/prob->N) << endl;
+	cerr << "Acc(margin)=" << ((float_type)margin_hit/prob->N) << endl;
 }

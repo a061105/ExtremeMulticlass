@@ -354,7 +354,8 @@ class SplitOracleActBCD{
 			}
 			
 			if( iter % 1 == 0 ){
-				cerr << "." ;
+				//cerr << "." ;
+				cerr << "i=" << iter << "\t";
 				int nnz_a_i = 0;
 				for(int i=0;i<N;i++){
 					nnz_a_i += act_k_index[i].size();	
@@ -381,6 +382,7 @@ class SplitOracleActBCD{
 		float_type d_obj = 0.0;
 		int nSV = 0;
 		int nnz_w = 0;
+		double w_1norm = 0.0;
 		int jk=0;
 		for(int j=0;j<D;j++){
 			for(int S=0;S<split_up_rate;S++){
@@ -393,11 +395,12 @@ class SplitOracleActBCD{
 					float_type wjk = prox_l1(v[j][*it], lambda);
 					#endif
 					d_obj += wjk*wjk;//W[j][*it]*W[j][*it];
+					w_1norm += fabs(wjk);
 				}
 				nnz_w+=w_nnz_index[j][S]->size();
 			}
 		}
-		d_obj/=2.0;
+		/*d_obj/=2.0;
 		for(int i=0;i<N;i++){
 			Labels* yi = &(labels->at(i));
 			for(int k=0;k<K;k++){
@@ -422,8 +425,9 @@ class SplitOracleActBCD{
 			}
 		}
 		cerr << "dual_obj=" << d_obj << endl;
-		cerr << "nSV=" << nSV << " (NK=" << N*K << ")"<< endl;
+		cerr << "nSV=" << nSV << " (NK=" << N*K << ")"<< endl;*/
 		cerr << "nnz_w=" << nnz_w << " (DK=" << D*K << ")" << endl;
+		cerr << "w_1norm=" << w_1norm << endl;
 		cerr << "train time=" << endtime-starttime << endl;
 		cerr << "search time=" << search_time << endl;
 		cerr << "subsolve time=" << subsolve_time << endl;

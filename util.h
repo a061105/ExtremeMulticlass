@@ -28,7 +28,6 @@ const int FNAME_LEN = 1000;
 #define UPPER_UTIL_RATE 0.75
 #define LOWER_UTIL_RATE 0.5
 
-
 class ScoreComp{
 	
 	public:
