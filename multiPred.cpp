@@ -95,6 +95,7 @@ int main(int argc, char** argv){
 		sort(k_index, k_index + model->K, ScoreComp(prod));
 		float_type max_val = -1e300;
 		int argmax;
+		int wrong_top = top;
 		for(int k=0;k<top;k++){
 			bool flag = false;
 			for (int j = 0; j < yi->size(); j++){
@@ -104,7 +105,11 @@ int main(int argc, char** argv){
 			}
 			if (flag)
 				hit += 1.0/top;
-			if( top==1 && flag && prod[k_index[k]] >= prod[k_index[k+1]]+1.0 )
+			else
+				wrong_top = min(wrong_top, k);
+		}
+		for (vector<int>::iterator it=yi->begin(); it!=yi->end(); it++){
+			if( prod[k_index[*it]] >= prod[k_index[wrong_top]]+1.0 )
 				margin_hit += 1.0/top;
 		}
 	}
