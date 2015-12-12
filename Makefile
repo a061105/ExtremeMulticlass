@@ -21,11 +21,11 @@ ocr:
 	./multiPred data/data20.subtrain.svm $(model)
 	./multiPred data/data20.test.svm $(model)
 rcv1:
-	./multiTrain -l 1 -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) data/rcv1_train.multiclass $(model)
+	./multiTrain -l 1 -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) data/rcv1_train.multiclass $(model)
 	./multiPred data/rcv1_train.multiclass $(model)
 	./multiPred data/rcv1_test.multiclass.10k $(model)
 aloi:
-	./multiTrain -s $(s) -l 0.01 -m $(m) -q $(q) -g $(g) $(sample_opt) data/aloi.bin.subtrain $(model)
+	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) data/aloi.bin.subtrain $(model)
 	./multiPred data/aloi.bin.subtrain $(model)
 	./multiPred data/aloi.bin.test $(model)
 

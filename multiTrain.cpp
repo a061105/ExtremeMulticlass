@@ -133,7 +133,11 @@ int main(int argc, char** argv){
 		Model* model = solver->solve();
 
 		if( param->post_solve_iter > 0 ){
+			#ifdef USING_HASHVEC
+			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->size_alpha, solver->v, solver->size_v );
+			#else
 			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->v );
+			#endif
 			model = postSolve->solve();
 		}
 		writeModel(param->modelFname, model);
