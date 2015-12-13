@@ -17,7 +17,7 @@ LSHTCmulti=/scratch/cluster/ianyen/data/LSHTC/LSHTC2/wiki_large/multiData.sub100
 sample_opt=-i
 
 ocr:
-	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) data/data20.subtrain.svm $(model)
+	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) data/data20.subtrain.svm $(model)
 	./multiPred data/data20.subtrain.svm $(model)
 	./multiPred data/data20.test.svm $(model)
 rcv1:

@@ -5,7 +5,7 @@ class PostSolve{
 	
 	public:
 	#ifdef USING_HASHVEC
-	PostSolve(Param* param, HashVec** _w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, float_type>** _v, int*& _size_v){
+	PostSolve(Param* param, HashVec** _w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v){
 	#else
 	PostSolve(Param* param, HashVec** _w, float_type** _alpha, pair<float_type, float_type>** _v){
 	#endif
@@ -37,16 +37,12 @@ class PostSolve{
 					int k = it2->first;
 					#ifdef USING_HASHVEC
 					int index_alpha = 0;
-					//int size_alphai0 = sizeof(_alpha[i])/sizeof(_alpha[i][0]) - 1;
 					int _size_alphai0 = _size_alpha[i] - 1;
-					//cout << "begin:\t"<< _size_alphai0 << endl;
 					find_index(_alpha[i], index_alpha, k, _size_alphai0, hashindices);
-					//cout << "mid:\t" << _size_alphai0 << endl;
 					if (index_alpha == -1) 
 						continue;
 					if( fabs(_alpha[i][index_alpha].second) > 1e-12)
 						data_per_class_i[k].push_back(make_pair(j, xij));
-					//cout << "end:\t" << _size_alphai0 << endl;
 					#else
 					if( fabs(_alpha[i][k]) > 1e-12)
 						data_per_class_i[k].push_back(make_pair(j, xij));
@@ -63,7 +59,7 @@ class PostSolve{
 		size_alpha = new int[N];
 		for(int i=0;i<N;i++){
 			util_alpha[i] = 0;
-			size_alpha[i] = _size_alpha[i]; //sizeof(_alpha[i])/sizeof(_alpha[i][0]);
+			size_alpha[i] = _size_alpha[i]; 
 			alpha[i] = new pair<int, float_type>[size_alpha[i]];
 			for(int it=0; it < size_alpha[i]; it++){
 				alpha[i][it] = _alpha[i][it];
@@ -85,7 +81,7 @@ class PostSolve{
 				int k = _v[j][it].first;
 				if (k == -1)
 					continue;
-				if (fabs(_v[j][it].second) <= param->lambda)
+				if (fabs(_v[j][it].second.first) <= param->lambda)
 					continue;
 				util_v[k]++;
 				if (size_v[k]*UPPER_UTIL_RATE < util_v[k])
@@ -97,23 +93,21 @@ class PostSolve{
 			for (int j = 0; j < size_v[k]; j++)
 				v[k][j] = make_pair(-1, 0.0);
 		}
-		//cout << "hey" << endl;	
 		for (int j = 0; j < D; j++){
 			for (int it = 0; it < _size_v[j]; it++){
 				int k = _v[j][it].first;
 				if (k == -1)
 					continue;
-				if (fabs(_v[j][it].second) <= param->lambda)
+				if (fabs(_v[j][it].second.first) <= param->lambda)
 					continue;	
 				//v[k][j] = _v[j][k];
 				//insert (j, _v[j][it]) to v[k]
 				int index_v = 0;
 				find_index(v[k], index_v, j, size_v[k]-1, hashindices);
 				//cout << size_v[k] << " " << index_v << endl;
-				v[k][index_v] = make_pair(j, _v[j][it].second);
+				v[k][index_v] = make_pair(j, _v[j][it].second.first);
 			}
 		}
-		//cout << "hey" << endl;	
 		#else
 		alpha = new float_type*[N];
 		for(int i=0;i<N;i++){
@@ -164,7 +158,6 @@ class PostSolve{
 	
 	Model* solve(){
 		
-		cout << "hey" << endl;	
 		//indexes for permutation of [N]
 		int* index = new int[N];
 		for(int i=0;i<N;i++)

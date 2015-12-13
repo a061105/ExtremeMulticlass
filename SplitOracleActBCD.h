@@ -59,73 +59,6 @@ class SplitOracleActBCD{
 
 	
 	
-	/*long long hash_top = 0, hash_bottom = 0;
-        inline pair<int, float_type>* alpha_i_k(pair<int, float_type>* alpha_i, int i, int act_indexj){
-                int size_alphai = size_alpha[i];
-                int index_alpha = hashindices[act_indexj] & (size_alphai - 1);
-                hash_bottom++; hash_top++;
-                while (alpha_i[index_alpha].first != -1 && alpha_i[index_alpha].first != act_indexj){
-                        index_alpha++;
-                        if (index_alpha == size_alphai)
-                                index_alpha = 0;
-                        hash_top++;
-                }
-                //if (alpha_i[index_alpha].first == act_indexj) hash_top++;
-                return &(alpha_i[index_alpha]);
-        }
-
-        inline pair<int, float_type>* v_j_k(pair<int, float_type>* vj, int j, int act_indexj){
-                int size_vj = size_v[j];
-                int index_v = hashindices[act_indexj] & (size_vj - 1);
-                hash_bottom++; hash_top++;
-                while (vj[index_v].first != -1 && vj[index_v].first != act_indexj){
-                        index_v++;
-                        if (index_v == size_vj)
-                                index_v = 0;
-                        hash_top++;
-                }
-                //if (vj[index_v].first == act_indexj)  hash_top++;
-                return &(vj[index_v]);
-        }*/
-        /*inline void find_index(pair<int, float_type>* l, int& st, const int& index, const int& size0){
-                st = hashindices[index] & size0;
-                //cout << "start finding " << st << " " << size0 << endl;
-                if (l[st].first != index){
-                        while (l[st].first != index && l[st].first != -1){
-                                st++;
-                                st &= size0;
-                        }
-                }
-                //cout << "end finding " << endl;
-        }
-	inline void resize(pair<int, float_type>*& l, pair<int, float_type>*& L, int& size, int& new_size, int& new_size0, const int& util){
-                while (util > UPPER_UTIL_RATE * new_size){
-                        new_size *= 2;
-                }
-                while (new_size > INIT_SIZE && util < LOWER_UTIL_RATE * new_size){
-                        new_size /= 2;
-                }
-		if (new_size == size)
-			return;
-                pair<int, float_type>* new_l = new pair<int, float_type>[new_size];
-                new_size0 = new_size - 1;
-                int index_l = 0;
-                for (int tt = 0; tt < new_size; tt++){
-                        new_l[tt] = make_pair(-1, 0.0);
-                }
-                for (int tt = 0; tt < size; tt++){
-                        //insert old elements into new array
-                        pair<int, float_type> p = l[tt];
-                        if (p.first != -1 && p.second != 0.0){
-                                find_index(new_l, index_l, p.first, new_size0);
-                                new_l[index_l] = p;
-                        }
-                }
-                delete[] l;
-                l = new_l;
-                size = new_size;
-                L = new_l;
-        }*/
 
 	Model* solve(){
 		//initialize alpha and v ( s.t. v = X^Talpha )
@@ -137,21 +70,19 @@ class SplitOracleActBCD{
                 for (int i = 0; i < N; i++){
                         size_alpha[i] = INIT_SIZE;
                         alpha[i] = new pair<int, float_type>[size_alpha[i]];
-                        //memset(alpha[i], 255, sizeof(pair<int, float_type>)*size_alpha[i]);
                         for (int k = 0; k < size_alpha[i]; k++){
                                 alpha[i][k] = make_pair(-1, 0.0);
                         }
                 }
-                v = new pair<int, float_type>*[D];
+                v = new pair<int, pair<float_type, float_type>>*[D];
                 size_v = new int[D];
                 util_v = new int[D];
                 memset(util_v, 0, D*sizeof(int));
                 for (int j = 0; j < D; j++){
                         size_v[j] = INIT_SIZE;
-                        v[j] = new pair<int, float_type>[size_v[j]];
-                        //memset(v[j], 255, sizeof(pair<int, float_type>)*size_v[j]);
+                        v[j] = new pair<int, pair<float_type,float_type>>[size_v[j]];
                         for(int k = 0; k < size_v[j]; k++){
-                                v[j][k] = make_pair(-1, 0.0);
+                                v[j][k] = make_pair(-1, make_pair(0.0, 0.0));
                         }
                 }
 		#else
@@ -252,48 +183,37 @@ class SplitOracleActBCD{
 				float_type* alpha_i_k = new float_type[act_k_index[i].size()];
 				for(int j = 0; j < act_k_index[i].size(); j++){
                                         int act_indexj = act_k_index[i][j];
-                                        /*int index_alpha = hashindices[act_indexj] & size_alphai0;
-                                        //hash_top++; hash_bottom++;
-                                        if (alpha_i[index_alpha].first != act_indexj)
-                                        while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
-                                                index_alpha++;
-                                                index_alpha &= size_alphai0;
-                                                //hash_top++;
-                                        }*/
                                         find_index(alpha_i, index_alpha, act_indexj, size_alphai0, hashindices);
                                         alpha_i_k[j] = alpha_i_new[act_indexj] - alpha_i[index_alpha].second;
-                                        //act_hashindex[j] = hashindices[act_indexj] & size_alphai0;
                                 }	
 				#endif
-				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){	
+				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 					int J = it->first; 
 					float_type f_val = it->second;
-					auto vj = v[J];
+					//auto vj = v[J];
 					#ifdef USING_HASHVEC
-					//pair<int, float_type>* vj = v[J];
+					pair<int, pair<float_type, float_type>>* vj = v[J];
 					int size_vj = size_v[J];
 					int util_vj = util_v[J];
 					int size_vj0 = size_vj - 1;
 					for (int j = 0; j < act_k_index[i].size(); j++){
 						int k = act_k_index[i][j];
-						//find_index(alpha_i, index_alpha, k, size_alphai0);
 						float_type delta_alpha = alpha_i_k[j];
 						if( fabs(delta_alpha) < 1e-12 )
 							continue;
 						//update v
 						
 						find_index(vj, index_v, k, size_vj0, hashindices);
-						float_type vjk_old = vj[index_v].second;
-						float_type vjk = vjk_old + f_val*delta_alpha;
-						vj[index_v].second = vjk;
+						float_type vjk = vj[index_v].second.first + f_val*delta_alpha;
+						float_type wjk_old = vj[index_v].second.second;
+						float_type wjk = prox_l1(vjk, lambda);
+						vj[index_v].second = make_pair(vjk, wjk);
 						if (vj[index_v].first == -1){
 							vj[index_v].first = k;
 							if ((++util_v[J]) > size_vj * UPPER_UTIL_RATE){
 								resize(vj, v[J], size_v[J], size_vj, size_vj0, util_v[J], hashindices);
 							}
 						}
-						float_type wjk = prox_l1(vjk, lambda);
-						float_type wjk_old = prox_l1(vjk_old, lambda);
 						if ( wjk_old != wjk ){
 							int index_w = 0, lock = loc(k);
                                                        	pair<int, float_type>* wj = w_hash_nnz_index[J][lock];
@@ -307,16 +227,10 @@ class SplitOracleActBCD{
 									resize(wj, w_hash_nnz_index[J][lock], size_wjl, size_w[J][lock], size_wjl0, util_w[J][lock], hashindices);
 								}
 							}
-                                                        //if(  wjk_old == 0.0  ){
-                                                        //        w_nnz_index[J][loc(k)]->push_back(k);
-                                                        //}
                                                 }
 					}	
 					#else
-					//float_type* vj = v[J];
-					//pair<float_type, float_type>* vjk_wjk_old;
-					//for(int j = 0; j < act_k_index[i].size(); j++){
-					//	int k = act_k_index[i][j];
+					pair<float_type, float_type>* vj = v[J];
 					pair<int, float_type>** wJ = w_hash_nnz_index[J];
 					for(vector<int>::iterator it2 = act_k_index[i].begin(); it2 < act_k_index[i].end(); it2++){
 						int k = *it2;
@@ -357,15 +271,6 @@ class SplitOracleActBCD{
 					find_index(alpha_i, index_alpha, k, size_alphai0, hashindices);
 					if (fabs(alpha_i_new[k]) > 1e-12){
 						alpha_i[index_alpha] = make_pair(k, alpha_i_new[k]);
-						/*cout << "alpha outside " << size_alphai*UPPER_UTIL_RATE << " " << util_alpha[i] << endl;
-						int cc = 0;
-						for (int ii = 0; ii < size_alphai; ii++){
-							if (alpha_i[ii].first != -1){
-								cc++;
-							}
-						}
-						cout << "alphai " << cc << " " << util_alpha[i] << endl;
-						assert(cc == util_alpha[i]);*/
 						if ((++util_alpha[i]) > size_alphai * UPPER_UTIL_RATE){
 							//cout << "success alpha" << endl;
 							resize(alpha_i, alpha[i], size_alpha[i], size_alphai, size_alphai0, util_alpha[i], hashindices);
@@ -608,7 +513,7 @@ class SplitOracleActBCD{
 			float_type fea_val = it->second;
 			//auto vj = v[fea_ind];
 			#ifdef USING_HASHVEC
-                        pair<int, float_type>* vj = v[fea_ind];
+                        pair<int, pair<float_type, float_type>>* vj = v[fea_ind];
                         int size_vj = size_v[fea_ind];
                         int size_vj0 = size_vj - 1;
                         int index_v = 0;
@@ -619,13 +524,8 @@ class SplitOracleActBCD{
 				//int k = act_index_b[i];
 				#ifdef USING_HASHVEC
                                 find_index(vj, index_v, act_index_b[i], size_vj0, hashindices);
-                                float_type vjk = vj[index_v].second;
-                                if (fabs(vjk) > lambda){
-                                        if (vjk > 0)
-                                                b[i] += (vjk-lambda)*fea_val;
-                                        else
-                                                b[i] += (vjk+lambda)*fea_val;
-                                }
+                                float_type wjk = vj[index_v].second.second;
+                                b[i] += wjk*fea_val;
                                 #else
                                 //float_type vjk = vj[k];
                                 b[i] += vj[act_index_b[i]].second*fea_val;
@@ -635,13 +535,8 @@ class SplitOracleActBCD{
 				//int k = act_index_c[j];
 				#ifdef USING_HASHVEC
                                 find_index(vj, index_v, act_index_c[j], size_vj0, hashindices);
-                                float_type vjk = vj[index_v].second;
-				if( fabs(vjk) > lambda ){
-					if( vjk > 0 )
-						c[j] -= (vjk-lambda)*fea_val;
-					else
-						c[j] -= (vjk+lambda)*fea_val;
-				}
+                                float_type wjk = vj[index_v].second.second;
+                                c[j] -= wjk*fea_val;
                                 #else
                                 //float_type vjk = vj[k];
                                 c[j] -= vj[act_index_c[j]].second*fea_val;
@@ -993,7 +888,7 @@ class SplitOracleActBCD{
 	//int* loc;
 	public:
 	#ifdef USING_HASHVEC
-	pair<int, float_type>** v;
+	pair<int, pair<float_type, float_type> >** v;
         pair<int, float_type>** alpha;
         int* size_v;
         int* size_alpha;
