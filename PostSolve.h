@@ -524,11 +524,11 @@ class PostSolve{
 	int K;
 	float_type* Q_diag;
 	vector<int>* act_k_index;
+	HashClass* hashfunc;
+	int* hashindices;
 	#ifdef USING_HASHVEC
 	pair<int, float_type>** v;
 	pair<int, float_type>** alpha;
-	HashClass* hashfunc;
-	int* hashindices;
 	int* size_v;
 	int* size_alpha;
 	int* util_v;

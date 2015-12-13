@@ -1,9 +1,9 @@
 #include "util.h"
 #include "multi.h"
+#include "SplitOracleActBCD.h"
 #include "SBCDsolve.h"
 //#include "ActBCDsolve.h"
 //#include "OracleActBCD.h"
-#include "SplitOracleActBCD.h"
 #include "PostSolve.h"
 
 void exit_with_help(){

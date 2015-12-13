@@ -50,11 +50,13 @@ class SplitOracleActBCD{
 		for(int i=0;i<N;i++)
 			delete[] alpha[i];
 		delete[] alpha;
-		delete[] size_alpha;
 		for(int j=0;j<D;j++)
 			delete[] v[j];
 		delete[] v;
+		#ifdef USING_HASHVEC
 		delete[] size_v;
+		delete[] size_alpha;
+		#endif
 	}
 
 	
