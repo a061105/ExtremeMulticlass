@@ -14,7 +14,7 @@ g=1
 model=model
 LSHTC=/scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData/
 LSHTCmulti=/scratch/cluster/ianyen/data/LSHTC/LSHTC2/wiki_large/multiData.sub100
-sample_opt=-i
+sample_opt=#-i
 
 ocr:
 	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) data/data20.subtrain.svm $(model)

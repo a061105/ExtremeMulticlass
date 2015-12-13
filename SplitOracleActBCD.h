@@ -805,6 +805,130 @@ class SplitOracleActBCD{
         }
 
 	void search_active_i_uniform(int i, vector<int>& act_k_index){
+		int S = rand()%split_up_rate;
+                //compute <xi,wk> for k=1...K
+                Labels* yi = &(labels->at(i));
+		memset(prod, 0, sizeof(float_type)*K);
+                SparseVec* xi = data->at(i);
+		int nnz = xi->size();
+		for(int j = 0; j < act_k_index.size(); j++){
+			prod[act_k_index[j]] = -INFI;
+		}
+		for (Labels::iterator it = yi->begin(); it < yi->end(); it++){
+			prod[*it] = -INFI;
+		}
+		int n = nnz/speed_up_rate;
+		float_type th = -n/(1.0*nnz);
+		vector<float_type>* rand_nums = new vector<float_type>();
+		for (int tt = 0; tt < n; tt++){
+			rand_nums->push_back(((float_type)rand()/(RAND_MAX)));
+		}
+		sort(rand_nums->begin(), rand_nums->end()); 
+		#ifdef MULTISELECT
+		int* max_indices = new int[max_select+1];
+		for(int ind = 0; ind <= max_select; ind++){
+			max_indices[ind] = -1;
+		}
+		#endif
+		#ifndef MULTISELECT
+		int max_index = 0;
+		#endif
+		random_shuffle(xi->begin(), xi->end());
+		for (SparseVec::iterator current_index = xi->begin(); current_index < xi->begin() + n; current_index++){
+			float_type xij = current_index->second;
+			int j = current_index->first;
+			if (util_w[j][S] == 0) continue;
+			pair<int, float_type>* wjS = w_hash_nnz_index[j][S];
+			int size_wjS = size_w[j][S];
+			int k = 0, ind = 0;
+			float_type wjk = 0.0;
+			for (int it2 = 0; it2 < size_wjS; it2++){
+				k = wjS[it2].first;
+				if (k == -1)
+					continue;
+				//cout << wjk << endl;
+				//assert(k != -1);
+                                prod[k] += wjS[it2].second * xij;
+				#ifndef MULTISELECT
+				if (prod[max_index] < prod[k]){
+					max_index = k;
+				}
+				#endif
+				#ifdef MULTISELECT
+				if (prod[k] > th){
+					ind = 0;
+					while (ind < max_select && max_indices[ind] != -1 && max_indices[ind] != k){
+						ind++;
+					}
+					max_indices[ind] = k;
+					//try move to left
+					while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
+						//using k as temporary variables
+						k = max_indices[ind];
+						max_indices[ind] = max_indices[ind-1];
+						max_indices[ind-1] = k;
+					}
+					//try move to right
+					while (ind < max_select-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
+                                                //using k as temporary variables
+                                                k = max_indices[ind];
+                                                max_indices[ind] = max_indices[ind+1];
+                                                max_indices[ind+1] = k;
+                                        }
+				}
+				#endif
+			}
+                }
+		rand_nums->clear();
+		#ifdef MULTISELECT
+		for (int j = 0; j < max_select; j++){
+			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
+				continue;
+			for (int r = 0; r < K; r++){
+				int k = rand() % K;
+				if (prod[k] == 0){
+					bool flag = false;
+					for (int ind = 0; ind < max_select; ind++){
+						if (max_indices[ind] == k){
+							flag = true;
+							break;
+						}
+					}
+					if (!flag){
+						max_indices[j] = k;
+						break;
+					}
+				}
+			}
+		}
+		for(int ind = 0; ind < max_select; ind++){
+			if (max_indices[ind] != -1 && prod[max_indices[ind]] > th){
+				act_k_index.push_back(max_indices[ind]);
+			}
+		}
+		#endif
+		#ifndef MULTISELECT
+		if (prod[max_index] < 0){
+			for (int r = 0; r < K; r++){
+				int k = rand() % K;
+				if (prod[k] == 0){
+					max_index = k;
+					break;
+				}
+			}
+		}
+		if (prod[max_index] > th){
+			for (int k = 0; k < act_k_index.size(); k++){
+				//cerr << prod[max_index] << " " << th<< endl;
+				assert(act_k_index[k] != max_index);
+			}
+			act_k_index.push_back(max_index);
+//			cerr << "yes" << endl;
+		} else{
+//			cerr << "no" << endl;
+		}
+ 
+		#endif
 		/*int S = rand()%split_up_rate;
 		Labels* yi = &(labels->at(i));
                 memset(prod, 0, sizeof(float_type)*K);
