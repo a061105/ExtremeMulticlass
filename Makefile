@@ -1,6 +1,6 @@
 all: train predict
 	
-FLAG= -DUSING_HASHVEC#-DMULTISELECT
+FLAG= #-DUSING_HASHVEC#-DMULTISELECT
 train:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
 predict:
@@ -15,19 +15,20 @@ model=model
 LSHTC=/scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData/
 LSHTCmulti=/scratch/cluster/ianyen/data/LSHTC/LSHTC2/wiki_large/multiData.sub100
 sample_opt=-i
+data_dir=.
 
 ocr:
-	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) data/data20.subtrain.svm $(model)
-	./multiPred data/data20.subtrain.svm $(model)
-	./multiPred data/data20.test.svm $(model)
+	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) $(data_dir)/data/data20.subtrain.svm $(model)
+	./multiPred $(data_dir)/data/data20.subtrain.svm $(model)
+	./multiPred $(data_dir)/data/data20.test.svm $(model)
 rcv1:
-	./multiTrain -l 1 -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) data/rcv1_train.multiclass $(model)
-	./multiPred data/rcv1_train.multiclass $(model)
-	./multiPred data/rcv1_test.multiclass.10k $(model)
+	./multiTrain -l 1 -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) $(data_dir)/data/rcv1_train.multiclass $(model)
+	./multiPred $(data_dir)/data/rcv1_train.multiclass $(model)
+	./multiPred $(data_dir)/data/rcv1_test.multiclass.10k $(model)
 aloi:
-	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) data/aloi.bin.subtrain $(model)
-	./multiPred data/aloi.bin.subtrain $(model)
-	./multiPred data/aloi.bin.test $(model)
+	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p 20 $(sample_opt) $(data_dir)/data/aloi.bin.subtrain $(model)
+	./multiPred $(data_dir)/data/aloi.bin.subtrain $(model)
+	./multiPred $(data_dir)/data/aloi.bin.test $(model)
 
 LSHTC:
 	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) ${LSHTC}/train.tfidf.scale $(model)
