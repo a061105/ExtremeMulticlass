@@ -4,8 +4,11 @@
 using namespace std;
 
 int main(){
-	vector<int>* a = new vector<int>();
-	a->reserve(10000000);
+	vector<int> a; a.clear(); // = new vector<int>();
+	vector<int> b = a;
+	b.push_back(1);
+	cout << a.size() << endl;	
+	/*a->reserve(10000000);
 	int* b = new int[10000000];
 	double t1 = -omp_get_wtime();
 	for(int i = 0; i < 10000000; i++){
@@ -17,5 +20,5 @@ int main(){
                 b[i] = i;
         }       
         t2 += omp_get_wtime();
-	cout << t1 << " " << t2 << endl;
+	cout << t1 << " " << t2 << endl;*/
 }	
