@@ -1,4 +1,5 @@
 #include "multi.h"
+#include <omp.h>
 
 Model* readModel(char* file){
 	
@@ -61,6 +62,7 @@ int main(int argc, char** argv){
 
 	cerr << "Ntest=" << prob->N << endl;
 	
+	double start = omp_get_wtime();
 	//compute accuracy
 	vector<SparseVec*>* data = &(prob->data);
 	vector<Labels>* labels = &(prob->labels);
@@ -106,6 +108,8 @@ int main(int argc, char** argv){
 				hit += 1.0/top;
 		}
 	}
+	double end = omp_get_wtime();
 
 	cerr << "Acc=" << ((float_type)hit/prob->N) << endl;
+	cerr << "pred time=" << (end-start) << " s" << endl;
 }
