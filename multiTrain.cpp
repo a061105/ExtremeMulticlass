@@ -11,8 +11,8 @@ void exit_with_help(){
 	cerr << "options:" << endl;
 	cerr << "-s solver: (default 0)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
-	cerr << "	1 -- Active Block Coordinate Descent" << endl;
-	cerr << "	2 -- Oracle-Active Block Coordinate Descent" << endl;
+	//cerr << "	1 -- Active Block Coordinate Descent" << endl;
+	cerr << "	3 -- Stochastic-Active Block Coordinate Descent" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 10)" << endl;
 	cerr << "-r speed_up_rate: using 1/r fraction of samples (default 1)" << endl;
