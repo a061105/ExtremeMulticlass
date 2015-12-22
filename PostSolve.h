@@ -41,7 +41,7 @@ class PostSolve{
 					find_index(_alpha[i], index_alpha, k, _size_alphai0, hashindices);
 					if (index_alpha == -1) 
 						continue;
-					if( _alpha[i][index_alpha].second) != 0.0 )
+					if( _alpha[i][index_alpha].second != 0.0 )
 						data_per_class_i[k].push_back(make_pair(j, xij));
 					#else
 					if( _alpha[i][k] != 0.0)
