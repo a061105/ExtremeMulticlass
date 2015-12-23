@@ -23,7 +23,6 @@ class PostSolve{
 		
 		//initialize alpha and v
 		act_k_index = new vector<int>[N];
-		
 		#ifdef USING_HASHVEC
 		alpha = new pair<int, float_type>*[N];
 		util_alpha = new int[N];
@@ -101,51 +100,57 @@ class PostSolve{
 				v[k][j] = _v[j][k].first;
 			}
 		#endif
-		
+
 		// construct data_per_class
 		data_per_class = new SparseVec*[N];
 		for(int i=0;i<N;i++)
 			data_per_class[i] = new SparseVec[K];
+
+		double nnz_alpha_avg = (double)total_size( act_k_index, N ) / N;
+		double nnz_w_avg = (double)total_size( _w, D ) / D;
+
+		if( nnz_alpha_avg < nnz_w_avg ){
+			
+			for(int i=0;i<N;i++){
+				SparseVec* xi = data->at(i);
+				SparseVec* data_per_class_i = data_per_class[i];
+				vector<int>* act_k_i = &(act_k_index[i]);
+				for(vector<int>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
+					int k = *it;
+					for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
+						if( _w[ it2->first ]->find(k) != _w[ it2->first ]->end() )
+							data_per_class_i[k].push_back(make_pair(it2->first, it2->second));
+					}
+				}
+			}
 		
-		for(int i=0;i<N;i++){
-			SparseVec* xi = data->at(i);
-			SparseVec* data_per_class_i = data_per_class[i];
-			vector<int>* act_k_i = &(act_k_index[i]);
-			for(vector<int>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
-				int k = *it;
-				for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
-					if( _w[ it2->first ]->find(k) != _w[ it2->first ]->end() )
-						data_per_class_i[k].push_back(make_pair(it2->first, it2->second));
+		}else{
+			
+			for(int i=0;i<N;i++){
+				SparseVec* xi = data->at(i);
+				SparseVec* data_per_class_i = data_per_class[i];
+				for(SparseVec::iterator it=xi->begin() ;it!=xi->end(); it++){
+					int j = it->first;
+					double xij = it->second;
+					HashVec* wj = _w[j];
+					for(HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
+						int k = it2->first;
+						#ifdef USING_HASHVEC
+						int index_alpha = 0;
+						int _size_alphai0 = _size_alpha[i] - 1;
+						find_index(_alpha[i], index_alpha, k, _size_alphai0, hashindices);
+						if (index_alpha == -1) 
+							continue;
+						if( _alpha[i][index_alpha].second != 0.0 )
+							data_per_class_i[k].push_back(make_pair(j, xij));
+						#else
+						if( _alpha[i][k] != 0.0)
+							data_per_class_i[k].push_back(make_pair(j, xij));
+						#endif
+					}
 				}
 			}
 		}
-
-		//TO BE DELETED 
-		/*for(int i=0;i<N;i++){
-			SparseVec* xi = data->at(i);
-			SparseVec* data_per_class_i = data_per_class[i];
-			for(SparseVec::iterator it=xi->begin() ;it!=xi->end(); it++){
-				int j = it->first;
-				double xij = it->second;
-				HashVec* wj = _w[j];
-				for(HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
-					int k = it2->first;
-					#ifdef USING_HASHVEC
-					int index_alpha = 0;
-					int _size_alphai0 = _size_alpha[i] - 1;
-					find_index(_alpha[i], index_alpha, k, _size_alphai0, hashindices);
-					if (index_alpha == -1) 
-						continue;
-					if( _alpha[i][index_alpha].second != 0.0 )
-						data_per_class_i[k].push_back(make_pair(j, xij));
-					#else
-					if( _alpha[i][k] != 0.0)
-						data_per_class_i[k].push_back(make_pair(j, xij));
-					#endif
-				}
-			}
-		}*/
-
 		
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
 		Q_diag = new float_type[N];
