@@ -33,7 +33,7 @@ class PostSolve{
 			alpha[i] = new pair<int, float_type>[size_alpha[i]];
 			for(int it=0; it < size_alpha[i]; it++){
 				alpha[i][it] = _alpha[i][it];
-				if (fabs(alpha[i][it].second) > 1e-12){
+				if ( alpha[i][it].second != 0.0 ){
 					act_k_index[i].push_back(alpha[i][it].first);
 					util_alpha[i]++;
 				}
@@ -84,7 +84,7 @@ class PostSolve{
 			alpha[i] = new float_type[K];
 			for(int k=0;k<K;k++){
 				alpha[i][k] = _alpha[i][k];
-				if( fabs(alpha[i][k]) > 1e-12 )
+				if( alpha[i][k] != 0.0 )
 					act_k_index[i].push_back(k);
 			}
 		}
@@ -108,7 +108,7 @@ class PostSolve{
 
 		double nnz_alpha_avg = (double)total_size( act_k_index, N ) / N;
 		double nnz_w_avg = (double)total_size( _w, D ) / D;
-
+		cerr << "nnz_alpha=" << nnz_alpha_avg << ", nnz_w_avg=" << nnz_w_avg << endl;
 		if( nnz_alpha_avg < nnz_w_avg ){
 			
 			for(int i=0;i<N;i++){
