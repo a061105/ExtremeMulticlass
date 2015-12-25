@@ -184,5 +184,20 @@ double norm_sq( double* v, int size ){
 	return sum;
 }
 
+int total_size( vector<int>* alpha, int size ){
+	
+	int sum = 0;
+	for(int i=0;i<size;i++)
+		sum += alpha[i].size();
+	return sum;
+}
+
+int total_size( HashVec** w, int size ){
+	
+	int sum = 0;
+	for(int j=0;j<size;j++)
+		sum += w[j]->size();
+	return sum;
+}
 
 #endif
