@@ -111,6 +111,11 @@ class PostSolve{
 		cerr << "nnz_alpha=" << nnz_alpha_avg << ", nnz_w_avg=" << nnz_w_avg << endl;
 		if( nnz_alpha_avg < nnz_w_avg ){
 			
+			#ifdef USING_HASHVEC
+			cerr << "code for building data_per_class when nnz_alpha < nnz_w has not completed." << endl;
+			exit(0);
+			#endif
+
 			for(int i=0;i<N;i++){
 				SparseVec* xi = data->at(i);
 				SparseVec* data_per_class_i = data_per_class[i];
