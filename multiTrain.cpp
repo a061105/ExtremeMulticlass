@@ -131,7 +131,8 @@ int main(int argc, char** argv){
 	}else if( param->solver==3 ){
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
-
+		writeModel(param->modelFname, model);
+		
 		if( param->post_solve_iter > 0 ){
 			#ifdef USING_HASHVEC
 			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->size_alpha, solver->v, solver->size_v );
@@ -139,8 +140,12 @@ int main(int argc, char** argv){
 			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->v );
 			#endif
 			model = postSolve->solve();
+		
+			char* postsolved_modelFname = new char[FNAME_LEN];
+			sprintf(postsolved_modelFname, "%s.p%d", param->modelFname, param->post_solve_iter );
+			writeModel(postsolved_modelFname, model);
+			delete[] postsolved_modelFname;
 		}
-		writeModel(param->modelFname, model);
 	}
 	
 }
