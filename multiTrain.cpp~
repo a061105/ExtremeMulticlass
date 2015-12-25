@@ -1,9 +1,9 @@
 #include "util.h"
 #include "multi.h"
+#include "SplitOracleActBCD.h"
 #include "SBCDsolve.h"
 //#include "ActBCDsolve.h"
 //#include "OracleActBCD.h"
-#include "SplitOracleActBCD.h"
 #include "PostSolve.h"
 
 void exit_with_help(){
@@ -11,8 +11,8 @@ void exit_with_help(){
 	cerr << "options:" << endl;
 	cerr << "-s solver: (default 0)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
-	cerr << "	1 -- Active Block Coordinate Descent" << endl;
-	cerr << "	2 -- Oracle-Active Block Coordinate Descent" << endl;
+	//cerr << "	1 -- Active Block Coordinate Descent" << endl;
+	cerr << "	3 -- Stochastic-Active Block Coordinate Descent" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 10)" << endl;
 	cerr << "-r speed_up_rate: using 1/r fraction of samples (default 1)" << endl;
@@ -20,6 +20,7 @@ void exit_with_help(){
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
 	cerr << "-i im_sampling: Importance sampling instead of uniform (default not)" << endl;
 	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 1)" << endl;
+	cerr << "-p post_train_iter: #iter of post-training w/o L1R (default 0)" << endl;
 	
 	exit(0);
 }
@@ -130,12 +131,21 @@ int main(int argc, char** argv){
 	}else if( param->solver==3 ){
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
-
-		if( param->post_solve_iter > 0 ){
-			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->v );
-			model = postSolve->solve();
-		}
 		writeModel(param->modelFname, model);
+		
+		if( param->post_solve_iter > 0 ){
+			#ifdef USING_HASHVEC
+			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->size_alpha, solver->v, solver->size_v );
+			#else
+			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->v );
+			#endif
+			model = postSolve->solve();
+		
+			char* postsolved_modelFname = new char[FNAME_LEN];
+			sprintf(postsolved_modelFname, "%s.p%d", param->modelFname, param->post_solve_iter );
+			writeModel(postsolved_modelFname, model);
+			delete[] postsolved_modelFname;
+		}
 	}
 	
 }
