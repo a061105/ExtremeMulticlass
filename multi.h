@@ -5,15 +5,20 @@
 
 class Problem{
 	public:
-	map<string,int> label_index_map;
-	vector<string> label_name_list;
+	static map<string,int> label_index_map;
+	static vector<string> label_name_list;
+	static int D;//dimension
+	static int K;
+	
 	vector<SparseVec*> data;
 	vector<Labels> labels;
 	int N;//number of samples
-	int D;//dimension
-	int K;
 };
 
+map<string,int> Problem::label_index_map;
+vector<string> Problem::label_name_list;
+int Problem::D = -1;
+int Problem::K = -1;
 
 class Param{
 	public:
