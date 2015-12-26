@@ -135,7 +135,7 @@ int main(int argc, char** argv){
 		
 		if( param->post_solve_iter > 0 ){
 			#ifdef USING_HASHVEC
-			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->size_alpha, solver->v, solver->size_v );
+			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->size_alpha, solver->v, solver->size_v, solver->hashindices );
 			#else
 			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->v );
 			#endif

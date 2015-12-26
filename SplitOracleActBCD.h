@@ -147,6 +147,7 @@ class SplitOracleActBCD{
 		}
 		
 		//main loop
+		int ccc = 0;
 		double starttime = omp_get_wtime();
 		double search_time=0.0, subsolve_time=0.0, maintain_time=0.0;
 		double last_search_time = 0.0, last_subsolve_time = 0.0, last_maintain_time = 0.0;
@@ -171,7 +172,7 @@ class SplitOracleActBCD{
 					search_active_i_importance( i, act_k_index[i]);
 				else
 					search_active_i_uniform(i, act_k_index[i]);
-				
+					
 				search_time += omp_get_wtime();
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
@@ -219,6 +220,7 @@ class SplitOracleActBCD{
 						float_type wjk_old = vj[index_v].second.second;
 						float_type wjk = prox_l1(vjk, lambda);
 						vj[index_v].second = make_pair(vjk, wjk);
+						//cerr << "update v_J_k: " << J << " " << k << " " << vjk << " " << wjk << endl;
 						if (vj[index_v].first == -1){
 							vj[index_v].first = k;
 							if ((++util_v[J]) > size_vj * UPPER_UTIL_RATE){
@@ -247,6 +249,7 @@ class SplitOracleActBCD{
 						//vjk_wjk.first += f_val*delta_alpha;
 						//vjk_wjk.second = prox_l1(vjk_wjk.first, lambda);
 						vj[k] = make_pair(vjk, wjk);
+						//cerr << "update v_J_k: " << J << " " << k << " " << vjk << " " << wjk << endl;
 						// *(vjk_wjk) = make_pair(vjk, wjk);
 						if ( wjk_old != wjk ){
 							if (wjk_old == 0.0){
@@ -265,13 +268,15 @@ class SplitOracleActBCD{
 					int k = *it;
 					#ifdef USING_HASHVEC
 					find_index(alpha_i, index_alpha, k, size_alphai0, hashindices);
-					if (fabs(alpha_i_new[k]) > 1e-12){
-						alpha_i[index_alpha] = make_pair(k, alpha_i_new[k]);
+					alpha_i[index_alpha].second = alpha_i_new[k];
+					if (alpha_i[index_alpha].first == -1){
+						alpha_i[index_alpha].first = k;
 						if ((++util_alpha[i]) > size_alphai * UPPER_UTIL_RATE){
 							//cout << "success alpha" << endl;
 							resize(alpha_i, alpha[i], size_alpha[i], size_alphai, size_alphai0, util_alpha[i], hashindices);
 						}
-					} else {
+					}
+					if (fabs(alpha_i_new[k])<1e-12){
 						has_zero = true;
 					}
 					#else
@@ -403,6 +408,7 @@ class SplitOracleActBCD{
 		delete[] Q_diag;
 		delete[] prod;
 		delete cdf_sum;
+		
 		w_temp = new HashVec*[D];
 		for(int j = 0; j < D; j++){
 			w_temp[j] = new HashVec();
@@ -412,9 +418,11 @@ class SplitOracleActBCD{
 					#ifdef USING_HASHVEC
 					int index_v = 0;
 					find_index(v[j], index_v, k, size_v[j]-1, hashindices);
-					w_temp[j]->insert(make_pair(k, v[j][index_v].second.second));
+					if (v[j][index_v].second.second != 0.0)
+						w_temp[j]->insert(make_pair(k, v[j][index_v].second.second));
 					#else
-					w_temp[j]->insert(make_pair(k, v[j][k].second)); //prox_l1(v[j][k], lambda)));
+					if (v[j][k].second != 0.0)
+						w_temp[j]->insert(make_pair(k, v[j][k].second)); //prox_l1(v[j][k], lambda)));
 					#endif
 				}
 				/*pair<int, float_type>* wjS = w_hash_nnz_index[j][S];
@@ -474,7 +482,7 @@ class SplitOracleActBCD{
                                 //      hash_top++;
                                 }
                         }*/
-
+			//cerr << "alpha_i_p: " << p << " " << alpha_i[index_alpha].second << endl;
                         if( find(yi->begin(), yi->end(), p) == yi->end() ){
                                 b[i] = 1.0 - A*alpha_i[index_alpha].second;
                                 index_b[i] = i;
@@ -485,6 +493,7 @@ class SplitOracleActBCD{
                                 act_index_c[j++] = p;
                         }
                         #else
+			//cerr << "alpha_i_p: " << p << " " << alpha_i[p] << endl;
                         if( find(yi->begin(), yi->end(), p) == yi->end() ){
                                 b[i] = 1.0 - A*alpha_i[p];
                                 index_b[i] = i;
@@ -532,6 +541,7 @@ class SplitOracleActBCD{
 				#endif
 			}
 		}
+		
 			
 		sort(index_b, index_b+n, ScoreComp(b));
 		sort(index_c, index_c+m, ScoreComp(c));				
@@ -632,7 +642,7 @@ class SplitOracleActBCD{
 			else
 				alpha_i_new[k] = 0.0;
                 }
-			
+
 		delete[] b; delete[] c;
 		delete[] act_index_b; delete[] act_index_c;
 		delete[] S_b; delete[] S_c;
@@ -830,11 +840,11 @@ class SplitOracleActBCD{
 		}
 		int n = nnz/speed_up_rate;
 		float_type th = -n/(1.0*nnz);
-		vector<float_type>* rand_nums = new vector<float_type>();
-		for (int tt = 0; tt < n; tt++){
-			rand_nums->push_back(((float_type)rand()/(RAND_MAX)));
-		}
-		sort(rand_nums->begin(), rand_nums->end()); 
+	//	vector<float_type>* rand_nums = new vector<float_type>();
+	//	for (int tt = 0; tt < n; tt++){
+	//		rand_nums->push_back(((float_type)rand()/(RAND_MAX)));
+	//	}
+	//	sort(rand_nums->begin(), rand_nums->end()); 
 		#ifdef MULTISELECT
 		int* max_indices = new int[max_select+1];
 		for(int ind = 0; ind <= max_select; ind++){
@@ -871,11 +881,12 @@ class SplitOracleActBCD{
                                         wjS->erase(wjS->end()-1); 
                                         it2--;
                                         continue;
-                                }	
+                                }
 		//	for (int it2 = 0; it2 < size_wjS; it2++){
 		//		k = wjS[it2].first;
 		//		if (k == -1)
 		//			continue;
+				//cerr << "prod: " << k << " " << wjk << endl;
                                 prod[k] += wjk * xij;
 				#ifndef MULTISELECT
 				if (prod[max_index] < prod[k]){
@@ -907,7 +918,7 @@ class SplitOracleActBCD{
 				#endif
 			}
                 }
-		rand_nums->clear();
+		//rand_nums->clear();
 		#ifdef MULTISELECT
 		for (int j = 0; j < max_select; j++){
 			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
@@ -939,6 +950,7 @@ class SplitOracleActBCD{
 		if (prod[max_index] < 0){
 			for (int r = 0; r < K; r++){
 				int k = rand() % K;
+				//cout << "getting rand()= " << k << endl;
 				if (prod[k] == 0){
 					max_index = k;
 					break;
@@ -950,6 +962,7 @@ class SplitOracleActBCD{
 				//cerr << prod[max_index] << " " << th<< endl;
 				assert(act_k_index[k] != max_index);
 			}
+			//cerr << "adding " << i << " " << max_index << endl;
 			act_k_index.push_back(max_index);
 //			cerr << "yes" << endl;
 		} else{
@@ -1025,7 +1038,6 @@ class SplitOracleActBCD{
 	int K;
 	float_type* Q_diag;
         HashClass* hashfunc;
-        int* hashindices;
 	vector<float_type>* cdf_sum;
 	HashVec** w_temp;
 	//pair<int, float_type>*** w_hash_nnz_index;
@@ -1042,6 +1054,7 @@ class SplitOracleActBCD{
 	float_type* prod;
 	//int* loc;
 	public:
+        int* hashindices;
 	#ifdef USING_HASHVEC
 	pair<int, pair<float_type, float_type> >** v;
         pair<int, float_type>** alpha;

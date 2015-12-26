@@ -5,7 +5,7 @@ class PostSolve{
 	
 	public:
 	#ifdef USING_HASHVEC
-	PostSolve(Param* param, HashVec** _w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v){
+	PostSolve(Param* param, HashVec** _w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v, int*& _hashindices){
 	#else
 	PostSolve(Param* param, HashVec** _w, float_type** _alpha, pair<float_type, float_type>** _v){
 	#endif
@@ -29,15 +29,29 @@ class PostSolve{
 		size_alpha = new int[N];
 		for(int i=0;i<N;i++){
 			util_alpha[i] = 0;
-			size_alpha[i] = _size_alpha[i]; 
+			size_alpha[i] = _size_alpha[i];
 			alpha[i] = new pair<int, float_type>[size_alpha[i]];
 			for(int it=0; it < size_alpha[i]; it++){
-				alpha[i][it] = _alpha[i][it];
-				if ( alpha[i][it].second != 0.0 ){
-					act_k_index[i].push_back(alpha[i][it].first);
+				alpha[i][it] = make_pair(-1, 0.0);
+			}
+			for(int it=0; it < size_alpha[i]; it++){
+				if ( _alpha[i][it].second != 0.0 ){
+					int index_alpha = -1;
+					find_index(alpha[i], index_alpha, _alpha[i][it].first, _size_alpha[i] - 1, hashindices);	
+					alpha[i][index_alpha] = _alpha[i][it];
+					act_k_index[i].push_back(_alpha[i][it].first);
 					util_alpha[i]++;
 				}
 			}
+			
+			/*for(int k=0; k < K; k++){
+				int index_alpha = -1;
+				find_index(alpha[i], index_alpha, k, size_alpha[i] - 1, hashindices);
+				if (alpha[i][index_alpha].second != 0.0){
+					act_k_index[i].push_back(k);
+					//cerr << "alpha_i: " << i << " " << k << " " << alpha[i][index_alpha].second << endl;
+				}
+			}*/
 		}
 		v = new pair<int, float_type>*[K];
 		size_v = new int[K];
@@ -51,7 +65,7 @@ class PostSolve{
 				int k = _v[j][it].first;
 				if (k == -1)
 					continue;
-				if (fabs(_v[j][it].second.first) <= param->lambda)
+				if (fabs(_v[j][it].second.second) <= 1e-12)
 					continue;
 				util_v[k]++;
 				if (size_v[k]*UPPER_UTIL_RATE < util_v[k])
@@ -68,25 +82,39 @@ class PostSolve{
 				int k = _v[j][it].first;
 				if (k == -1)
 					continue;
-				if (fabs(_v[j][it].second.first) <= param->lambda)
-					continue;	
+				if (fabs(_v[j][it].second.second) <= 1e-12)
+					continue;
 				//v[k][j] = _v[j][k];
 				//insert (j, _v[j][it]) to v[k]
 				int index_v = 0;
 				find_index(v[k], index_v, j, size_v[k]-1, hashindices);
-				//cout << size_v[k] << " " << index_v << endl;
 				v[k][index_v] = make_pair(j, _v[j][it].second.first);
 			}
 		}
+		/*for (int k = 0; k < K; k++){
+			for (int j = 0; j < D; j++){
+				int index_v = 0;
+				find_index(v[k], index_v, j, size_v[k]-1, hashindices);
+				if (v[k][index_v].second != 0.0){
+					cerr << "v_k_j " << k << " " << j << " " << v[k][index_v].second << endl;
+				}
+			}
+		}*/	
 		#else
 		alpha = new float_type*[N];
 		for(int i=0;i<N;i++){
 			alpha[i] = new float_type[K];
 			for(int k=0;k<K;k++){
 				alpha[i][k] = _alpha[i][k];
-				if( alpha[i][k] != 0.0 )
+				if( alpha[i][k] != 0.0 ){
 					act_k_index[i].push_back(k);
+				}
 			}
+			/*for(int k=0; k < K; k++){
+				if (alpha[i][k] != 0.0){
+					cerr << "alpha_i: " << i << " " << k << " " << alpha[i][k] << endl;
+				}
+			}*/
 		}
 		v = new float_type*[K]; //w = prox(v);
 		for(int k=0;k<K;k++){
@@ -99,6 +127,13 @@ class PostSolve{
 				int k = it->first;
 				v[k][j] = _v[j][k].first;
 			}
+		/*for (int k = 0; k < K; k++){
+			for (int j = 0; j < D; j++){
+				if (v[k][j] != 0.0){
+					cerr << "v_k_j " << k << " " << j << " " << v[k][j] << endl;
+				}
+			}
+		}*/	
 		#endif
 
 		// construct data_per_class
@@ -143,9 +178,7 @@ class PostSolve{
 						#ifdef USING_HASHVEC
 						int index_alpha = 0;
 						int _size_alphai0 = _size_alpha[i] - 1;
-						find_index(_alpha[i], index_alpha, k, _size_alphai0, hashindices);
-						if (index_alpha == -1) 
-							continue;
+						find_index(_alpha[i], index_alpha, k, _size_alphai0, _hashindices);
 						if( _alpha[i][index_alpha].second != 0.0 )
 							data_per_class_i[k].push_back(make_pair(j, xij));
 						#else
@@ -222,15 +255,11 @@ class PostSolve{
 				for(vector<int>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
 					
 					int k= *it;
+					SparseVec* x_i = &(x_i_per_class[k]);
 					#ifdef USING_HASHVEC
 					int index_alpha = 0;
 					find_index(alpha_i, index_alpha, k, size_alphai0, hashindices);
 					double alpha_diff = alpha_i_new[k]-alpha_i[index_alpha].second;
-					#else
-					double alpha_diff = alpha_i_new[k]-alpha_i[k];
-					#endif
-					SparseVec* x_i = &(x_i_per_class[k]);
-					#ifdef USING_HASHVEC
 					int size_vk0 = size_v[k] - 1;
 					int size_vk = size_v[k];
 					pair<int, float_type>* vk = v[k];
@@ -246,6 +275,7 @@ class PostSolve{
 						}
 					}
 					#else
+					double alpha_diff = alpha_i_new[k]-alpha_i[k];
 					float_type* vk = v[k];
 					for(SparseVec::iterator it2=x_i->begin() ;it2!=x_i->end(); it2++){
 						vk[it2->first] += it2->second*(alpha_diff);
@@ -287,12 +317,12 @@ class PostSolve{
 			#ifdef USING_HASHVEC
 			for(int it = 0; it < size_v[k]; it++){
 				int j = v[k][it].first;
-				if (j != -1){
+				if (fabs(v[k][it].second) > 1e-12 ){
 					w[j]->insert(make_pair(k, v[k][it].second));	
 				}
 			}
 			#else
-			for(int j=0;j<D;j++){	
+			for(int j=0;j<D;j++){
 				float_type wjk = v[k][j];
 				if( fabs(wjk) > 1e-12 )
 					w[j]->insert(make_pair(k, wjk));
@@ -317,14 +347,14 @@ class PostSolve{
 			#ifdef USING_HASHVEC
 			for(int it=0;it<size_alpha[i];it++){
 				int k = alpha[i][it].first;
-				if (k == -1) 
+				if (k == -1)
 					continue;
 				if(find(yi->begin(), yi->end(), k) ==yi->end())
 					d_obj += alpha[i][it].second;
 				if( fabs( alpha[i][it].second ) > 1e-12 )
 					nSV++;
 			}
-			#else	
+			#else
 			for(int k=0;k<K;k++){
 				if(find(yi->begin(), yi->end(), k) ==yi->end())
 					d_obj += alpha[i][k];
@@ -405,12 +435,15 @@ class PostSolve{
 			for(SparseVec::iterator it = x_i->begin(); it!=x_i->end(); it++){
 				int index_v = 0, j = it->first;
 				find_index(vk, index_v, j, size_vk0, hashindices);
+				//cerr << "vkj: " << k << " " << j << " " << vk[index_v].second << endl;
 				b[i] += vk[index_v].second*it->second;
 			}
 			#else
 			float_type* vk = v[k];
-			for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++)
+			for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
+				//cerr << "vkj: " << k << " " << it->first << " " << vk[it->first] << endl;
 				b[i] += vk[it->first]*it->second;
+			}
 			#endif
 		}
 		for(int i=0;i<m;i++){
@@ -430,6 +463,7 @@ class PostSolve{
 				c[i] -= vk[it->first]*it->second;
 			#endif
 		}
+
 		//sort by non-increasing order
 		sort(index_b, index_b+n, ScoreComp(b));
 		sort(index_c, index_c+m, ScoreComp(c));	
@@ -532,6 +566,7 @@ class PostSolve{
 			else
 				alpha_i_new[k] = 0.0;
                 }
+
 			
 		delete[] b; delete[] c;
 		delete[] act_index_b; delete[] act_index_c;
