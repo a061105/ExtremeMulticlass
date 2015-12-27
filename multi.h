@@ -56,17 +56,37 @@ class Model{
 		label_name_list = new vector<string>();
 		label_index_map = new map<string,int>();
 	}
-	Model(Problem* prob, HashVec** _w){
+
+	#ifdef USING_HASHVEC
+	Model(Problem* prob, vector<int>** _w_hash_nnz_index, pair<int, float_type>** _w, int* _size_w, int* _hashindices){
 		D = prob->D;
 		K = prob->K;
 		label_name_list = &(prob->label_name_list);
 		label_index_map = &(prob->label_index_map);
+		w_hash_nnz_index = _w_hash_nnz_index;
+		w = _w;
+		size_w = _size_w;
+                hashindices = _hashindices;
+	}
+	pair<int, float_type>** w;
+	int* size_w;
+	int* hashindices;
+	#else
+	Model(Problem* prob, vector<int>** _w_hash_nnz_index, float_type** _w){
+		D = prob->D;
+		K = prob->K;
+		label_name_list = &(prob->label_name_list);
+		label_index_map = &(prob->label_index_map);
+		w_hash_nnz_index = _w_hash_nnz_index;
 		w = _w;
 	}
-		
+	float_type** w;
+	#endif
+
+	HashVec** Hw;
+	vector<int>** w_hash_nnz_index;	
 	int D;
 	int K;
-	HashVec** w;
 	vector<string>* label_name_list;
 	map<string,int>* label_index_map;
 };

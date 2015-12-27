@@ -330,33 +330,98 @@ class SBCDsolve{
 		cerr << endl;
 		
 		//convert v into w
-		HashVec** w = new HashVec*[D];
-		for(int j=0;j<D;j++)
-			w[j] = new HashVec();
-		for(int j=0;j<D;j++)
-			for(int k=0;k<K;k++){
-				#ifdef USING_HASHVEC
+		#ifdef USING_HASHVEC
+		w = new pair<int, float_type>*[D];
+		size_w = new int[D];
+		nnz_index = new vector<int>*[D];
+		for (int j = 0; j < D; j++){
+			size_w[j] = 2;
+			w[j] = new pair<int, float_type>[size_w[j]];
+			for (int tt = 0; tt < size_w[j]; tt++){
+				w[j][tt] = make_pair(-1, 0.0);
+			}
+			nnz_index[j] = new vector<int>();
+		}
+		for (int j = 0; j < D; j++){
+			pair<int, float_type>* wj = w[j];
+			int size_wj = size_w[j];
+			int size_wj0 = size_wj - 1;
+			for (int k = 0; k < K; k++){
 				int index_v = 0;
 				find_index(v[j], index_v, k, size_v[j] - 1, hashindices);
 				float_type wjk = v[j][index_v].second;
-				//float_type wjk = prox_l1(v_j_k(v[j], j, k)->second, lambda);
-				#else
-				float_type wjk = v[j][k].second;
-				#endif
-				if( wjk != 0.0 )
-					w[j]->insert(make_pair(k, wjk));
+				if ( fabs(wjk) > 1e-12 ){
+					int index_w = 0;
+					find_index(wj, index_w, k, size_wj - 1, hashindices);
+					wj[index_w].second = wjk;
+					if (wj[index_w].first == -1){
+						wj[index_w].first = k;
+						nnz_index[j]->push_back(k);
+						if (size_wj* UPPER_UTIL_RATE < nnz_index[j]->size()){
+							int util = nnz_index[j]->size();
+							resize(wj, w[j], size_wj, size_w[j], size_wj0, util, hashindices);
+						}
+					}
+				}
 			}
+		}
+		#else
+		w = new float_type*[D];
+		nnz_index = new vector<int>*[D];
+		for (int j = 0; j < D; j++){
+			w[j] = new float_type[K];
+			for (int k = 0; k < K; k++){
+				w[j][k] = 0.0;
+			}
+			nnz_index[j] = new vector<int>();
+		}
+		for (int j = 0; j < D; j++){
+			for (int k = 0; k < K; k++){
+				float_type wjk = v[j][k].second;
+				if (fabs(wjk) > 1e-12){
+					w[j][k] = wjk;
+					nnz_index[j]->push_back(k);
+				}
+			}
+		}
+		
+		#endif
+	//	pair<int, float_type>** w = new pair<int, float_type>*[D];
+	//	for(int j=0;j<D;j++)
+	//		w[j] = new pair<int, float_type>;
+	//	for(int j=0;j<D;j++)
+	//		for(int k=0;k<K;k++){
+	//			#ifdef USING_HASHVEC
+	//			int index_v = 0;
+	//			find_index(v[j], index_v, k, size_v[j] - 1, hashindices);
+	//			float_type wjk = v[j][index_v].second;
+	//			//float_type wjk = prox_l1(v_j_k(v[j], j, k)->second, lambda);
+	//			#else
+	//			float_type wjk = v[j][k].second;
+	//			#endif
+	//			if( wjk != 0.0 )
+	//				w[j]->insert(make_pair(k, wjk));
+	//		}
 		
 		float_type d_obj = 0.0;
 		int nSV = 0;
 		int nnz_w = 0;
 		double w_1norm=0.0;
 		for(int j=0;j<D;j++){
-			for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++){
-				d_obj += it->second*it->second;
-				w_1norm += fabs(it->second);
+			for(vector<int>::iterator it=nnz_index[j]->begin(); it!=nnz_index[j]->end(); it++){
+				int k = *it;
+				#ifdef USING_HASHVEC
+				int index_w = 0;
+				find_index(w[j], index_w, k, size_w[j]-1, hashindices);
+				float_type wjk = w[j][index_w].second;
+				#else
+				float_type wjk = w[j][k];
+				#endif
+				d_obj += wjk*wjk;
+				w_1norm += fabs(wjk);
+				
 			}
-			nnz_w += w[j]->size();
+			nnz_w += nnz_index[j]->size();
 		}
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
@@ -398,7 +463,11 @@ class SBCDsolve{
 		
 		delete[] Q_diag;
 		
-		return new Model(prob, w);
+		#ifdef USING_HASHVEC
+		return new Model(prob, nnz_index, w, size_w, hashindices);
+		#else
+		return new Model(prob, nnz_index, w);
+		#endif
 	}
 	
 	void subSolve(int I, int* act_k_index, int act_k_size, float_type* alpha_i_new){
@@ -643,6 +712,9 @@ class SBCDsolve{
 	int K;
 	float_type* Q_diag;
 	#ifdef USING_HASHVEC
+	pair<int, float_type>** w;
+	vector<int>** nnz_index;
+	int* size_w;
 	pair<int, float_type>** v;
 	pair<int, float_type>** alpha;
 	HashClass* hashfunc;
@@ -652,6 +724,8 @@ class SBCDsolve{
 	int* util_v;
 	int* util_alpha;
 	#else
+	float_type** w;
+	vector<int>** nnz_index;
 	float_type** alpha;
 	pair<float_type, float_type>** v;
 	#endif

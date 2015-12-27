@@ -23,7 +23,8 @@ class SplitOracleActBCD{
 		using_importance_sampling = param->using_importance_sampling;	
 		max_select = param->max_select;
 		prod = new float_type[K];
-		
+		inside = new bool[K];
+		memset(inside, false, sizeof(bool)*K);	
 		data = &(prob->data);
 		//compute l_1 norm of every feature x_i
 		cdf_sum = new vector<float_type>();
@@ -53,14 +54,12 @@ class SplitOracleActBCD{
 		for(int j=0;j<D;j++)
 			delete[] v[j];
 		delete[] v;
+		delete[] inside;
 		#ifdef USING_HASHVEC
 		delete[] size_v;
 		delete[] size_alpha;
 		#endif
 	}
-
-	
-	
 
 	Model* solve(){
 		//initialize alpha and v ( s.t. v = X^Talpha )
@@ -409,7 +408,7 @@ class SplitOracleActBCD{
 		delete[] prod;
 		delete cdf_sum;
 		
-		w_temp = new HashVec*[D];
+		/*w_temp = new HashVec*[D];
 		for(int j = 0; j < D; j++){
 			w_temp[j] = new HashVec();
 			for(int S=0;S<split_up_rate;S++){
@@ -425,12 +424,6 @@ class SplitOracleActBCD{
 						w_temp[j]->insert(make_pair(k, v[j][k].second)); //prox_l1(v[j][k], lambda)));
 					#endif
 				}
-				/*pair<int, float_type>* wjS = w_hash_nnz_index[j][S];
-				for (int k = 0; k < size_w[j][S]; k++){
-					if (wjS[k].first != -1 && wjS[k].second != 0.0){
-						w_temp[j]->insert(wjS[k]);
-					}
-				}*/
 			}
 		}
 		for(int j = 0; j < D; j++){
@@ -445,7 +438,59 @@ class SplitOracleActBCD{
 		delete[] w_hash_nnz_index;
 		//delete[] size_w;
 		//delete[] util_w;
-		return new Model(prob, w_temp); //v is w
+		return new Model(prob, w_temp);*/ //v is w
+			
+		#ifdef USING_HASHVEC
+		w = new pair<int, float_type>*[D];
+		non_split_index = new vector<int>*[D];
+		size_w = new int[D];
+		for (int j = 0; j < D; j++){
+			size_w[j] = 1;
+			int total_size = 0;
+			for (int S = 0; S < split_up_rate; S++){
+				total_size+=w_hash_nnz_index[j][S]->size();
+			}
+			while (size_w[j] * UPPER_UTIL_RATE < total_size)
+				size_w[j] *= 2;
+			w[j] = new pair<int, float_type>[size_w[j]];
+			non_split_index[j] = new vector<int>();
+			for(int it = 0; it < size_w[j]; it++)
+				w[j][it] = make_pair(-1, 0.0);
+			memset(inside, false, sizeof(bool)*K);
+			for(int S=0;S<split_up_rate;S++){
+                                for (vector<int>::iterator it=w_hash_nnz_index[j][S]->begin(); it!=w_hash_nnz_index[j][S]->end(); it++){
+					int k = *it;
+					int index_v = 0;
+					find_index(v[j], index_v, k, size_v[j]-1, hashindices);
+					if (v[j][index_v].second.second != 0.0 && !inside[k]){
+						inside[k] = true;
+						int index_w = 0;
+						find_index(w[j], index_w, k, size_w[j]-1, hashindices);
+						w[j][index_w] = make_pair(k, v[j][index_v].second.second);
+						non_split_index[j]->push_back(k);
+					}
+				}
+			}
+		}
+		return new Model(prob, non_split_index, w, size_w, hashindices);
+		#else
+		w = new float_type*[D];
+		non_split_index = new vector<int>*[D];
+		for (int j = 0; j < D; j++){
+			w[j] = new float_type[K];
+			non_split_index[j] = new vector<int>();
+			pair<float_type, float_type>* vj = v[j];
+			memset(inside, false, sizeof(bool)*K);
+			for(int k = 0; k < K; k++){
+				w[j][k] = vj[k].second;
+				if (w[j][k] != 0.0 && !inside[k]){
+					inside[k] = true;
+					non_split_index[j]->push_back(k);
+				}
+			}
+		}
+		return new Model(prob, non_split_index, w);
+		#endif
 	}
 	void subSolve(int I, vector<int>& act_k_index, float_type* alpha_i_new){
 	
@@ -682,10 +727,6 @@ class SplitOracleActBCD{
 		float_type current_sum = current_index->second;
 		vector<float_type>::iterator current_rand_index = rand_nums->begin();
 		float_type cdf_sumi = cdf_sum->at(i);
-		bool* inside = new bool[K];
-		for (int k = 0; k < K; k++){
-			inside[k] = false;
-		}
 		while (current_rand_index < rand_nums->end()){
 			while (current_sum < (*current_rand_index)*cdf_sumi){
 				current_index++;
@@ -711,7 +752,7 @@ class SplitOracleActBCD{
 			#endif
 			//vector<int>::iterator it2 = wj->begin();
 			//vector<int>::iterator tail = wj->end();
-                        for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
+			for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
 			//pair<int, float_type>* p;
 			//cout << util_w[j][S] << "/" << size_wjS << endl;
 			//for (int it2 = 0; it2 < size_wjS; it2++){
@@ -727,13 +768,13 @@ class SplitOracleActBCD{
 				#else
 				wjk = vj[k].second;
 				#endif
-				if (wjk == 0.0){
+				if (wjk == 0.0 || inside[k]){
                                         *it2=*(wjS->end()-1);
                                         wjS->erase(wjS->end()-1);
                                         it2--;
                                         continue; 
                                 }
-				//inside[k] = true;	
+				inside[k] = true;
                                 prod[k] += wjk * xij;
 				#ifndef MULTISELECT
 				if (prod[max_index] < prod[k]){
@@ -765,14 +806,10 @@ class SplitOracleActBCD{
 				#endif
 				//it2++;
 			}
-			/*for(int kk = 0; kk < K; kk++) inside[k] = false;
-                        for(vector<int>::iterator it2 = wjS.begin(); it2!=wjS.end(); it2++ ){
-				cout << *it2 << endl;
-				assert(!inside[*it2]);
-				inside[*it2] = true;
-			}//wj->erase(tail, wj->end());
-			cout << endl;
-			for(int kk = 0; kk < K; kk++) inside[k] = false;*/
+                        for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
+				assert(inside[*it2]);
+				inside[*it2] = false;
+			}
                 }
 		rand_nums->clear();
 		#ifdef MULTISELECT
@@ -822,7 +859,6 @@ class SplitOracleActBCD{
 		}
  
 		#endif
-		delete[] inside;
         }
 
 	void search_active_i_uniform(int i, vector<int>& act_k_index){
@@ -876,12 +912,13 @@ class SplitOracleActBCD{
 				#else
 				wjk = vj[k].second;
 				#endif
-				if (wjk == 0.0){
+				if (wjk == 0.0 || inside[k]){
                                         *it2=*(wjS->end()-1); 
                                         wjS->erase(wjS->end()-1); 
                                         it2--;
                                         continue;
                                 }
+				inside[k] = true;
 		//	for (int it2 = 0; it2 < size_wjS; it2++){
 		//		k = wjS[it2].first;
 		//		if (k == -1)
@@ -916,6 +953,10 @@ class SplitOracleActBCD{
                                         }
 				}
 				#endif
+			}
+			for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+				assert(inside[*it2]);
+				inside[*it2] = false;
 			}
                 }
 		//rand_nums->clear();
@@ -1048,6 +1089,7 @@ class SplitOracleActBCD{
 	vector<int>* k_index;
 		
 	//sampling 
+	bool* inside;
 	bool using_importance_sampling;
 	int max_select;
 	int speed_up_rate, split_up_rate;	
@@ -1056,6 +1098,9 @@ class SplitOracleActBCD{
 	public:
         int* hashindices;
 	#ifdef USING_HASHVEC
+	pair<int, float_type>** w;// = new pair<int, float_type>*[D];
+	vector<int>** non_split_index;// = new vector<int>*[D];
+	int* size_w;
 	pair<int, pair<float_type, float_type> >** v;
         pair<int, float_type>** alpha;
         int* size_v;
@@ -1063,6 +1108,8 @@ class SplitOracleActBCD{
         int* util_v;
         int* util_alpha;
 	#else
+	float_type** w;// = new float_type*[D];
+	vector<int>** non_split_index;// = new vector<int>*[D];
 	float_type** alpha;
 	pair<float_type, float_type>** v;
 	#endif

@@ -18,7 +18,7 @@ Model* readModel(char* file){
 	}
 	
 	fin >> tmp >> (model->D);
-	model->w = new HashVec*[model->D];
+	model->Hw = new HashVec*[model->D];
 	
 	vector<string> ind_val;
 	int nnz_j;
@@ -32,7 +32,7 @@ Model* readModel(char* file){
 			float_type val = atof(ind_val[1].c_str());
 			wj->insert(make_pair(k,val));
 		}
-		model->w[j] = wj;
+		model->Hw[j] = wj;
 	}
 	
 	delete[] tmp;
@@ -89,7 +89,7 @@ int main(int argc, char** argv){
 			if( j >= model->D )
 				continue;
 			
-			HashVec* wj = model->w[j];
+			HashVec* wj = model->Hw[j];
 			for(HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
 				prod[it2->first] += it2->second*xij;
 			}

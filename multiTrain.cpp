@@ -81,22 +81,41 @@ void writeModel( char* fname, Model* model){
 	ofstream fout(fname);
 	fout << "nr_class " << model->K << endl;
 	fout << "label ";
-	for(vector<string>::iterator it=model->label_name_list->begin(); 
+	for(vector<string>::iterator it=model->label_name_list->begin();
 			it!=model->label_name_list->end(); it++)
 		fout << *it << " ";
 	fout << endl;
 	fout << "nr_feature " << model->D << endl;
-	HashVec** w = model->w;
 	int D = model->D;
 	int K = model->K;
 	for(int j=0;j<D;j++){
-		fout << w[j]->size() << " ";
-		for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++)
-			fout << it->first << ":" << it->second << " ";
+		vector<int>* nnz_index_j = model->w_hash_nnz_index[j];
+		fout << nnz_index_j->size() << " ";
+		#ifdef USING_HASHVEC
+		int count = 0;
+		pair<int, float_type>* wj = model->w[j];
+		int size_wj = model->size_w[j];
+		for (int it = 0; it < size_wj; it++){
+			int k = wj[it].first;
+			if (k == -1 || wj[it].second == 0.0)
+				continue;
+			count++;
+			fout << k << ":" << wj[it].second << " ";
+		//	cout << j << ":" << k << ":" << wj[it].second << endl;
+		}
+		assert(count == nnz_index_j->size());
+		#else
+		float_type* wj = model->w[j];
+		for(vector<int>::iterator it=nnz_index_j->begin(); it!=nnz_index_j->end(); it++){
+			fout << *it << ":" << wj[*it] << " ";
+		}
+		#endif
 		fout << endl;
 	}
 	fout.close();
 }
+
+
 
 int main(int argc, char** argv){
 	
@@ -135,14 +154,14 @@ int main(int argc, char** argv){
 		
 		if( param->post_solve_iter > 0 ){
 			#ifdef USING_HASHVEC
-			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->size_alpha, solver->v, solver->size_v, solver->hashindices );
+			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, solver->alpha, solver->size_alpha, solver->v, solver->size_v, solver->hashindices );
 			#else
-			PostSolve* postSolve = new PostSolve( param, model->w, solver->alpha, solver->v );
+			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, solver->alpha, solver->v );
 			#endif
 			model = postSolve->solve();
 		
 			char* postsolved_modelFname = new char[FNAME_LEN];
-			sprintf(postsolved_modelFname, "%s.p%d", param->modelFname, param->post_solve_iter );
+			sprintf(postsolved_modelFname, "%s.p%d", param->modelFname, param->post_solve_iter);
 			writeModel(postsolved_modelFname, model);
 			delete[] postsolved_modelFname;
 		}

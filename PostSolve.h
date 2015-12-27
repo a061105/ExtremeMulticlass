@@ -5,10 +5,11 @@ class PostSolve{
 	
 	public:
 	#ifdef USING_HASHVEC
-	PostSolve(Param* param, HashVec** _w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v, int*& _hashindices){
+	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, pair<int, float_type>** _w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v, int*& _hashindices){
 	#else
-	PostSolve(Param* param, HashVec** _w, float_type** _alpha, pair<float_type, float_type>** _v){
+	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, float_type** _w, float_type** _alpha, pair<float_type, float_type>** _v){
 	#endif
+		
 		prob = param->prob;
 		C = param->C;
 		
@@ -123,8 +124,8 @@ class PostSolve{
 				v[k][j] = 0.0;
 		}
 		for(int j=0;j<D;j++)
-			for(HashVec::iterator it=_w[j]->begin(); it!=_w[j]->end(); it++){
-				int k = it->first;
+			for(vector<int>::iterator it=_w_hash_nnz_index[j]->begin(); it!=_w_hash_nnz_index[j]->end(); it++){
+				int k = *it;
 				v[k][j] = _v[j][k].first;
 			}
 		/*for (int k = 0; k < K; k++){
@@ -142,15 +143,18 @@ class PostSolve{
 			data_per_class[i] = new SparseVec[K];
 
 		double nnz_alpha_avg = (double)total_size( act_k_index, N ) / N;
-		double nnz_w_avg = (double)total_size( _w, D ) / D;
+		double nnz_w_avg = 0.0;
+        	for(int j=0;j<D;j++)
+        	        nnz_w_avg += _w_hash_nnz_index[j]->size();
+		nnz_w_avg /= D;
+		//double nnz_w_avg = (double)total_size( *_w_hash_nnz_index, D ) / D;
 		cerr << "nnz_alpha=" << nnz_alpha_avg << ", nnz_w_avg=" << nnz_w_avg << endl;
 		if( nnz_alpha_avg < nnz_w_avg ){
 			
 			#ifdef USING_HASHVEC
 			cerr << "code for building data_per_class when nnz_alpha < nnz_w has not completed." << endl;
 			exit(0);
-			#endif
-
+			#else
 			for(int i=0;i<N;i++){
 				SparseVec* xi = data->at(i);
 				SparseVec* data_per_class_i = data_per_class[i];
@@ -158,11 +162,12 @@ class PostSolve{
 				for(vector<int>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
 					int k = *it;
 					for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
-						if( _w[ it2->first ]->find(k) != _w[ it2->first ]->end() )
+						if( _w[ it2->first ][k] != 0.0 )
 							data_per_class_i[k].push_back(make_pair(it2->first, it2->second));
 					}
 				}
 			}
+			#endif
 		
 		}else{
 			
@@ -172,9 +177,8 @@ class PostSolve{
 				for(SparseVec::iterator it=xi->begin() ;it!=xi->end(); it++){
 					int j = it->first;
 					double xij = it->second;
-					HashVec* wj = _w[j];
-					for(HashVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
-						int k = it2->first;
+					for(vector<int>::iterator it2=_w_hash_nnz_index[j]->begin(); it2!=_w_hash_nnz_index[j]->end(); it2++){
+						int k = *it2;
 						#ifdef USING_HASHVEC
 						int index_alpha = 0;
 						int _size_alphai0 = _size_alpha[i] - 1;
@@ -310,36 +314,79 @@ class PostSolve{
 		cerr << endl;
 		
 		//convert v into w
-		HashVec** w = new HashVec*[D];
-		for(int j=0;j<D;j++)
-			w[j] = new HashVec();
-		for(int k=0;k<K;k++){
-			#ifdef USING_HASHVEC
-			for(int it = 0; it < size_v[k]; it++){
+		#ifdef USING_HASHVEC
+		w = new pair<int, float_type>*[D];
+		size_w = new int[D];
+		nnz_index = new vector<int>*[D];
+		for (int j = 0; j < D; j++){
+			size_w[j] = 2;
+			w[j] = new pair<int, float_type>[size_w[j]];
+			for (int tt = 0; tt < size_w[j]; tt++){
+				w[j][tt] = make_pair(-1, 0.0);
+			}
+			nnz_index[j] = new vector<int>();
+		}
+		for (int k = 0; k < K; k++){
+			for (int it = 0; it < size_v[k]; it++){
 				int j = v[k][it].first;
+				pair<int, float_type>* wj = w[j];
+				int size_wj = size_w[j];
 				if (fabs(v[k][it].second) > 1e-12 ){
-					w[j]->insert(make_pair(k, v[k][it].second));	
+					int index_w = 0;
+					find_index(wj, index_w, k, size_wj - 1, hashindices); 	
+					wj[index_w].second = v[k][it].second;
+					if (wj[index_w].first == -1){
+						wj[index_w].first = k;
+						nnz_index[j]->push_back(k);
+						if (size_wj* UPPER_UTIL_RATE < nnz_index[j]->size()){
+							int util = nnz_index[j]->size();
+							int size_wj0 = size_wj - 1;
+							resize(wj, w[j], size_wj, size_w[j], size_wj0, util, hashindices);
+						}
+					}
 				}
 			}
-			#else
-			for(int j=0;j<D;j++){
-				float_type wjk = v[k][j];
-				if( fabs(wjk) > 1e-12 )
-					w[j]->insert(make_pair(k, wjk));
-			}
-			#endif
 		}
+		#else
+		w = new float_type*[D];
+		nnz_index = new vector<int>*[D];
+		for (int j = 0; j < D; j++){
+			w[j] = new float_type[K];
+			for (int k = 0; k < K; k++){
+				w[j][k] = 0.0;
+			}
+			nnz_index[j] = new vector<int>();
+		}
+		for (int k = 0; k < K; k++){
+			for (int j = 0; j < D; j++){
+				float_type wjk = v[k][j];
+				if (fabs(wjk) > 1e-12){
+					w[j][k] = wjk;
+					nnz_index[j]->push_back(k);
+				}
+			}
+		}	
 		
+		#endif
 		float_type d_obj = 0.0;
 		int nSV = 0;
 		int nnz_w = 0;
 		double w_1norm=0.0;
 		for(int j=0;j<D;j++){
-			for(HashVec::iterator it=w[j]->begin(); it!=w[j]->end(); it++){
-				d_obj += it->second*it->second;
-				w_1norm += fabs(it->second);
+			for(vector<int>::iterator it=nnz_index[j]->begin(); it!=nnz_index[j]->end(); it++){
+				int k = *it;
+				#ifdef USING_HASHVEC
+				int index_w = 0;
+				find_index(w[j], index_w, k, size_w[j]-1, hashindices);
+				float_type wjk = w[j][index_w].second;
+				#else
+				float_type wjk = w[j][k];
+				#endif
+				d_obj += wjk*wjk;
+				w_1norm += fabs(wjk);
+				
 			}
-			nnz_w += w[j]->size();
+			nnz_w += nnz_index[j]->size();
 		}
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
@@ -375,8 +422,12 @@ class PostSolve{
 		//delete algorithm-specific variables
 		delete[] alpha_i_new;
 		delete[] index;
-
-		return new Model(prob, w);
+		
+		#ifdef USING_HASHVEC
+		return new Model(prob, nnz_index, w, size_w, hashindices);
+		#else
+		return new Model(prob, nnz_index, w);
+		#endif
 	}
 	
 	void subSolve(int I, vector<int>& act_k_index, int act_k_size, float_type* alpha_i_new){
@@ -589,6 +640,9 @@ class PostSolve{
 	HashClass* hashfunc;
 	int* hashindices;
 	#ifdef USING_HASHVEC
+	pair<int, float_type>** w;
+	vector<int>** nnz_index;
+	int* size_w;
 	pair<int, float_type>** v;
 	pair<int, float_type>** alpha;
 	int* size_v;
@@ -596,6 +650,8 @@ class PostSolve{
 	int* util_v;
 	int* util_alpha;
 	#else
+	float_type** w;
+	vector<int>** nnz_index;
 	float_type** alpha;
 	float_type** v;
 	#endif
