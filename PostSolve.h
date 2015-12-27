@@ -5,7 +5,7 @@ class PostSolve{
 	
 	public:
 	#ifdef USING_HASHVEC
-	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, pair<int, float_type>** _w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v, int*& _hashindices){
+	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, pair<int, float_type>** _w, int* _size_w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v, int*& _hashindices){
 	#else
 	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, float_type** _w, float_type** _alpha, pair<float_type, float_type>** _v){
 	#endif
@@ -152,8 +152,22 @@ class PostSolve{
 		if( nnz_alpha_avg < nnz_w_avg ){
 			
 			#ifdef USING_HASHVEC
-			cerr << "code for building data_per_class when nnz_alpha < nnz_w has not completed." << endl;
-			exit(0);
+			for(int i=0;i<N;i++){
+				SparseVec* xi = data->at(i);
+				SparseVec* data_per_class_i = data_per_class[i];
+				vector<int>* act_k_i = &(act_k_index[i]);
+				for(vector<int>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
+					int k = *it;
+					for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
+						int index_w = 0;
+						int j = it2->first;
+						find_index(_w[j], index_w, k, _size_w[j]-1, _hashindices);
+						if( _w[j][index_w].second != 0.0 )
+							data_per_class_i[k].push_back(make_pair(j, it2->second));
+					}
+				}
+			}
+				
 			#else
 			for(int i=0;i<N;i++){
 				SparseVec* xi = data->at(i);
