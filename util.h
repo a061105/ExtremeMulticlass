@@ -15,6 +15,7 @@
 #include <time.h>
 #include <tuple>
 //#include "newHash.h"
+
 using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;

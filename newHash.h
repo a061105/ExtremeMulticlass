@@ -1,4 +1,5 @@
-
+#ifndef NEWHASH
+#define NEWHASH
 
 	inline void find_index(pair<int, pair<float_type, float_type> >*& l, int& st, const int& index, const int& size0, int*& hashindices){
 	        st = hashindices[index] & size0;
@@ -127,3 +128,4 @@
 	        l = new_l;
 	        size = new_size;
 	}
+#endif

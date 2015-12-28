@@ -1,5 +1,6 @@
 #include "util.h"
 #include "multi.h"
+#include "newHash.h"
 #include <cassert>
 class SBCDsolve{
 	
@@ -7,6 +8,7 @@ class SBCDsolve{
 	SBCDsolve(Param* param){
 		
 		prob = param->train;
+		heldoutEval = param->heldoutEval;
 		lambda = param->lambda;
 		C = param->C;
 		
@@ -168,6 +170,8 @@ class SBCDsolve{
 			}
 		}
 		//main loop
+		double max_heldout_test_acc = 0.0;
+		int terminate_countdown = 0;
 		double starttime = omp_get_wtime();
 		double subsolve_time = 0.0, maintain_time = 0.0;
 		float_type* alpha_i_new = new float_type[K];
@@ -318,12 +322,29 @@ class SBCDsolve{
 					alpha_i[k] = alpha_i_new[k];
 				}
 				#endif
-				maintain_time += omp_get_wtime();
 			}
 			
+			maintain_time += omp_get_wtime();
 			if( iter % 1 == 0 )
 				cerr << "." ;
 			
+			if (heldoutEval != NULL){
+				#ifdef USING_HASHVEC
+				float_type heldout_test_acc = heldoutEval->calcAcc(v, size_v, hashindices, lambda);
+				#else
+				float_type heldout_test_acc = heldoutEval->calcAcc(v);
+				#endif	
+				cerr << "heldout Acc=" << heldout_test_acc << " ";
+				if ( heldout_test_acc > max_heldout_test_acc){
+					max_heldout_test_acc = heldout_test_acc;
+					terminate_countdown = 0;
+				} else {
+					cerr << "(" << (++terminate_countdown) << "/" << early_terminate << ")";
+					if (terminate_countdown == early_terminate)
+						break;
+				}
+				cerr << endl;
+			}
 			iter++;
 		}
 		double endtime = omp_get_wtime();
@@ -703,6 +724,7 @@ class SBCDsolve{
 
 	private:
 	Problem* prob;
+	HeldoutEval* heldoutEval;
 	float_type lambda;
 	float_type C;
 	vector<SparseVec*>* data ;
@@ -711,6 +733,10 @@ class SBCDsolve{
 	int N;
 	int K;
 	float_type* Q_diag;
+	
+	//heldout options
+	int early_terminate = 3;
+	
 	#ifdef USING_HASHVEC
 	pair<int, float_type>** w;
 	vector<int>** nnz_index;

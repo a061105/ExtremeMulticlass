@@ -1,6 +1,6 @@
 all: train predict
 	
-FLAG= #-DUSING_HASHVEC#-DMULTISELECT
+FLAG= -DUSING_HASHVEC#-DMULTISELECT
 train:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
 predict:
@@ -31,10 +31,20 @@ rcv1:
 ifneq ($(p), 0)
 	./multiPred $(data_dir)/rcv1_train.multiclass $(model).p
 	./multiPred $(data_dir)/rcv1_test.multiclass.10k $(model).p
-endif	
+endif
+
+sector:
+	./multiTrain -l $(l) -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/sector.test $(data_dir)/sector.train $(model)
+	./multiPred $(data_dir)/sector.train $(model)
+	./multiPred $(data_dir)/sector.test $(model)
+ifneq ($(p), 0)
+	./multiPred $(data_dir)/sector.train $(model).p
+	./multiPred $(data_dir)/sector.test $(model).p
+endif
+	
 
 aloi.bin:
-	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) $(data_dir)/aloi/aloi.bin.train $(model)
+	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/aloi/aloi.bin.test $(data_dir)/aloi/aloi.bin.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin.test $(model)
 ifneq ($(p), 0)

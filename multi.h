@@ -2,6 +2,7 @@
 #define MULTITRAIN
 
 #include "util.h"
+#include "newHash.h"
 
 class Problem{
 	public:
@@ -20,6 +21,190 @@ vector<string> Problem::label_name_list;
 int Problem::D = -1;
 int Problem::K = -1;
 
+class HeldoutEval{
+	public:
+	HeldoutEval(Problem* _heldout){
+		heldout = _heldout;
+//		data = heldout->data;
+//		labels = heldout->labels;
+		N = heldout->data.size();
+		D = heldout->D;
+		K = heldout->K;
+		prod = new float_type[K];
+		k_index = new int[K];
+		inside = new bool[K];
+		for (int k = 0; k < K; k++)
+			inside[k] = false;
+	}
+	
+	#ifdef USING_HASHVEC
+	double calcAcc(pair<int, float_type>** v, int* size_v, int* hashindices, float_type lambda){
+		hit=0.0;
+		margin_hit = 0.0;
+		for(int k = 0; k < K; k++){
+			k_index[k] = k;
+		}
+		for(int i=0;i<heldout->N;i++){
+			for(int k=0;k<K;k++)
+				prod[k] = 0.0;
+
+			SparseVec* xi = heldout->data.at(i);
+			Labels* yi = &(heldout->labels.at(i));
+			int top = yi->size();
+			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+
+				int j= it->first;
+				float_type xij = it->second;
+				if( j >= D )
+					continue;
+				pair<int, float_type>* vj = v[j];
+				int size_vj0 = size_v[j] - 1;
+				for (int k = 0; k < K; k++){
+					int index_v = 0;
+					find_index(vj, index_v, k, size_vj0, hashindices);
+					float_type wjk = prox_l1(vj[index_v].second, lambda);
+					prod[k] += wjk * xij;
+				}
+			}
+			sort(k_index, k_index + K, ScoreComp(prod));
+			float_type max_val = -1e300;
+			int argmax;
+			for(int k=0;k<top;k++){
+				bool flag = false;
+				for (int j = 0; j < yi->size(); j++){
+					if (heldout->label_name_list[yi->at(j)] == heldout->label_name_list[k_index[k]]){
+						flag = true;
+					}
+				}
+				if (flag)
+					hit += 1.0/top;
+			}
+		}
+		return hit/N;
+	}
+	#else
+	double calcAcc(pair<float_type, float_type>** v){
+		hit=0.0;
+		margin_hit = 0.0;
+		for(int k = 0; k < K; k++){
+			k_index[k] = k;
+		}
+		for(int i=0;i<N;i++){
+			for(int k=0;k<K;k++)
+				prod[k] = 0.0;
+				
+			SparseVec* xi = heldout->data.at(i);
+			Labels* yi = &(heldout->labels.at(i));
+			int top = yi->size();
+			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+
+				int j= it->first;
+				float_type xij = it->second;
+				if( j >= D )
+					continue;
+				pair<float_type, float_type>* vj = v[j];
+				for (int k = 0; k < K; k++){	
+					prod[k] += vj[k].second * xij;
+				}
+			}
+			sort(k_index, k_index + K, ScoreComp(prod));
+			float_type max_val = -1e300;
+			int argmax;
+			for(int k=0;k<top;k++){
+				bool flag = false;
+				for (int j = 0; j < yi->size(); j++){
+					if (heldout->label_name_list[yi->at(j)] == heldout->label_name_list[k_index[k]]){
+						flag = true;
+					}
+				}
+				if (flag)
+					hit += 1.0/top;
+			}
+		}
+		return hit/N;
+	}
+	#endif
+	
+	#ifdef USING_HASHVEC
+	double calcAcc(pair<int, pair<float_type, float_type>>** v, int* size_v, vector<int>*** nnz_index, int*& hashindices, int split_up_rate){
+	#else
+	double calcAcc(pair<float_type, float_type>** v, vector<int>*** nnz_index, int split_up_rate){
+	#endif
+		hit=0.0;
+		margin_hit = 0.0;
+		for(int k = 0; k < K; k++){
+			k_index[k] = k;
+		}
+		for(int i=0;i<heldout->N;i++){
+			for(int k=0;k<K;k++)
+				prod[k] = 0.0;
+				
+			SparseVec* xi = heldout->data.at(i);
+			Labels* yi = &(heldout->labels.at(i));
+			int top = yi->size();
+			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+
+				int j= it->first;
+				float_type xij = it->second;
+				if( j >= D )
+					continue;
+				#ifdef USING_HASHVEC
+				pair<int, pair<float_type, float_type>>* vj = v[j];
+				int size_vj0 = size_v[j] - 1;
+				#else
+				pair<float_type, float_type>* vj = v[j];
+				#endif
+				for (int S = 0; S < split_up_rate; S++){
+					vector<int>* wjS = nnz_index[j][S];
+					for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+						int k = *it2;
+						#ifdef USING_HASHVEC
+						int index_v = 0;
+						find_index(vj, index_v, k, size_vj0, hashindices);
+						float_type wjk = vj[index_v].second.second;
+						#else
+						float_type wjk = vj[k].second;
+						#endif
+						if (wjk == 0.0 || inside[k]){
+							*it2=*(wjS->end()-1);
+							wjS->erase(wjS->end()-1);
+							it2--;
+							continue; 
+						}
+						inside[k] = true;
+						prod[k] += wjk * xij;
+					}
+					for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+						inside[*it2] = false;
+					}
+				}
+			}
+			sort(k_index, k_index + K, ScoreComp(prod));
+			float_type max_val = -1e300;
+			int argmax;
+			for(int k=0;k<top;k++){
+				bool flag = false;
+				for (int j = 0; j < yi->size(); j++){
+					if (heldout->label_name_list[yi->at(j)] == heldout->label_name_list[k_index[k]]){
+						flag = true;
+					}
+				}
+				if (flag)
+					hit += 1.0/top;
+			}
+		}
+		return hit/N;
+	}
+	private:
+//	vector<SparseVec*>* data;
+//	vector<Labels>* labels;
+	int N,D,K;
+	Problem* heldout;
+	float_type* prod;
+	int* k_index;
+	float_type hit, margin_hit;
+	bool* inside;
+};
 class Param{
 	public:
 	char* trainFname;
@@ -30,7 +215,7 @@ class Param{
 	int speed_up_rate; // speed up rate for sampling
 	int split_up_rate; // split up [K] into a number of subsets	
 	Problem* train;
-	Problem* heldout;	
+	HeldoutEval* heldoutEval = NULL;
 	//solver-specific param
 	int solver;
 	int max_iter;
@@ -51,7 +236,6 @@ class Param{
 
 		heldoutFname == NULL;
 		train = NULL;
-		heldout = NULL;
 	}
 };
 
@@ -95,6 +279,7 @@ class Model{
 	vector<string>* label_name_list;
 	map<string,int>* label_index_map;
 };
+
 
 void readData(char* fname, Problem* prob)
 {
@@ -146,8 +331,10 @@ void readData(char* fname, Problem* prob)
 		prob->labels.push_back(lab_indices);
 	}
 	fin.close();
-
-	prob->D = d+1; //adding bias
+	
+	if (prob->D < d+1){
+		prob->D = d+1; //adding bias
+	}
 	prob->N = prob->data.size();
 	prob->K = label_index_map->size();
 	label_name_list->resize(prob->K);

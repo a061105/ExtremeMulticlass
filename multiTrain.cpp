@@ -118,34 +118,31 @@ void writeModel( char* fname, Model* model){
 	fout.close();
 }
 
-
-
 int main(int argc, char** argv){
 	
 	Param* param = new Param();
 	parse_cmd_line(argc, argv, param);
 	Problem* train = new Problem();
 	readData( param->trainFname, train);
-	if (param->heldoutFname != NULL){
-		param->heldout = new Problem();
-		readData( param->heldoutFname, param->heldout);
-	}
 	param->train = train;
 	
 	overall_time -= omp_get_wtime();
 
+	//param->lambda /= prob->N;
+	if (param->heldoutFname != NULL){
+		//assert(param->train->label_index_map == param->heldout->label_index_map);
+		//assert(param->train->label_name_list == param->heldout->label_name_list);
+		Problem* heldout = new Problem();
+		readData( param->heldoutFname, heldout);
+		cerr << "heldout N=" << heldout->data.size() << endl;
+		cerr << "heldout D=" << heldout->D << endl;
+		cerr << "heldout K=" << heldout->K << endl;
+		param->heldoutEval = new HeldoutEval(heldout);
+	}
 	cerr << "N=" << train->data.size() << endl;
 	cerr << "D=" << train->D << endl; 
 	cerr << "K=" << train->K << endl;
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << endl;
-	//param->lambda /= prob->N;
-	if (param->heldout != NULL){
-		assert(param->train->label_index_map == param->heldout->label_index_map);
-		assert(param->train->label_name_list == param->heldout->label_name_list);
-		cerr << "heldout N=" << param->heldout->data.size() << endl;
-		cerr << "heldout D=" << param->heldout->D << endl; 
-		cerr << "heldout K=" << param->heldout->K << endl;	
-	}	
 
 	if( param->solver == 0 ){
 		
@@ -163,7 +160,6 @@ int main(int argc, char** argv){
 //		Model* model = solver->solve();
 //		writeModel(param->modelFname, model);
 	}else if( param->solver==3 ){
-		
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
 		writeModel(param->modelFname, model);

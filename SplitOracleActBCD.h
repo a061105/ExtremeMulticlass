@@ -4,12 +4,14 @@
 #include <cassert>
 #define loc(k) k*split_up_rate/K
 
+extern double overall_time;
+
 class SplitOracleActBCD{
 	
 	public:
 	SplitOracleActBCD(Param* param){
 		train = param->train;
-		heldout = param->heldout;
+		heldoutEval = param->heldoutEval;
 		
 		lambda = param->lambda;
 		C = param->C;
@@ -150,7 +152,6 @@ class SplitOracleActBCD{
 		//main loop
 		double max_heldout_test_acc = 0.0;
 		int terminate_countdown = 0;
-		int ccc = 0;
 		double starttime = omp_get_wtime();
 		double search_time=0.0, subsolve_time=0.0, maintain_time=0.0;
 		double last_search_time = 0.0, last_subsolve_time = 0.0, last_maintain_time = 0.0;
@@ -328,75 +329,15 @@ class SplitOracleActBCD{
 			cerr << "maintain=" << maintain_time-last_maintain_time << "\t";
 			last_search_time = search_time; last_subsolve_time = subsolve_time; last_maintain_time = maintain_time;
 			//early terminate: if heldout_test_accuracy does not increase in last three iterations, stop!	
-			if( heldout != NULL ){
-
-				float_type hit=0.0;
-				float_type margin_hit = 0.0;
-				float_type* prod = new float_type[K];
-				int* k_index = new int[K];
-				for(int k = 0; k < K; k++){
-					k_index[k] = k;
-				}
-				for(int i=0;i<heldout->N;i++){
-					for(int k=0;k<K;k++)
-						prod[k] = 0.0;
-						
-					SparseVec* xi = heldout->data.at(i);
-					Labels* yi = &(heldout->labels.at(i));
-					int top = yi->size();
-					for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
-
-						int j= it->first;
-						float_type xij = it->second;
-						if( j >= D )
-							continue;
-						#ifdef USING_HASHVEC
-						pair<int, pair<float_type, float_type>>* vj = v[j];
-						int size_vj0 = size_v[j] - 1;
-						#else
-						pair<float_type, float_type>* vj = v[j];
-						#endif
-						for (int S = 0; S < split_up_rate; S++){
-							vector<int>* wjS = w_hash_nnz_index[j][S];
-							for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
-								int k = *it2;
-								#ifdef USING_HASHVEC
-								int index_v = 0;
-								find_index(vj, index_v, k, size_vj0, hashindices);
-								float_type wjk = vj[index_v].second.second;
-								#else
-								float_type wjk = vj[k].second;
-								#endif
-								if (wjk == 0.0 || inside[k]){
-									*it2=*(wjS->end()-1);
-									wjS->erase(wjS->end()-1);
-									it2--;
-									continue; 
-								}
-								inside[k] = true;
-								prod[k] += wjk * xij;
-							}
-							for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
-								inside[*it2] = false;
-							}
-						}
-					}
-					sort(k_index, k_index + K, ScoreComp(prod));
-					float_type max_val = -1e300;
-					int argmax;
-					for(int k=0;k<top;k++){
-						bool flag = false;
-						for (int j = 0; j < yi->size(); j++){
-							if (heldout->label_name_list[yi->at(j)] == train->label_name_list[k_index[k]]){
-								flag = true;
-							}
-						}
-						if (flag)
-							hit += 1.0/top;
-					}
-				}
-				float_type heldout_test_acc = (float_type)hit/heldout->N;
+			if( heldoutEval != NULL ){
+				overall_time += omp_get_wtime();
+				#ifdef USING_HASHVEC
+				float_type heldout_test_acc = heldoutEval->calcAcc(v, size_v, w_hash_nnz_index, hashindices, split_up_rate);//(float_type)hit/heldout->N;
+				#else
+				float_type heldout_test_acc = heldoutEval->calcAcc(v, w_hash_nnz_index, split_up_rate);
+				#endif
 				cerr << "heldout Acc=" << heldout_test_acc << " ";
+				overall_time -= omp_get_wtime();
 				if ( heldout_test_acc > max_heldout_test_acc){
 					max_heldout_test_acc = heldout_test_acc;
 					terminate_countdown = 0;
@@ -817,6 +758,7 @@ class SplitOracleActBCD{
 			//vector<int>* wj = w_nnz_index[j][S];
 			//pair<int, float_type>* wjS = w_hash_nnz_index[j][S];
 			//int size_wjS = size_w[j][S];
+			//cout << "search:1.4 " << j << " " << S << endl;
 			vector<int>* wjS = w_hash_nnz_index[j][S];
 			if (wjS->size() == 0) continue;
 			int k = 0, ind = 0;
@@ -1145,9 +1087,7 @@ class SplitOracleActBCD{
 	
 	private:
 	Problem* train;
-	Problem* heldout;
-	vector<SparseVec*>* heldout_data;
-	vector<Labels>* heldout_labels;
+	HeldoutEval* heldoutEval;
 	float_type lambda;
 	float_type C;
 	vector<SparseVec*>* data;
