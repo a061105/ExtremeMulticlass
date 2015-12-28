@@ -32,7 +32,6 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 
 	int i;
 	for(i=1;i<argc;i++){
-
 		if( argv[i][0] != '-' )
 			break;
 		if( ++i >= argc )
@@ -57,6 +56,8 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 			case 'q': param->split_up_rate = atoi(argv[i]);
 				  break;
 			case 'p': param->post_solve_iter = atoi(argv[i]);
+				  break;
+			case 'h': param->heldoutFname = argv[i];
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;
@@ -123,19 +124,31 @@ int main(int argc, char** argv){
 	
 	Param* param = new Param();
 	parse_cmd_line(argc, argv, param);
-	
-	Problem* prob = new Problem();
-	readData( param->trainFname, prob);
-	param->prob = prob;
+	Problem* train = new Problem();
+	readData( param->trainFname, train);
+	Problem* heldout = NULL; 
+	if (param->heldoutFname != NULL){
+		heldout = new Problem();
+		readData( param->heldoutFname, heldout);
+	}
+	param->train = train;
+	param->heldout = heldout;
 	
 	overall_time -= omp_get_wtime();
 
-	cerr << "N=" << prob->data.size() << endl;
-	cerr << "D=" << prob->D << endl; 
-	cerr << "K=" << prob->K << endl;
+	cerr << "N=" << train->data.size() << endl;
+	cerr << "D=" << train->D << endl; 
+	cerr << "K=" << train->K << endl;
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << endl;
 	//param->lambda /= prob->N;
-	
+	if (param->heldout != NULL){
+		assert(param->train->label_index_map == param->heldout->label_index_map);
+		assert(param->train->label_name_list == param->heldout->label_name_list);
+		cerr << "heldout N=" << param->heldout->data.size() << endl;
+		cerr << "heldout D=" << param->heldout->D << endl; 
+		cerr << "heldout K=" << param->heldout->K << endl;	
+	}	
+
 	if( param->solver == 0 ){
 		
 		SBCDsolve* solver = new SBCDsolve(param);

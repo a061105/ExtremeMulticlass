@@ -6,7 +6,7 @@ class SBCDsolve{
 	public:
 	SBCDsolve(Param* param){
 		
-		prob = param->prob;
+		prob = param->train;
 		lambda = param->lambda;
 		C = param->C;
 		

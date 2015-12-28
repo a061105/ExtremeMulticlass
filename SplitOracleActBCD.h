@@ -8,12 +8,18 @@ class SplitOracleActBCD{
 	
 	public:
 	SplitOracleActBCD(Param* param){
-		prob = param->prob;
+		train = param->train;
+		heldout = param->heldout;
+		if (heldout != NULL){
+			using_heldout = true;
+			heldout_data = &(heldout->data);
+			heldout_labels = &(heldout->labels);
+		}
 		lambda = param->lambda;
 		C = param->C;
-		N = prob->N;
-		D = prob->D;
-		K = prob->K;
+		N = train->N;
+		D = train->D;
+		K = train->K;
 		hashfunc = new HashClass(K);
 		hashindices = hashfunc->hashindices;
 
@@ -25,7 +31,7 @@ class SplitOracleActBCD{
 		prod = new float_type[K];
 		inside = new bool[K];
 		memset(inside, false, sizeof(bool)*K);	
-		data = &(prob->data);
+		data = &(train->data);
 		//compute l_1 norm of every feature x_i
 		cdf_sum = new vector<float_type>();
 		for(int i = 0; i < N; i++){
@@ -36,7 +42,7 @@ class SplitOracleActBCD{
 			}
 			cdf_sum->push_back(_cdf);
 		}
-		labels = &(prob->labels);
+		labels = &(train->labels);
 		max_iter = param->max_iter;
 		
 		//compute location of k
@@ -329,10 +335,86 @@ class SplitOracleActBCD{
 				cerr << "sub_opt=" << sub_opt << "\t";
 				cerr << "search=" << search_time-last_search_time << "\t";
 				cerr << "subsolve=" << subsolve_time-last_subsolve_time << "\t";
-				cerr << "maintain=" << maintain_time-last_maintain_time << endl;
+				cerr << "maintain=" << maintain_time-last_maintain_time << "\t";
 				last_search_time = search_time; last_subsolve_time = subsolve_time; last_maintain_time = maintain_time;
+				//early terminate: if heldout_test_accuracy does not increase in last three iterations, stop!	
+				float_type hit=0.0;
+				float_type margin_hit = 0.0;
+				float_type* prod = new float_type[K];
+				int* k_index = new int[K];
+				for(int k = 0; k < K; k++){
+					k_index[k] = k;
+				}
+				for(int i=0;i<heldout->N;i++){
+					for(int k=0;k<K;k++)
+						prod[k] = 0.0;
+					
+					SparseVec* xi = heldout_data->at(i);
+					Labels* yi = &(heldout_labels->at(i));
+					int top = yi->size();
+					for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+						
+						int j= it->first;
+						float_type xij = it->second;
+						if( j >= D )
+							continue;
+						#ifdef USING_HASHVEC
+						pair<int, pair<float_type, float_type>>* vj = v[j];
+						int size_vj0 = size_v[j] - 1;
+						#else
+						pair<float_type, float_type>* vj = v[j];
+						#endif
+						for (int S = 0; S < split_up_rate; S++){
+							vector<int>* wjS = w_hash_nnz_index[j][S];
+							for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+								int k = *it2;
+								#ifdef USING_HASHVEC
+								int index_v = 0;
+								find_index(vj, index_v, k, size_vj0, hashindices);
+								float_type wjk = vj[index_v].second.second;
+								#else
+								float_type wjk = vj[k].second;
+								#endif
+								if (wjk == 0.0 || inside[k]){
+				                                        *it2=*(wjS->end()-1);
+				                                        wjS->erase(wjS->end()-1);
+				                                        it2--;
+				                                        continue; 
+				                                }
+								inside[k] = true;
+				                                prod[k] += wjk * xij;
+							}
+							for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+								inside[*it2] = false;
+							}
+						}
+					}
+					sort(k_index, k_index + K, ScoreComp(prod));
+					float_type max_val = -1e300;
+					int argmax;
+					for(int k=0;k<top;k++){
+						bool flag = false;
+						for (int j = 0; j < yi->size(); j++){
+							if (heldout->label_name_list[yi->at(j)] == train->label_name_list[k_index[k]]){
+								flag = true;
+							}
+						}
+						if (flag)
+							hit += 1.0/top;
+					}
+				}
+				float_type heldout_test_acc = (float_type)hit/heldout->N;
+				cerr << "heldout Acc=" << heldout_test_acc << "\t";
+				if (last_heldout_test_acc >= heldout_test_acc){
+					cerr << "terminate: " << (++terminate_countdown) << "/" << early_terminate << "\t";
+					if (terminate_countdown == early_terminate)
+						break;
+				} else {
+					terminate_countdown = 0;
+				}
+				last_heldout_test_acc = heldout_test_acc;
+				cerr << endl;
 			}
-				
 			iter++;
 		}
 		double endtime = omp_get_wtime();
@@ -472,7 +554,7 @@ class SplitOracleActBCD{
 				}
 			}
 		}
-		return new Model(prob, non_split_index, w, size_w, hashindices);
+		return new Model(train, non_split_index, w, size_w, hashindices);
 		#else
 		w = new float_type*[D];
 		non_split_index = new vector<int>*[D];
@@ -489,7 +571,7 @@ class SplitOracleActBCD{
 				}
 			}
 		}
-		return new Model(prob, non_split_index, w);
+		return new Model(train, non_split_index, w);
 		#endif
 	}
 	void subSolve(int I, vector<int>& act_k_index, float_type* alpha_i_new){
@@ -1069,7 +1151,10 @@ class SplitOracleActBCD{
 	}
 	
 	private:
-	Problem* prob;
+	Problem* train;
+	Problem* heldout;
+	vector<SparseVec*>* heldout_data;
+	vector<Labels>* heldout_labels;
 	float_type lambda;
 	float_type C;
 	vector<SparseVec*>* data;
@@ -1094,6 +1179,13 @@ class SplitOracleActBCD{
 	int max_select;
 	int speed_up_rate, split_up_rate;	
 	float_type* prod;
+
+	//heldout options
+	bool using_heldout = false;
+	int early_terminate = 3;
+	double last_heldout_test_acc = 0.0;
+	int terminate_countdown = 0;
+			
 	//int* loc;
 	public:
         int* hashindices;

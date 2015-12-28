@@ -24,12 +24,13 @@ class Param{
 	public:
 	char* trainFname;
 	char* modelFname;
+	char* heldoutFname = NULL;
 	float_type lambda; //for L1-norm (default 1/N)
 	float_type C; //weight of loss
 	int speed_up_rate; // speed up rate for sampling
 	int split_up_rate; // split up [K] into a number of subsets	
-	Problem* prob;
-	
+	Problem* train;
+	Problem* heldout;	
 	//solver-specific param
 	int solver;
 	int max_iter;
@@ -98,7 +99,6 @@ void readData(char* fname, Problem* prob)
 	
 	ifstream fin(fname);
 	char* line = new char[LINE_LEN];
-	
 	int d = -1;
 	while( !fin.eof() ){
 		

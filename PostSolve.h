@@ -12,7 +12,7 @@ class PostSolve{
 		
 		double construct_time = -omp_get_wtime();
 		
-		prob = param->prob;
+		prob = param->train;
 		C = param->C;
 		
 		vector<SparseVec*>* data = &(prob->data);

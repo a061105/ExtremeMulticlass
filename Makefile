@@ -25,7 +25,7 @@ ocr:
 	./multiPred $(data_dir)/data/data20.test.svm $(model)
 
 rcv1:
-	./multiTrain -l $(l) -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) $(data_dir)/rcv1_train.multiclass $(model)
+	./multiTrain -l $(l) -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/rcv1_test.multiclass.10k $(data_dir)/rcv1_train.multiclass $(model)
 	./multiPred $(data_dir)/rcv1_train.multiclass $(model)
 	./multiPred $(data_dir)/rcv1_test.multiclass.10k $(model)
 ifneq ($(p), 0)
