@@ -161,7 +161,6 @@ class SplitOracleActBCD{
 		while( iter < max_iter ){
 			
 			random_shuffle( index, index+N );
-			float_type sub_opt = 0.0;
 			for(int r=0;r<N;r++){	
 				
 				int i = index[r];
@@ -191,14 +190,12 @@ class SplitOracleActBCD{
 				SparseVec* x_i = data->at(i);
 				Labels* yi = &(labels->at(i));
 				maintain_time -= omp_get_wtime();
-				float_type sub_opt_i = 0.0;
 				#ifdef USING_HASHVEC
 				float_type* alpha_i_k = new float_type[act_k_index[i].size()];
 				for(int j = 0; j < act_k_index[i].size(); j++){
                                         int act_indexj = act_k_index[i][j];
                                         find_index(alpha_i, index_alpha, act_indexj, size_alphai0, hashindices);
                                         alpha_i_k[j] = alpha_i_new[act_indexj] - alpha_i[index_alpha].second;
-                                	sub_opt_i = max(sub_opt_i, fabs(alpha_i_k[j]));
 				}
 				#endif
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
@@ -215,7 +212,6 @@ class SplitOracleActBCD{
 						int k = act_k_index[i][j];
 						float_type delta_alpha = alpha_i_k[j];
 						float_type delta_alpha_abs = fabs(delta_alpha);
-						sub_opt_i = max(sub_opt_i, delta_alpha_abs);
 						if( delta_alpha_abs < 1e-12 )
 							continue;
 						//update v
@@ -314,9 +310,7 @@ class SplitOracleActBCD{
 				}
 				maintain_time += omp_get_wtime();
 				
-				sub_opt += sub_opt_i;
 			}
-			sub_opt /= N;
 
 			if( iter % 1 == 0 ){
 				cerr << "i=" << iter << "\t" ;
@@ -332,7 +326,6 @@ class SplitOracleActBCD{
 					}
 				}
 				cerr << "nnz_w_j=" << ((float_type)nnz_w_j/D) << "\t";
-				cerr << "sub_opt=" << sub_opt << "\t";
 				cerr << "search=" << search_time-last_search_time << "\t";
 				cerr << "subsolve=" << subsolve_time-last_subsolve_time << "\t";
 				cerr << "maintain=" << maintain_time-last_maintain_time << "\t";
