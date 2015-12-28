@@ -6,6 +6,8 @@
 //#include "OracleActBCD.h"
 #include "PostSolve.h"
 
+double overall_time = 0.0;
+
 void exit_with_help(){
 	cerr << "Usage: ./multiTrain (options) [train_data] (model)" << endl;
 	cerr << "options:" << endl;
@@ -125,6 +127,8 @@ int main(int argc, char** argv){
 	Problem* prob = new Problem();
 	readData( param->trainFname, prob);
 	param->prob = prob;
+	
+	overall_time -= omp_get_wtime();
 
 	cerr << "N=" << prob->data.size() << endl;
 	cerr << "D=" << prob->D << endl; 
@@ -167,4 +171,6 @@ int main(int argc, char** argv){
 		}
 	}
 	
+	overall_time += omp_get_wtime();
+	cerr << "overall_time=" << overall_time << endl;
 }

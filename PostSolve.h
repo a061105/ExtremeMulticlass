@@ -10,6 +10,8 @@ class PostSolve{
 	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, float_type** _w, float_type** _alpha, pair<float_type, float_type>** _v){
 	#endif
 		
+		double construct_time = -omp_get_wtime();
+		
 		prob = param->prob;
 		C = param->C;
 		
@@ -208,6 +210,9 @@ class PostSolve{
 			}
 		}
 		
+		construct_time += omp_get_wtime();
+		cerr << "construct_time=" << construct_time << endl;
+
 		//initialize Q_diag (Q=X*X') for the diagonal Hessian of each i-th subproblem
 		Q_diag = new float_type[N];
 		for(int i=0;i<N;i++){
