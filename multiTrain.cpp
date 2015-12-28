@@ -181,7 +181,7 @@ int main(int argc, char** argv){
 			model = postSolve->solve();
 			
 			char* postsolved_modelFname = new char[FNAME_LEN];
-			sprintf(postsolved_modelFname, "%s.p%d", param->modelFname, param->post_solve_iter);
+			sprintf(postsolved_modelFname, "%s.p", param->modelFname);
 			writeModel(postsolved_modelFname, model);
 			delete[] postsolved_modelFname;
 		}
