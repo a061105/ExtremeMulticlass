@@ -10,11 +10,7 @@ class SplitOracleActBCD{
 	SplitOracleActBCD(Param* param){
 		train = param->train;
 		heldout = param->heldout;
-		if (heldout != NULL){
-			using_heldout = true;
-			heldout_data = &(heldout->data);
-			heldout_labels = &(heldout->labels);
-		}
+		
 		lambda = param->lambda;
 		C = param->C;
 		N = train->N;
@@ -314,25 +310,26 @@ class SplitOracleActBCD{
 				
 			}
 
-			if( iter % 1 == 0 ){
-				cerr << "i=" << iter << "\t" ;
-				int nnz_a_i = 0;
-				for(int i=0;i<N;i++){
-					nnz_a_i += act_k_index[i].size();	
+			cerr << "i=" << iter << "\t" ;
+			int nnz_a_i = 0;
+			for(int i=0;i<N;i++){
+				nnz_a_i += act_k_index[i].size();	
+			}
+			cerr << "nnz_a_i="<< ((float_type)nnz_a_i/N) << "\t";
+			int nnz_w_j = 0;
+			for(int j=0;j<D;j++){
+				for(int S=0;S < split_up_rate; S++){
+					nnz_w_j += w_hash_nnz_index[j][S]->size(); //util_w[j][S];
 				}
-				cerr << "nnz_a_i="<< ((float_type)nnz_a_i/N) << "\t";
-				int nnz_w_j = 0;
-				for(int j=0;j<D;j++){
-					for(int S=0;S < split_up_rate; S++){
-						nnz_w_j += w_hash_nnz_index[j][S]->size(); //util_w[j][S];
-					}
-				}
-				cerr << "nnz_w_j=" << ((float_type)nnz_w_j/D) << "\t";
-				cerr << "search=" << search_time-last_search_time << "\t";
-				cerr << "subsolve=" << subsolve_time-last_subsolve_time << "\t";
-				cerr << "maintain=" << maintain_time-last_maintain_time << "\t";
-				last_search_time = search_time; last_subsolve_time = subsolve_time; last_maintain_time = maintain_time;
-				//early terminate: if heldout_test_accuracy does not increase in last three iterations, stop!	
+			}
+			cerr << "nnz_w_j=" << ((float_type)nnz_w_j/D) << "\t";
+			cerr << "search=" << search_time-last_search_time << "\t";
+			cerr << "subsolve=" << subsolve_time-last_subsolve_time << "\t";
+			cerr << "maintain=" << maintain_time-last_maintain_time << "\t";
+			last_search_time = search_time; last_subsolve_time = subsolve_time; last_maintain_time = maintain_time;
+			//early terminate: if heldout_test_accuracy does not increase in last three iterations, stop!	
+			if( heldout != NULL ){
+
 				float_type hit=0.0;
 				float_type margin_hit = 0.0;
 				float_type* prod = new float_type[K];
@@ -343,12 +340,12 @@ class SplitOracleActBCD{
 				for(int i=0;i<heldout->N;i++){
 					for(int k=0;k<K;k++)
 						prod[k] = 0.0;
-					
-					SparseVec* xi = heldout_data->at(i);
-					Labels* yi = &(heldout_labels->at(i));
+						
+					SparseVec* xi = heldout->data.at(i);
+					Labels* yi = &(heldout->labels.at(i));
 					int top = yi->size();
 					for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
-						
+
 						int j= it->first;
 						float_type xij = it->second;
 						if( j >= D )
@@ -371,13 +368,13 @@ class SplitOracleActBCD{
 								float_type wjk = vj[k].second;
 								#endif
 								if (wjk == 0.0 || inside[k]){
-				                                        *it2=*(wjS->end()-1);
-				                                        wjS->erase(wjS->end()-1);
-				                                        it2--;
-				                                        continue; 
-				                                }
+									*it2=*(wjS->end()-1);
+									wjS->erase(wjS->end()-1);
+									it2--;
+									continue; 
+								}
 								inside[k] = true;
-				                                prod[k] += wjk * xij;
+								prod[k] += wjk * xij;
 							}
 							for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
 								inside[*it2] = false;
@@ -408,9 +405,9 @@ class SplitOracleActBCD{
 					if (terminate_countdown == early_terminate)
 						break;
 				}
-				
-				cerr << endl;
+
 			}
+			cerr << endl;
 			iter++;
 		}
 		double endtime = omp_get_wtime();
@@ -1177,7 +1174,6 @@ class SplitOracleActBCD{
 	float_type* prod;
 
 	//heldout options
-	bool using_heldout = false;
 	int early_terminate = 3;
 			
 	//int* loc;
