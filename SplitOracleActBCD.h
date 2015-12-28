@@ -152,6 +152,8 @@ class SplitOracleActBCD{
 		}
 		
 		//main loop
+		double max_heldout_test_acc = 0.0;
+		int terminate_countdown = 0;
 		int ccc = 0;
 		double starttime = omp_get_wtime();
 		double search_time=0.0, subsolve_time=0.0, maintain_time=0.0;
@@ -398,14 +400,15 @@ class SplitOracleActBCD{
 				}
 				float_type heldout_test_acc = (float_type)hit/heldout->N;
 				cerr << "heldout Acc=" << heldout_test_acc << " ";
-				if (last_heldout_test_acc >= heldout_test_acc){
+				if ( heldout_test_acc > max_heldout_test_acc){
+					max_heldout_test_acc = heldout_test_acc;
+					terminate_countdown = 0;
+				} else {
 					cerr << "(" << (++terminate_countdown) << "/" << early_terminate << ")";
 					if (terminate_countdown == early_terminate)
 						break;
-				} else {
-					terminate_countdown = 0;
 				}
-				last_heldout_test_acc = heldout_test_acc;
+				
 				cerr << endl;
 			}
 			iter++;
@@ -1176,8 +1179,6 @@ class SplitOracleActBCD{
 	//heldout options
 	bool using_heldout = false;
 	int early_terminate = 3;
-	double last_heldout_test_acc = 0.0;
-	int terminate_countdown = 0;
 			
 	//int* loc;
 	public:
