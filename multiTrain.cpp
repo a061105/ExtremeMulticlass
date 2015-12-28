@@ -126,13 +126,11 @@ int main(int argc, char** argv){
 	parse_cmd_line(argc, argv, param);
 	Problem* train = new Problem();
 	readData( param->trainFname, train);
-	Problem* heldout = NULL; 
 	if (param->heldoutFname != NULL){
-		heldout = new Problem();
-		readData( param->heldoutFname, heldout);
+		param->heldout = new Problem();
+		readData( param->heldoutFname, param->heldout);
 	}
 	param->train = train;
-	param->heldout = heldout;
 	
 	overall_time -= omp_get_wtime();
 

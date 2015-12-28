@@ -24,7 +24,7 @@ class Param{
 	public:
 	char* trainFname;
 	char* modelFname;
-	char* heldoutFname = NULL;
+	char* heldoutFname;
 	float_type lambda; //for L1-norm (default 1/N)
 	float_type C; //weight of loss
 	int speed_up_rate; // speed up rate for sampling
@@ -48,6 +48,10 @@ class Param{
 		split_up_rate = 1;
 		using_importance_sampling = false;
 		post_solve_iter = 0;
+
+		heldoutFname == NULL;
+		train = NULL;
+		heldout = NULL;
 	}
 };
 
