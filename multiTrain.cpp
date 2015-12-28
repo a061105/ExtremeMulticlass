@@ -165,18 +165,21 @@ int main(int argc, char** argv){
 //		Model* model = solver->solve();
 //		writeModel(param->modelFname, model);
 	}else if( param->solver==3 ){
+		
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
 		writeModel(param->modelFname, model);
 		
 		if( param->post_solve_iter > 0 ){
+			
+			param->post_solve_iter = min(solver->iter, param->post_solve_iter);
 			#ifdef USING_HASHVEC
 			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, model->size_w, solver->alpha, solver->size_alpha, solver->v, solver->size_v, solver->hashindices );
 			#else
 			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, solver->alpha, solver->v );
 			#endif
 			model = postSolve->solve();
-		
+			
 			char* postsolved_modelFname = new char[FNAME_LEN];
 			sprintf(postsolved_modelFname, "%s.p%d", param->modelFname, param->post_solve_iter);
 			writeModel(postsolved_modelFname, model);

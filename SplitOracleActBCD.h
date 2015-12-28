@@ -157,7 +157,7 @@ class SplitOracleActBCD{
 		double search_time=0.0, subsolve_time=0.0, maintain_time=0.0;
 		double last_search_time = 0.0, last_subsolve_time = 0.0, last_maintain_time = 0.0;
 		float_type* alpha_i_new = new float_type[K];
-		int iter = 0;
+		iter = 0;
 		while( iter < max_iter ){
 			
 			random_shuffle( index, index+N );
@@ -1188,7 +1188,8 @@ class SplitOracleActBCD{
 			
 	//int* loc;
 	public:
-        int* hashindices;
+	int iter;
+	int* hashindices;
 	#ifdef USING_HASHVEC
 	pair<int, float_type>** w;// = new pair<int, float_type>*[D];
 	vector<int>** non_split_index;// = new vector<int>*[D];
