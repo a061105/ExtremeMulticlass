@@ -1,6 +1,6 @@
 all: train predict
 	
-FLAG= -DUSING_HASHVEC#-DMULTISELECT
+FLAG= #-DUSING_HASHVEC#-DMULTISELECT
 train:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
 predict:
@@ -29,8 +29,8 @@ rcv1:
 	./multiPred $(data_dir)/rcv1_train.multiclass $(model)
 	./multiPred $(data_dir)/rcv1_test.multiclass.10k $(model)
 ifneq ($(p), 0)
-	./multiPred $(data_dir)/rcv1_train.multiclass $(model).p$(p)
-	./multiPred $(data_dir)/rcv1_test.multiclass.10k $(model).p$(p)
+	./multiPred $(data_dir)/rcv1_train.multiclass $(model).p
+	./multiPred $(data_dir)/rcv1_test.multiclass.10k $(model).p
 endif	
 
 aloi.bin:
@@ -38,8 +38,8 @@ aloi.bin:
 	./multiPred $(data_dir)/aloi/aloi.bin.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin.test $(model)
 ifneq ($(p), 0)
-	./multiPred $(data_dir)/aloi/aloi.bin.train $(model).p$(p)
-	./multiPred $(data_dir)/aloi/aloi.bin.test $(model).p$(p)
+	./multiPred $(data_dir)/aloi/aloi.bin.train $(model).p
+	./multiPred $(data_dir)/aloi/aloi.bin.test $(model).p
 endif
 
 aloi.bin2:
@@ -47,8 +47,8 @@ aloi.bin2:
 	./multiPred $(data_dir)/aloi/aloi.bin2.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin2.test $(model)
 ifneq ($(p), 0)
-	./multiPred $(data_dir)/aloi/aloi.bin2.train $(model).p$(p)
-	./multiPred $(data_dir)/aloi/aloi.bin2.test $(model).p$(p)
+	./multiPred $(data_dir)/aloi/aloi.bin2.train $(model).p
+	./multiPred $(data_dir)/aloi/aloi.bin2.test $(model).p
 endif
 
 LSHTC1:
