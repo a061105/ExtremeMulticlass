@@ -397,9 +397,9 @@ class SplitOracleActBCD{
 					}
 				}
 				float_type heldout_test_acc = (float_type)hit/heldout->N;
-				cerr << "heldout Acc=" << heldout_test_acc << "\t";
+				cerr << "heldout Acc=" << heldout_test_acc << " ";
 				if (last_heldout_test_acc >= heldout_test_acc){
-					cerr << "terminate: " << (++terminate_countdown) << "/" << early_terminate << "\t";
+					cerr << "(" << (++terminate_countdown) << "/" << early_terminate << ")";
 					if (terminate_countdown == early_terminate)
 						break;
 				} else {
