@@ -36,7 +36,7 @@ class HeldoutEval{
 		for (int k = 0; k < K; k++)
 			inside[k] = false;
 
-		top = 1;
+		T = 1;
 	}
 	
 	#ifdef USING_HASHVEC
@@ -52,7 +52,9 @@ class HeldoutEval{
 
 			SparseVec* xi = heldout->data.at(i);
 			Labels* yi = &(heldout->labels.at(i));
-			int top = yi->size();
+			int top = T;
+			if (top == -1)
+				top = yi->size();
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
@@ -98,7 +100,8 @@ class HeldoutEval{
 			SparseVec* xi = heldout->data.at(i);
 			Labels* yi = &(heldout->labels.at(i));
 			
-			if( top == -1 )
+			int top = T;
+			if (top == -1)
 				top = yi->size();
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
@@ -145,7 +148,10 @@ class HeldoutEval{
 				
 			SparseVec* xi = heldout->data.at(i);
 			Labels* yi = &(heldout->labels.at(i));
-			int top = yi->size();
+			
+			int top = T;
+			if (top == -1)
+				top = yi->size();
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
@@ -208,7 +214,7 @@ class HeldoutEval{
 	int* k_index;
 	float_type hit, margin_hit;
 	bool* inside;
-	int top;
+	int T;
 };
 class Param{
 	public:
