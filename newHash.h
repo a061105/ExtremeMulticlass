@@ -41,9 +41,9 @@
 		while (util > UPPER_UTIL_RATE * new_size){
 	                new_size *= 2;
 	        }
-	        while (new_size > INIT_SIZE && util < LOWER_UTIL_RATE * new_size){
-	                new_size /= 2;
-	        }
+	        //while (new_size > INIT_SIZE && util < LOWER_UTIL_RATE * new_size){
+	        //        new_size /= 2;
+	        //}
 	        if (new_size == size)
 	                return;
 	        pair<int, pair<float_type, float_type>>* new_l = new pair<int, pair<float_type, float_type> >[new_size];
@@ -69,9 +69,9 @@
 		while (util > UPPER_UTIL_RATE * new_size){
 	                new_size *= 2;
 	        }
-	        while (new_size > INIT_SIZE && util < LOWER_UTIL_RATE * new_size){
-	                new_size /= 2;
-	        }
+	        //while (new_size > INIT_SIZE && util < LOWER_UTIL_RATE * new_size){
+	        //        new_size /= 2;
+	        //}
 	        if (new_size == size)
 	                return;
 	        pair<int, float_type>* new_l = new pair<int, float_type>[new_size];
