@@ -354,31 +354,13 @@ class SplitOracleActBCD{
 		double endtime = omp_get_wtime();
 		cerr << endl;
 		
-		float_type d_obj = 0.0;
+		//compute dual objective, nnz_w, and nnz_alpha.
+		/*float_type d_obj = 0.0;
 		int nSV = 0;
 		int nnz_w = 0;
 		int jk=0;
 		for(int j=0;j<D;j++){
 			for(int S=0;S<split_up_rate;S++){
-				//for (vector<int>::iterator it=w_nnz_index[j][S]->begin(); it!=w_nnz_index[j][S]->end(); it++){
-				//	#ifdef USING_HASHVEC
-				//	int index_v = 0;
-				//	find_index(v[j], index_v, *it, size_v[j]-1);
-				//	float_type wjk = prox_l1(v[j][index_v].second, lambda);
-				//	#else
-				//	float_type wjk = v[j][*it].second; //prox_l1(v[j][*it], lambda);
-				//	#endif
-				//	d_obj += wjk*wjk;//W[j][*it]*W[j][*it];
-				//}
-				//nnz_w+=w_nnz_index[j][S]->size();
-				//pair<int, float_type>* wjS = w_hash_nnz_index[j][S];
-				
-				/*for (int k = 0; k < size_w[j][S]; k++){
-					float_type wjk = wjS[k].second;
-					//.second is 0 by default
-					d_obj += wjk*wjk;
-				}
-				nnz_w+= util_w[j][S];*/
 				vector<int>* wjS = w_hash_nnz_index[j][S];
 				for (vector<int>::iterator it = wjS->begin(); it != wjS->end(); it++){
 					d_obj += (*it)*(*it);
@@ -410,9 +392,11 @@ class SplitOracleActBCD{
 				#endif
 			}
 		}
+		
 		cerr << "dual_obj=" << d_obj << endl;
 		cerr << "nSV=" << nSV << " (NK=" << N*K << ")"<< endl;
 		cerr << "nnz_w=" << nnz_w << " (DK=" << D*K << ")" << endl;
+		*/
 		cerr << "train time=" << endtime-starttime << endl;
 		cerr << "search time=" << search_time << endl;
 		cerr << "subsolve time=" << subsolve_time << endl;
@@ -423,38 +407,6 @@ class SplitOracleActBCD{
 		delete[] Q_diag;
 		delete[] prod;
 		delete cdf_sum;
-		
-		/*w_temp = new HashVec*[D];
-		for(int j = 0; j < D; j++){
-			w_temp[j] = new HashVec();
-			for(int S=0;S<split_up_rate;S++){
-				for (vector<int>::iterator it=w_hash_nnz_index[j][S]->begin(); it!=w_hash_nnz_index[j][S]->end(); it++){
-					int k = *it;
-					#ifdef USING_HASHVEC
-					int index_v = 0;
-					find_index(v[j], index_v, k, size_v[j]-1, hashindices);
-					if (v[j][index_v].second.second != 0.0)
-						w_temp[j]->insert(make_pair(k, v[j][index_v].second.second));
-					#else
-					if (v[j][k].second != 0.0)
-						w_temp[j]->insert(make_pair(k, v[j][k].second)); //prox_l1(v[j][k], lambda)));
-					#endif
-				}
-			}
-		}
-		for(int j = 0; j < D; j++){
-			//delete[] size_w[j];
-			//delete[] util_w[j];
-			for (int S = 0; S < split_up_rate; S++){
-				//delete[] w_hash_nnz_index[j][S];
-				w_hash_nnz_index[j][S]->clear();
-			}
-			delete[] w_hash_nnz_index[j];
-		}
-		delete[] w_hash_nnz_index;
-		//delete[] size_w;
-		//delete[] util_w;
-		return new Model(prob, w_temp);*/ //v is w
 			
 		#ifdef USING_HASHVEC
 		w = new pair<int, float_type>*[D];
