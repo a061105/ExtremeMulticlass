@@ -94,8 +94,9 @@ class SplitOracleActBCD{
 		alpha = new float_type*[N];
 		for(int i=0;i<N;i++){
 			alpha[i] = new float_type[K];
-			for(int k=0;k<K;k++)
-				alpha[i][k] = 0.0;
+			memset(alpha[i], 0, sizeof(float_type)*K);
+			//for(int k=0;k<K;k++)
+			//	alpha[i][k] = 0.0;
 		}
 		v = new pair<float_type, float_type>*[D]; //w = prox(v);
 		for(int j=0;j<D;j++){
@@ -371,7 +372,10 @@ class SplitOracleActBCD{
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
 			Labels* yi = &(labels->at(i));
-			for(int k=0;k<K;k++){
+			vector<int>* act_k_index_i =  &(act_k_index[i]);
+			for(vector<int>::iterator it=act_k_index_i->begin(); it!=act_k_index_i->end(); it++){
+				
+				int k = *it;
 				#ifdef USING_HASHVEC
 				int index_alpha = 0;
 				find_index(alpha[i], index_alpha, k, size_alpha[i] - 1, hashindices);
