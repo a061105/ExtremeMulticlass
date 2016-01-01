@@ -1,5 +1,6 @@
 #include "multi.h"
 #include <omp.h>
+#include <cassert>
 
 StaticModel* readModel(char* file){
 	
@@ -81,6 +82,13 @@ int main(int argc, char** argv){
 		int top = T;
 		if (top == -1)
 			top = yi->size();
+		int* max_indices = new int[top+1];
+		for(int ind = 0; ind <= top; ind++){
+			max_indices[ind] = -1;
+		}
+		if (top == 1)
+			max_indices[0] = 0;
+		
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			
 			int j= it->first;
@@ -90,18 +98,44 @@ int main(int argc, char** argv){
 			
 			SparseVec* wj = &(model->w[j]);
 			for(SparseVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
-				prod[it2->first] += it2->second*xij;
+				int k = it2->first;
+				prod[k] += it2->second*xij;
+				if (top == 1){
+					if (prod[max_indices[0]] < prod[k]){
+						max_indices[0] = k;
+					}
+					continue;
+				}
+				int ind = 0;
+				while (ind < top && max_indices[ind] != -1 && max_indices[ind] != k){
+					ind++;
+				}
+				max_indices[ind] = k;
+				//try move to left
+				while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
+					//using k as temporary variables
+					k = max_indices[ind];
+					max_indices[ind] = max_indices[ind-1];
+					max_indices[ind-1] = k;
+				}
+				//try move to right
+				while (ind < top-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
+                                        //using k as temporary variables
+                                        k = max_indices[ind];
+                                        max_indices[ind] = max_indices[ind+1];
+                                	max_indices[ind+1] = k;
+                                }
 			}
 		}
-		sort(k_index, k_index + model->K, ScoreComp(prod));
+		//sort(k_index, k_index + model->K, ScoreComp(prod));
 		float_type max_val = -1e300;
 		int argmax;
 		for(int k=0;k<top;k++){
 			bool flag = false;
 			for (int j = 0; j < yi->size(); j++){
-				if (prob->label_name_list[yi->at(j)] == model->label_name_list->at(k_index[k])){
+				if (prob->label_name_list[yi->at(j)] == model->label_name_list->at(max_indices[k])){
 					flag = true;
-				}	
+				}
 			}
 			if (flag)
 				hit += 1.0/top;

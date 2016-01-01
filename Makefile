@@ -44,7 +44,7 @@ endif
 	
 
 aloi.bin:
-	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/aloi/aloi.bin.test $(data_dir)/aloi/aloi.bin.train $(model)
+	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/aloi/aloi.bin.heldout $(data_dir)/aloi/aloi.bin.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin.test $(model)
 ifneq ($(p), 0)
