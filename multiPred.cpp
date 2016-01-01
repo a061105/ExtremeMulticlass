@@ -73,8 +73,8 @@ int main(int argc, char** argv){
 	for(int k = 0; k < model->K; k++){
 		k_index[k] = k;
 	}
-	int nnz_wj_sum = 0;
-	int nnz_x = 0;
+//	int nnz_wj_sum = 0;
+//	int nnz_x = 0;
 	for(int i=0;i<prob->N;i++){
 		memset(prod, 0.0, sizeof(float_type)*model->K);
 		//for(int k=0;k<model->K;k++)
@@ -91,7 +91,7 @@ int main(int argc, char** argv){
 		}
 		if (top == 1)
 			max_indices[0] = 0;
-		nnz_x += xi->size();
+		//nnz_x += xi->size();
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			
 			int j= it->first;
@@ -99,7 +99,7 @@ int main(int argc, char** argv){
 			if( j >= model->D )
 				continue;
 			SparseVec* wj = &(model->w[j]);
-			nnz_wj_sum += wj->size();
+			//nnz_wj_sum += wj->size();
 			for(SparseVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
 				int k = it2->first;
 				prod[k] += it2->second*xij;
@@ -147,7 +147,7 @@ int main(int argc, char** argv){
 	}
 	
 	double end = omp_get_wtime();
-	cerr << "k_eff=" << (float_type)nnz_wj_sum/nnz_x << endl;
+	//cerr << "k_eff=" << (float_type)nnz_wj_sum/nnz_x << endl;
 	cerr << "Acc=" << ((float_type)hit/prob->N) << endl;
 	cerr << "pred time=" << (end-start) << " s" << endl;
 }
