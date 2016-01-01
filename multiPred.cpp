@@ -76,8 +76,9 @@ int main(int argc, char** argv){
 	int nnz_wj_sum = 0;
 	int nnz_x = 0;
 	for(int i=0;i<prob->N;i++){
-		for(int k=0;k<model->K;k++)
-			prod[k] = 0.0;
+		memset(prod, 0.0, sizeof(float_type)*K);
+		//for(int k=0;k<model->K;k++)
+		//	prod[k] = 0.0;
 		
 		SparseVec* xi = data->at(i);
 		Labels* yi = &(labels->at(i));
