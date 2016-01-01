@@ -21,7 +21,10 @@ class PostSolve{
 		N = prob->N;
 		K = prob->K;
 		max_iter = param->post_solve_iter;
-		hashfunc = new HashClass(K);
+		int maxDK = D;
+		if (D < K) 
+			maxDK = K;
+		hashfunc = new HashClass(maxDK);
 		hashindices = hashfunc->hashindices;
 		
 		//initialize alpha and v
@@ -439,10 +442,10 @@ class PostSolve{
 		Labels* yi = &(labels->at(I));
 		int m = yi->size();
 	        int n = act_k_size - m;
-		float_type* b = new float_type[n];
-		float_type* c = new float_type[m];
-		int* act_index_b = new int[n];
-		int* act_index_c = new int[m];
+		float_type* b = new float_type[n+m];
+		float_type* c = new float_type[m+n];
+		int* act_index_b = new int[n+m];
+		int* act_index_c = new int[m+n];
 		vector<SparseVec*>* x_i_per_class = &(data_per_class[I]);
 		
 		float_type A = Q_diag[I];
@@ -453,10 +456,10 @@ class PostSolve{
 		float_type* alpha_i = alpha[I];
 		#endif
 		int i = 0, j = 0;
-		int* index_b = new int[n];
-		int* index_c = new int[m];
-		int* invert_index_b = new int[n];
-		int* invert_index_c = new int[m];	
+		int* index_b = new int[n+m];
+		int* index_c = new int[m+n];
+		int* invert_index_b = new int[n+m];
+		int* invert_index_c = new int[m+n];	
 		for(int k=0;k<m+n;k++){
 			int p = act_k_index[k];
 			#ifdef USING_HASHVEC
@@ -488,7 +491,8 @@ class PostSolve{
 			}
 			#endif
 		}
-		
+		n = i;
+		m = j;
 		vector<SparseVec*>::iterator data_it = x_i_per_class->begin();
 		for(int i=0;i<n;i++){
 			int k = act_index_b[i];

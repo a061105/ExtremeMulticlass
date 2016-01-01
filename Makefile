@@ -14,8 +14,6 @@ g=1
 p=20
 l=1
 model=model
-LSHTC=/scratch/cluster/ianyen/data//LSHTC/LSHTC1/large_lshtc_dataset/Task1_Train\:CrawlData_Test\:CrawlData/
-LSHTCmulti=/scratch/cluster/ianyen/data/LSHTC/LSHTC2/wiki_large/multiData.sub100
 sample_opt=-i
 data_dir=/scratch/cluster/ianyen/data
 
@@ -62,12 +60,11 @@ ifneq ($(p), 0)
 endif
 
 LSHTC1:
-	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) ${LSHTC}/train.tfidf.scale $(model)
-	./multiPred ${LSHTC}/train.tfidf.scale $(model)
-	./multiPred ${LSHTC}/val.tfidf.scale  $(model)
-
-multi:
-	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) $(sample_opt) ${LSHTCmulti} $(model)
-	./multiPred ${LSHTCmulti} $(model)
-	#./multiPred ${LSHTC}/val.tfidf.scale  $(model)
+	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/LSHTC/LSHTC1/heldout.tfidf.scale.5k $(data_dir)/LSHTC/LSHTC1/train.tfidf.scale $(model)
+	./multiPred $(data_dir)/LSHTC/LSHTC1/train.tfidf.scale $(model)
+	./multiPred $(data_dir)/LSHTC/LSHTC1/val.tfidf.scale  $(model)
+ifneq ($(p), 0)
+	./multiPred $(data_dir)/LSHTC/LSHTC1/train.tfidf.scale $(model).p
+	./multiPred $(data_dir)/LSHTC/LSHTC1/val.tfidf.scale  $(model).p
+endif
 
