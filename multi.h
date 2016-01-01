@@ -291,6 +291,19 @@ class Model{
 	map<string,int>* label_index_map;
 };
 
+class StaticModel{
+
+	public:
+	StaticModel(){
+		label_name_list = new vector<string>();
+		label_index_map = new map<string,int>();
+	}
+	SparseVec* w;
+	int D;
+	int K;
+	vector<string>* label_name_list;
+	map<string,int>* label_index_map;
+};
 
 void readData(char* fname, Problem* prob)
 {
