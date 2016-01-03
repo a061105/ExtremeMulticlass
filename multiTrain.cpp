@@ -18,7 +18,7 @@ void exit_with_help(){
 	cerr << "	3 -- Stochastic-Active Block Coordinate Descent" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 1)" << endl;
-	cerr << "-r speed_up_rate: using 1/r fraction of samples (default min(max(DK/(log(NK)nnz(X)),1),d/5) )" << endl;
+	cerr << "-r speed_up_rate: using 1/r fraction of samples (default min(max(DK/(log(K)nnz(X)),1),d/5) )" << endl;
 	cerr << "-q split_up_rate: choose 1/q fraction of [K]" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
 	cerr << "-i im_sampling: Importance sampling instead of uniform (default not)" << endl;
@@ -168,7 +168,7 @@ int main(int argc, char** argv){
 	}
 	#endif
 	if( param->speed_up_rate==-1 )
-		param->speed_up_rate = (int)min( max(1.0*D*K/nnz_X/param->C/log((float_type)N*K), 1.0), d/5.0);
+		param->speed_up_rate = (int)min( max(1.0*D*K/nnz_X/param->C/log((float_type)K), 1.0), 10.0);
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << ", r=" << param->speed_up_rate  << endl;
 	
 	
