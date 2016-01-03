@@ -168,7 +168,7 @@ int main(int argc, char** argv){
 	}
 	#endif
 	if( param->speed_up_rate==-1 )
-		param->speed_up_rate = (int)min( max(1.0*D*K/nnz_X/param->C/log((float_type)K), 1.0), 10.0);
+		param->speed_up_rate = (int)min( max(5.0*D*K/nnz_X/param->C/log((float_type)K), 1.0), d/20.0);
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << ", r=" << param->speed_up_rate  << endl;
 	
 	

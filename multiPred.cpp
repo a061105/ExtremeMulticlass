@@ -157,8 +157,8 @@ int main(int argc, char** argv){
 				hit += 1.0/top;
 		}
 	}
-	cout << var_all << " " << count << endl;
-	cout << var_all/count << " " << max_all << endl;
+	//cout << var_all << " " << count << endl;
+	//cout << var_all/count << " " << max_all << endl;
 	
 	double end = omp_get_wtime();
 	//cerr << "k_eff=" << (float_type)nnz_wj_sum/nnz_x << endl;
