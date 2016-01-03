@@ -143,11 +143,13 @@ int main(int argc, char** argv){
 	int D = train->D;
 	int K = train->K;
 	int N = train->data.size();
+	int d = nnz_X/N;
 	cerr << "N=" << N << endl;
-	cerr << "d=" << nnz_X/N << endl;
+	cerr << "d=" << d << endl;
 	cerr << "D=" << D << endl; 
 	cerr << "K=" << K << endl;
-	param->speed_up_rate = (int)max(1.0*D*K/nnz_X/param->C, 1.0);
+	if( param->speed_up_rate==-1 )
+		param->speed_up_rate = (int)min( max(1.0*D*K/nnz_X/param->C, 1.0), d/5.0);
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << ", r=" << param->speed_up_rate  << endl;
 	
 	if( param->solver == 0 ){
