@@ -75,6 +75,10 @@ int main(int argc, char** argv){
 	}
 //	int nnz_wj_sum = 0;
 //	int nnz_x = 0;
+	float_type* var_ki = new float_type[model->K];
+	int count = prob->N*model->K;
+	float_type var_all = 0.0;
+	float_type max_all = 0.0;
 	for(int i=0;i<prob->N;i++){
 		memset(prod, 0.0, sizeof(float_type)*model->K);
 		//for(int k=0;k<model->K;k++)
@@ -91,6 +95,7 @@ int main(int argc, char** argv){
 		}
 		if (top == 1)
 			max_indices[0] = 0;
+		memset(var_ki, 0.0, sizeof(float_type)*model->K);
 		//nnz_x += xi->size();
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			
@@ -103,6 +108,7 @@ int main(int argc, char** argv){
 			for(SparseVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
 				int k = it2->first;
 				prod[k] += it2->second*xij;
+				var_ki[k] += it2->second*xij * it2->second*xij * xi->size() * xi->size();
 				if (top == 1){
 					if (prod[max_indices[0]] < prod[k]){
 						max_indices[0] = k;
@@ -130,7 +136,13 @@ int main(int argc, char** argv){
                                 }
 			}
 		}
-		
+		for (int k = 0; k < model->K; k++){
+			var_ki[k] /= xi->size();
+			var_ki[k] -= prod[k]*prod[k];
+			var_all+=var_ki[k];
+			if (var_ki[k] > max_all)
+				max_all = var_ki[k];
+		}
 		//sort(k_index, k_index + model->K, ScoreComp(prod));
 		float_type max_val = -1e300;
 		int argmax;
@@ -145,6 +157,8 @@ int main(int argc, char** argv){
 				hit += 1.0/top;
 		}
 	}
+	cout << var_all << " " << count << endl;
+	cout << var_all/count << " " << max_all << endl;
 	
 	double end = omp_get_wtime();
 	//cerr << "k_eff=" << (float_type)nnz_wj_sum/nnz_x << endl;

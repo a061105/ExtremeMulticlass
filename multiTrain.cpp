@@ -5,6 +5,7 @@
 //#include "ActBCDsolve.h"
 //#include "OracleActBCD.h"
 #include "PostSolve.h"
+#include <unistd.h>
 
 double overall_time = 0.0;
 
@@ -27,6 +28,12 @@ void exit_with_help(){
 	exit(0);
 }
 
+size_t getTotalSystemMemory()
+{
+    long pages = sysconf(_SC_PHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return (pages * page_size / 1024);
+}
 
 void parse_cmd_line(int argc, char** argv, Param* param){
 
@@ -148,10 +155,24 @@ int main(int argc, char** argv){
 	cerr << "d=" << d << endl;
 	cerr << "D=" << D << endl; 
 	cerr << "K=" << K << endl;
+	#ifndef USING_HASHVEC
+	cerr << "Assume we are using Unix system! " << endl;
+	size_t total_memory = getTotalSystemMemory();
+	size_t max_need = D*K;
+	if (max_need < N*K)
+		max_need = N*K;
+	//cout << total_memory/2 << " " << 2*sizeof(float_type)*max_need/1024 << endl;
+	if (total_memory/2 < (2*sizeof(float_type)*max_need/1024)) {
+		cerr << " not enough total memory! try make with -DUSING_HASHVEC! " << endl;
+		exit(0);
+	}
+	#endif
 	if( param->speed_up_rate==-1 )
 		param->speed_up_rate = (int)min( max(1.0*D*K/nnz_X/param->C, 1.0), d/5.0);
 	cerr << "lambda=" << param->lambda << ", C=" << param->C << ", r=" << param->speed_up_rate  << endl;
 	
+	
+		
 	if( param->solver == 0 ){
 		
 		SBCDsolve* solver = new SBCDsolve(param);

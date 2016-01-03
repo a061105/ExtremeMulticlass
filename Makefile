@@ -8,7 +8,7 @@ predict:
 
 s=3
 r=1
-m=20
+m=6
 q=1
 g=1
 p=20
@@ -32,7 +32,7 @@ ifneq ($(p), 0)
 endif
 
 sector:
-	./multiTrain -l $(l) -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/sector.test $(data_dir)/sector.train $(model)
+	./multiTrain -l $(l) -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/sector.heldout $(data_dir)/sector.train $(model)
 	./multiPred $(data_dir)/sector.train $(model)
 	./multiPred $(data_dir)/sector.test $(model)
 ifneq ($(p), 0)
