@@ -201,4 +201,13 @@ int total_size( HashVec** w, int size ){
 	return sum;
 }
 
+long nnz( vector<SparseVec*>& data ){
+	
+	long sum =0;
+	for(int i=0;i<data.size();i++){
+		sum += data[i]->size();
+	}
+	return sum;
+}
+
 #endif

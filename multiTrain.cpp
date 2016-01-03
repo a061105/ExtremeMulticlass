@@ -17,7 +17,7 @@ void exit_with_help(){
 	cerr << "	3 -- Stochastic-Active Block Coordinate Descent" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 1)" << endl;
-	cerr << "-r speed_up_rate: using 1/r fraction of samples (default 1)" << endl;
+	cerr << "-r speed_up_rate: using 1/r fraction of samples (default max(0.1*DK/nnz(X),1) )" << endl;
 	cerr << "-q split_up_rate: choose 1/q fraction of [K]" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
 	cerr << "-i im_sampling: Importance sampling instead of uniform (default not)" << endl;
@@ -135,15 +135,21 @@ int main(int argc, char** argv){
 		Problem* heldout = new Problem();
 		readData( param->heldoutFname, heldout);
 		cerr << "heldout N=" << heldout->data.size() << endl;
-		cerr << "heldout D=" << heldout->D << endl;
-		cerr << "heldout K=" << heldout->K << endl;
+		//cerr << "heldout D=" << heldout->D << endl;
+		//cerr << "heldout K=" << heldout->K << endl;
 		param->heldoutEval = new HeldoutEval(heldout);
 	}
-	cerr << "N=" << train->data.size() << endl;
-	cerr << "D=" << train->D << endl; 
-	cerr << "K=" << train->K << endl;
-	cerr << "lambda=" << param->lambda << ", C=" << param->C << endl;
-
+	long nnz_X = nnz(train->data);
+	int D = train->D;
+	int K = train->K;
+	int N = train->data.size();
+	cerr << "N=" << N << endl;
+	cerr << "d=" << nnz_X/N << endl;
+	cerr << "D=" << D << endl; 
+	cerr << "K=" << K << endl;
+	param->speed_up_rate = (int)max(1.0*D*K/nnz_X/param->C, 1.0);
+	cerr << "lambda=" << param->lambda << ", C=" << param->C << ", r=" << param->speed_up_rate  << endl;
+	
 	if( param->solver == 0 ){
 		
 		SBCDsolve* solver = new SBCDsolve(param);

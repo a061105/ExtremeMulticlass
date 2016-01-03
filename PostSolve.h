@@ -116,13 +116,14 @@ class PostSolve{
 		//for(int i=0;i<N;i++)
 		//	data_per_class[i] = new vector<SparseVec*>();
 
-		double nnz_alpha_avg = (double)total_size( act_k_index, N ) / N;
+		/*double nnz_alpha_avg = (double)total_size( act_k_index, N ) / N;
 		double nnz_w_avg = 0.0;
         	for(int j=0;j<D;j++)
         	        nnz_w_avg += _w_hash_nnz_index[j]->size();
 		nnz_w_avg /= D;
 		//double nnz_w_avg = (double)total_size( *_w_hash_nnz_index, D ) / D;
 		cerr << "nnz_alpha=" << nnz_alpha_avg << ", nnz_w_avg=" << nnz_w_avg << endl;
+		*/
 		//if( nnz_alpha_avg < nnz_w_avg ){
 			
 			#ifdef USING_HASHVEC
