@@ -210,4 +210,29 @@ long nnz( vector<SparseVec*>& data ){
 	return sum;
 }
 
+inline bool update_max_indices(int* max_indices, float_type* prod, int candidate, int top){
+	//max_indices should have size top+1
+	int ind = 0;
+	while (ind < top && max_indices[ind] != -1 && max_indices[ind] != candidate){
+		ind++;
+	}
+	if (ind < top && max_indices[ind] == candidate)
+		return false;
+	max_indices[ind] = candidate;
+	int k = 0;
+	//try move to right
+	while (ind < top-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
+                k = max_indices[ind];
+                max_indices[ind] = max_indices[ind+1];
+                max_indices[++ind] = k;
+        }
+	//try move to left
+	while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
+		k = max_indices[ind];
+		max_indices[ind] = max_indices[ind-1];
+		max_indices[--ind] = k;
+	}
+	return true;
+}
+
 #endif

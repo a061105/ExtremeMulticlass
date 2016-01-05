@@ -711,10 +711,6 @@ class SplitOracleActBCD{
 			}
                         xij *= cdf_sumi*((current_index->second > 0.0)?1:(-1));
 			int j = current_index->first;
-			//vector<int>* wj = w_nnz_index[j][S];
-			//pair<int, float_type>* wjS = w_hash_nnz_index[j][S];
-			//int size_wjS = size_w[j][S];
-			//cout << "search:1.4 " << j << " " << S << endl;
 			vector<int>* wjS = w_hash_nnz_index[j][S];
 			if (wjS->size() == 0) continue;
 			int k = 0, ind = 0;
@@ -723,16 +719,7 @@ class SplitOracleActBCD{
 			#ifdef USING_HASHVEC
 			int size_vj0 = size_v[j] - 1;
 			#endif
-			//vector<int>::iterator it2 = wj->begin();
-			//vector<int>::iterator tail = wj->end();
 			for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
-			//pair<int, float_type>* p;
-			//cout << util_w[j][S] << "/" << size_wjS << endl;
-			//for (int it2 = 0; it2 < size_wjS; it2++){
-				//p = &(wjS[it2]);
-				//wjk = wjS[it2].second;
-				//if (wjk == 0.0) continue;
-				//k = wjS[it2].first;
 				k = *(it2);
 				#ifdef USING_HASHVEC
 				int index_v = 0;
@@ -756,31 +743,11 @@ class SplitOracleActBCD{
 				#endif
 				#ifdef MULTISELECT
 				if (prod[k] > th){
-					ind = 0;
-					while (ind < max_select && max_indices[ind] != -1 && max_indices[ind] != k){
-						ind++;
-					}
-					max_indices[ind] = k;
-					//try move to left
-					while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
-						//using k as temporary variables
-						k = max_indices[ind];
-						max_indices[ind] = max_indices[ind-1];
-						max_indices[ind-1] = k;
-					}
-					//try move to right
-					while (ind < max_select-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
-                                                //using k as temporary variables
-                                                k = max_indices[ind];
-                                                max_indices[ind] = max_indices[ind+1];
-                                                max_indices[ind+1] = k;
-                                        }
+					update_max_indices(max_indices, prod, k, max_select);
 				}
 				#endif
-				//it2++;
 			}
                         for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
-				assert(inside[*it2]);
 				inside[*it2] = false;
 			}
                 }
@@ -790,17 +757,9 @@ class SplitOracleActBCD{
 			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
 				continue;
 			for (int r = 0; r < K; r++){
-				int k = rand() % K;
+				int k = hashindices[r];
 				if (prod[k] == 0){
-					bool flag = false;
-					for (int ind = 0; ind < max_select; ind++){
-						if (max_indices[ind] == k){
-							flag = true;
-							break;
-						}
-					}
-					if (!flag){
-						max_indices[j] = k;
+					if (update_max_indices(max_indices, prod, k, max_select)){
 						break;
 					}
 				}
@@ -811,11 +770,10 @@ class SplitOracleActBCD{
 				act_k_index.push_back(max_indices[ind]);
 			}
 		}
-		#endif
-		#ifndef MULTISELECT
+		#else
 		if (prod[max_index] < 0){
 			for (int r = 0; r < K; r++){
-				int k = rand() % K;
+				int k = hashindices[r];
 				if (prod[k] == 0){
 					max_index = k;
 					break;
@@ -823,12 +781,7 @@ class SplitOracleActBCD{
 			}
 		}
 		if (prod[max_index] > th){
-			for (int k = 0; k < act_k_index.size(); k++){
-				//cerr << prod[max_index] << " " << th<< endl;
-				assert(act_k_index[k] != max_index);
-			}
 			act_k_index.push_back(max_index);
-		} else{
 		}
  
 		#endif
@@ -849,18 +802,12 @@ class SplitOracleActBCD{
 		}
 		int n = nnz/speed_up_rate;
 		float_type th = -n/(1.0*nnz);
-	//	vector<float_type>* rand_nums = new vector<float_type>();
-	//	for (int tt = 0; tt < n; tt++){
-	//		rand_nums->push_back(((float_type)rand()/(RAND_MAX)));
-	//	}
-	//	sort(rand_nums->begin(), rand_nums->end()); 
 		#ifdef MULTISELECT
 		int* max_indices = new int[max_select+1];
 		for(int ind = 0; ind <= max_select; ind++){
 			max_indices[ind] = -1;
 		}
-		#endif
-		#ifndef MULTISELECT
+		#else
 		int max_index = 0;
 		#endif
 		random_shuffle(xi->begin(), xi->end());
@@ -869,7 +816,6 @@ class SplitOracleActBCD{
 			int j = current_index->first;
 			vector<int>* wjS = w_hash_nnz_index[j][S];
 			if (wjS->size() == 0) continue;
-			//int size_wjS = size_w[j][S];
 			int k = 0, ind = 0;
 			#ifdef USING_HASHVEC
 			int size_vj0 = size_v[j] - 1;
@@ -892,38 +838,14 @@ class SplitOracleActBCD{
                                         continue;
                                 }
 				inside[k] = true;
-		//	for (int it2 = 0; it2 < size_wjS; it2++){
-		//		k = wjS[it2].first;
-		//		if (k == -1)
-		//			continue;
-				//cerr << "prod: " << k << " " << wjk << endl;
                                 prod[k] += wjk * xij;
 				#ifndef MULTISELECT
 				if (prod[max_index] < prod[k]){
 					max_index = k;
 				}
-				#endif
-				#ifdef MULTISELECT
+				#else
 				if (prod[k] > th){
-					ind = 0;
-					while (ind < max_select && max_indices[ind] != -1 && max_indices[ind] != k){
-						ind++;
-					}
-					max_indices[ind] = k;
-					//try move to left
-					while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
-						//using k as temporary variables
-						k = max_indices[ind];
-						max_indices[ind] = max_indices[ind-1];
-						max_indices[ind-1] = k;
-					}
-					//try move to right
-					while (ind < max_select-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
-                                                //using k as temporary variables
-                                                k = max_indices[ind];
-                                                max_indices[ind] = max_indices[ind+1];
-                                                max_indices[ind+1] = k;
-                                        }
+					update_max_indices(max_indices, prod, k, max_select);	
 				}
 				#endif
 			}
@@ -932,23 +854,14 @@ class SplitOracleActBCD{
 				inside[*it2] = false;
 			}
                 }
-		//rand_nums->clear();
 		#ifdef MULTISELECT
 		for (int j = 0; j < max_select; j++){
 			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
 				continue;
 			for (int r = 0; r < K; r++){
-				int k = rand() % K;
+				int k = hashindices[r];
 				if (prod[k] == 0){
-					bool flag = false;
-					for (int ind = 0; ind < max_select; ind++){
-						if (max_indices[ind] == k){
-							flag = true;
-							break;
-						}
-					}
-					if (!flag){
-						max_indices[j] = k;
+					if (update_max_indices(max_indices, prod, k, max_select)){
 						break;
 					}
 				}
@@ -959,12 +872,10 @@ class SplitOracleActBCD{
 				act_k_index.push_back(max_indices[ind]);
 			}
 		}
-		#endif
-		#ifndef MULTISELECT
+		#else
 		if (prod[max_index] < 0){
 			for (int r = 0; r < K; r++){
-				int k = rand() % K;
-				//cout << "getting rand()= " << k << endl;
+				int k = hashindices[r]; 
 				if (prod[k] == 0){
 					max_index = k;
 					break;
@@ -972,73 +883,9 @@ class SplitOracleActBCD{
 			}
 		}
 		if (prod[max_index] > th){
-			for (int k = 0; k < act_k_index.size(); k++){
-				//cerr << prod[max_index] << " " << th<< endl;
-				assert(act_k_index[k] != max_index);
-			}
-			//cerr << "adding " << i << " " << max_index << endl;
 			act_k_index.push_back(max_index);
-//			cerr << "yes" << endl;
-		} else{
-//			cerr << "no" << endl;
-		}
- 
+		} 
 		#endif
-		/*int S = rand()%split_up_rate;
-		Labels* yi = &(labels->at(i));
-                memset(prod, 0, sizeof(float_type)*K);
-                SparseVec* xi = data->at(i);
-                int nnz = xi->size();
-                for(int j = 0; j < act_k_index.size(); j++){
-                        prod[act_k_index[j]] = -INFI;
-                }
-		for(Labels::iterator it = yi->begin(); it < yi->end(); it++){
-                	prod[*it] = -INFI;
-		}
-                int n = nnz/speed_up_rate;
-                vector<float_type>* rand_nums = new vector<float_type>();
-                for (int tt = 0; tt < n; tt++){
-                        rand_nums->push_back(((float_type)rand()/(RAND_MAX)));
-                }
-                sort(rand_nums->begin(), rand_nums->end());
-                int max_index = 0;
-		random_shuffle(xi->begin(), xi->end());
-                SparseVec::iterator current_index = xi->begin();
-                for (int t = 0; t < n; t++){
-                        float_type xij = current_index->second;
-                        int j = current_index->first;
-                        current_index++;
-                        vector<int>* wj = w_nnz_index[j][S];
-                        int k = 0;
-                        float_type wjk = 0.0;
-                        for(vector<int>::iterator it2 = wj->begin(); it2<wj->end(); it2++ ){
-                                k = *it2;
-                                wjk = prox_l1(v[j][k], lambda);
-                                if (wjk == 0.0){
-                                        *it2=*(wj->end()-1);
-                                        wj->erase(wj->end()-1);
-                                        it2--;
-                                        continue;
-                                }
-                                prod[k] += wjk * xij;
-                                if (prod[k] > prod[max_index]){
-                                        max_index = k;
-                                }
-			}
-		}
-		float_type th = -n/(1.0*nnz);
-                if (prod[max_index] < 0){
-                        for(int k = 0; k < K; k++){
-                                int r = rand()%K;
-                                if (prod[r] == 0){
-                                        max_index = r;
-                                        break;
-                                }
-                        }
-                }
-		if (prod[max_index] > th){
-                        act_k_index.push_back(max_index);
-                }*/
 	}
 	
 	private:
@@ -1055,10 +902,7 @@ class SplitOracleActBCD{
         HashClass* hashfunc;
 	vector<float_type>* cdf_sum;
 	HashVec** w_temp;
-	//pair<int, float_type>*** w_hash_nnz_index;
 	vector<int>*** w_hash_nnz_index;
-	//int** size_w;
-	//int** util_w;
 	int max_iter;
 	vector<int>* k_index;
 		
@@ -1072,13 +916,12 @@ class SplitOracleActBCD{
 	//heldout options
 	int early_terminate = 3;
 			
-	//int* loc;
 	public:
 	int iter;
 	int* hashindices;
 	#ifdef USING_HASHVEC
-	pair<int, float_type>** w;// = new pair<int, float_type>*[D];
-	vector<int>** non_split_index;// = new vector<int>*[D];
+	pair<int, float_type>** w;
+	vector<int>** non_split_index;
 	int* size_w;
 	pair<int, pair<float_type, float_type> >** v;
         pair<int, float_type>** alpha;
@@ -1087,8 +930,8 @@ class SplitOracleActBCD{
         int* util_v;
         int* util_alpha;
 	#else
-	float_type** w;// = new float_type*[D];
-	vector<int>** non_split_index;// = new vector<int>*[D];
+	float_type** w;
+	vector<int>** non_split_index;
 	float_type** alpha;
 	pair<float_type, float_type>** v;
 	#endif

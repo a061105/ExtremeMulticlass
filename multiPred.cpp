@@ -69,34 +69,23 @@ int main(int argc, char** argv){
 	float_type hit=0.0;
 	float_type margin_hit = 0.0;
 	float_type* prod = new float_type[model->K];
-	int* k_index = new int[model->K];
-	for(int k = 0; k < model->K; k++){
-		k_index[k] = k;
+	int* max_indices = new int[model->K+1];
+	for(int k = 0; k < model->K+1; k++){
+		max_indices[k] = -1;
 	}
-//	int nnz_wj_sum = 0;
-//	int nnz_x = 0;
-	float_type* var_ki = new float_type[model->K];
-	int count = prob->N*model->K;
-	float_type var_all = 0.0;
-	float_type max_all = 0.0;
 	for(int i=0;i<prob->N;i++){
 		memset(prod, 0.0, sizeof(float_type)*model->K);
-		//for(int k=0;k<model->K;k++)
-		//	prod[k] = 0.0;
 		
 		SparseVec* xi = data->at(i);
 		Labels* yi = &(labels->at(i));
 		int top = T;
 		if (top == -1)
 			top = yi->size();
-		int* max_indices = new int[top+1];
-		for(int ind = 0; ind <= top; ind++){
+		for(int ind = 0; ind < top+1; ind++){
 			max_indices[ind] = -1;
 		}
 		if (top == 1)
 			max_indices[0] = 0;
-		memset(var_ki, 0.0, sizeof(float_type)*model->K);
-		//nnz_x += xi->size();
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			
 			int j= it->first;
@@ -104,48 +93,40 @@ int main(int argc, char** argv){
 			if( j >= model->D )
 				continue;
 			SparseVec* wj = &(model->w[j]);
-			//nnz_wj_sum += wj->size();
 			for(SparseVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
 				int k = it2->first;
 				prod[k] += it2->second*xij;
-				var_ki[k] += it2->second*xij * it2->second*xij * xi->size() * xi->size();
 				if (top == 1){
 					if (prod[max_indices[0]] < prod[k]){
 						max_indices[0] = k;
 					}
 					continue;
 				}
-				int ind = 0;
-				while (ind < top && max_indices[ind] != -1 && max_indices[ind] != k){
-					ind++;
-				}
-				max_indices[ind] = k;
-				//try move to left
-				while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
-					//using k as temporary variables
-					k = max_indices[ind];
-					max_indices[ind] = max_indices[ind-1];
-					max_indices[ind-1] = k;
-				}
-				//try move to right
-				while (ind < top-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
-                                        //using k as temporary variables
-                                        k = max_indices[ind];
-                                        max_indices[ind] = max_indices[ind+1];
-                                	max_indices[ind+1] = k;
-                                }
+				update_max_indices(max_indices, prod, k, top);
 			}
-		}
-		for (int k = 0; k < model->K; k++){
-			var_ki[k] /= xi->size();
-			var_ki[k] -= prod[k]*prod[k];
-			var_all+=var_ki[k];
-			if (var_ki[k] > max_all)
-				max_all = var_ki[k];
 		}
 		//sort(k_index, k_index + model->K, ScoreComp(prod));
 		float_type max_val = -1e300;
 		int argmax;
+		if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
+			if (top == 1){
+				int candidate = 0;
+				while (candidate < model->K && prod[max_indices[0]] > prod[candidate]){
+					candidate++;
+				}
+				if (candidate < model->K){
+					max_indices[0] = candidate;
+				}
+			} else {
+				for (int t = 0; t < top; t++){
+					for (int k = 0; k < model->K; k++){
+						if (update_max_indices(max_indices, prod, k, top)){
+							break;
+						}
+					}
+				}
+			}
+		}
 		for(int k=0;k<top;k++){
 			bool flag = false;
 			for (int j = 0; j < yi->size(); j++){
@@ -157,11 +138,8 @@ int main(int argc, char** argv){
 				hit += 1.0/top;
 		}
 	}
-	//cout << var_all << " " << count << endl;
-	//cout << var_all/count << " " << max_all << endl;
 	
 	double end = omp_get_wtime();
-	//cerr << "k_eff=" << (float_type)nnz_wj_sum/nnz_x << endl;
 	cerr << "Acc=" << ((float_type)hit/prob->N) << endl;
 	cerr << "pred time=" << (end-start) << " s" << endl;
 }

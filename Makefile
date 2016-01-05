@@ -1,6 +1,6 @@
 all: train predict
 	
-FLAG= -DUSING_HASHVEC#-DMULTISELECT
+FLAG= -DUSING_HASHVEC -DMULTISELECT
 train:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
 predict:
@@ -8,7 +8,7 @@ predict:
 
 s=3
 r=1
-m=6
+m=20
 q=1
 g=1
 p=20
@@ -66,5 +66,17 @@ LSHTC1:
 ifneq ($(p), 0)
 	./multiPred $(data_dir)/LSHTC/LSHTC1/train.tfidf.scale $(model).p
 	./multiPred $(data_dir)/LSHTC/LSHTC1/val.tfidf.scale  $(model).p
+endif
+
+LSHTC2:
+	$(eval train_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/train.tfidf.scale)
+	$(eval heldout_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/heldout.tfidf.scale.5k)
+	$(eval test_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/test.tfidf.scale.5k)
+	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiPred $(train_file) $(model)
+	./multiPred $(test_file)  $(model)
+ifneq ($(p), 0)
+	./multiPred $(train_file) $(model).p
+	./multiPred $(test_file) $(model).p
 endif
 

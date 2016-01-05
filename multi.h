@@ -25,13 +25,11 @@ class HeldoutEval{
 	public:
 	HeldoutEval(Problem* _heldout){
 		heldout = _heldout;
-//		data = heldout->data;
-//		labels = heldout->labels;
 		N = heldout->data.size();
 		D = heldout->D;
 		K = heldout->K;
 		prod = new float_type[K];
-		k_index = new int[K];
+		max_indices = new int[K];
 		inside = new bool[K];
 		for (int k = 0; k < K; k++)
 			inside[k] = false;
@@ -43,18 +41,16 @@ class HeldoutEval{
 	double calcAcc(pair<int, float_type>** v, int* size_v, int* hashindices, float_type lambda){
 		hit=0.0;
 		margin_hit = 0.0;
-		for(int k = 0; k < K; k++){
-			k_index[k] = k;
-		}
 		for(int i=0;i<heldout->N;i++){
-			for(int k=0;k<K;k++)
-				prod[k] = 0.0;
+			memset(prod, 0.0, sizeof(float_type)*K);
 
 			SparseVec* xi = heldout->data.at(i);
 			Labels* yi = &(heldout->labels.at(i));
 			int top = T;
 			if (top == -1)
 				top = yi->size();
+			for (int t = 0; t <= top; t++)
+				max_indices[t] = -1;
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
@@ -68,15 +64,23 @@ class HeldoutEval{
 					find_index(vj, index_v, k, size_vj0, hashindices);
 					float_type wjk = prox_l1(vj[index_v].second, lambda);
 					prod[k] += wjk * xij;
+					update_max_indices(max_indices, prod, k, top); 
 				}
 			}
-			sort(k_index, k_index + K, ScoreComp(prod));
-			float_type max_val = -1e300;
-			int argmax;
+			if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
+				for (int t = 0; t < top; t++){
+					for (int k = 0; k < K; k++){
+						if (prod[k] == 0.0){
+							if (update_max_indices(max_indices, prod, k, top))
+								break;
+						}
+					}
+				}
+			}
 			for(int k=0;k<top;k++){
 				bool flag = false;
 				for (int j = 0; j < yi->size(); j++){
-					if (heldout->label_name_list[yi->at(j)] == heldout->label_name_list[k_index[k]]){
+					if (yi->at(j) == max_indices[k]){
 						flag = true;
 					}
 				}
@@ -90,12 +94,8 @@ class HeldoutEval{
 	double calcAcc(pair<float_type, float_type>** v){
 		hit=0.0;
 		margin_hit = 0.0;
-		for(int k = 0; k < K; k++){
-			k_index[k] = k;
-		}
 		for(int i=0;i<N;i++){
-			for(int k=0;k<K;k++)
-				prod[k] = 0.0;
+			memset(prod, 0.0, sizeof(float_type)*K);
 				
 			SparseVec* xi = heldout->data.at(i);
 			Labels* yi = &(heldout->labels.at(i));
@@ -103,6 +103,8 @@ class HeldoutEval{
 			int top = T;
 			if (top == -1)
 				top = yi->size();
+			for (int t = 0; t < top; t++)
+				max_indices[t] = -1;
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
@@ -112,15 +114,23 @@ class HeldoutEval{
 				pair<float_type, float_type>* vj = v[j];
 				for (int k = 0; k < K; k++){	
 					prod[k] += vj[k].second * xij;
+					update_max_indices(max_indices, prod, k, top);
 				}
 			}
-			sort(k_index, k_index + K, ScoreComp(prod));
-			float_type max_val = -1e300;
-			int argmax;
+			if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
+				for (int t = 0; t < top; t++){
+					for (int k = 0; k < K; k++){
+						if (prod[k] == 0.0){
+							if (update_max_indices(max_indices, prod, k, top))
+								break;
+						}
+					}
+				}
+			}
 			for(int k=0;k<top;k++){
 				bool flag = false;
 				for (int j = 0; j < yi->size(); j++){
-					if (heldout->label_name_list[yi->at(j)] == heldout->label_name_list[k_index[k]]){
+					if (yi->at(j) == max_indices[k]){
 						flag = true;
 					}
 				}
@@ -137,21 +147,21 @@ class HeldoutEval{
 	#else
 	double calcAcc(pair<float_type, float_type>** v, vector<int>*** nnz_index, int split_up_rate){
 	#endif
+		vector<SparseVec*>* data = &(heldout->data);
+		vector<Labels>* labels = &(heldout->labels);
 		hit=0.0;
 		margin_hit = 0.0;
-		for(int k = 0; k < K; k++){
-			k_index[k] = k;
-		}
 		for(int i=0;i<heldout->N;i++){
-			for(int k=0;k<K;k++)
-				prod[k] = 0.0;
-				
-			SparseVec* xi = heldout->data.at(i);
-			Labels* yi = &(heldout->labels.at(i));
+			memset(prod, 0.0, sizeof(float_type)*K);
+			
+			SparseVec* xi = data->at(i);
+			Labels* yi = &(labels->at(i));
 			
 			int top = T;
 			if (top == -1)
 				top = yi->size();
+			for (int tt = 0; tt < top; tt++)
+				max_indices[tt] = -1;
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
@@ -182,20 +192,29 @@ class HeldoutEval{
 							continue; 
 						}
 						inside[k] = true;
+							
 						prod[k] += wjk * xij;
+						update_max_indices(max_indices, prod, k, top);
 					}
 					for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
 						inside[*it2] = false;
 					}
 				}
 			}
-			sort(k_index, k_index + K, ScoreComp(prod));
-			float_type max_val = -1e300;
-			int argmax;
+			if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
+				for (int t = 0; t < top; t++){
+					for (int k = 0; k < K; k++){
+						if (prod[k] == 0.0){
+							if (update_max_indices(max_indices, prod, k, top))
+								break;
+						}
+					}
+				}
+			}
 			for(int k=0;k<top;k++){
 				bool flag = false;
 				for (int j = 0; j < yi->size(); j++){
-					if (heldout->label_name_list[yi->at(j)] == heldout->label_name_list[k_index[k]]){
+					if (yi->at(j) == max_indices[k]){
 						flag = true;
 					}
 				}
@@ -206,12 +225,10 @@ class HeldoutEval{
 		return hit/N;
 	}
 	private:
-//	vector<SparseVec*>* data;
-//	vector<Labels>* labels;
 	int N,D,K;
 	Problem* heldout;
 	float_type* prod;
-	int* k_index;
+	int* max_indices;
 	float_type hit, margin_hit;
 	bool* inside;
 	int T;
