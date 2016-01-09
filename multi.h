@@ -346,7 +346,11 @@ void readData(char* fname, Problem* prob)
 		int st = 0;
 		while (st < tokens.size() && tokens[st].find(":") == string::npos){
 			// truncate , out
-			while (*(tokens[st].end()-1) == ','){
+			if (tokens[st].size() == 0){
+				st++;
+				continue;
+			}
+			if (*(tokens[st].end()-1) == ','){
 				tokens[st].erase(tokens[st].end()-1);
 			}
 			if( (it=label_index_map->find(tokens[st])) == label_index_map->end() ){
