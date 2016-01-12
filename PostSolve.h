@@ -5,9 +5,9 @@ class PostSolve{
 	
 	public:
 	#ifdef USING_HASHVEC
-	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, pair<int, float_type>** _w, int* _size_w, pair<int, float_type>** _alpha, int*& _size_alpha, pair<int, pair<float_type, float_type>>** _v, int*& _size_v, int*& _hashindices){
+	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, pair<int, float_type>** _w, int* _size_w, vector<pair<int, float_type>>* _act_k_index, pair<int, pair<float_type, float_type>>** _v, int*& _size_v, int*& _hashindices){
 	#else
-	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, float_type** _w, float_type** _alpha, pair<float_type, float_type>** _v){
+	PostSolve(Param* param, vector<int>** _w_hash_nnz_index, float_type** _w, vector<pair<int, float_type>>* _act_k_index, pair<float_type, float_type>** _v){
 	#endif
 		
 		double construct_time = -omp_get_wtime();
@@ -22,7 +22,7 @@ class PostSolve{
 		K = prob->K;
 		max_iter = param->post_solve_iter;
 		int maxDK = D;
-		if (D < K) 
+		if (maxDK < K) 
 			maxDK = K;
 		hashfunc = new HashClass(maxDK);
 		hashindices = hashfunc->hashindices;
@@ -35,19 +35,20 @@ class PostSolve{
 		size_alpha = new int[N];
 		for(int i=0;i<N;i++){
 			util_alpha[i] = 0;
-			size_alpha[i] = _size_alpha[i];
+			size_alpha[i] = 2;
+			while (size_alpha[i] * UPPER_UTIL_RATE < _act_k_index[i].size()){
+				size_alpha[i] *= 2;
+			}
 			alpha[i] = new pair<int, float_type>[size_alpha[i]];
 			for(int it=0; it < size_alpha[i]; it++){
 				alpha[i][it] = make_pair(-1, 0.0);
 			}
-			for(int it=0; it < size_alpha[i]; it++){
-				if ( _alpha[i][it].second != 0.0 ){
-					int index_alpha = -1;
-					find_index(alpha[i], index_alpha, _alpha[i][it].first, _size_alpha[i] - 1, hashindices);	
-					alpha[i][index_alpha] = _alpha[i][it];
-					act_k_index[i].push_back(_alpha[i][it].first);
-					util_alpha[i]++;
-				}
+			for(vector<pair<int, float_type>>::iterator it = _act_k_index[i].begin(); it != _act_k_index[i].end(); it++){
+				int index_alpha = -1;
+				find_index(alpha[i], index_alpha, it->first, size_alpha[i]-1, hashindices);	
+				alpha[i][index_alpha] = make_pair(it->first, it->second);
+				act_k_index[i].push_back(it->first);
+				util_alpha[i]++;
 			}
 		}
 		v = new pair<int, float_type>*[K];
@@ -91,8 +92,9 @@ class PostSolve{
 		alpha = new float_type*[N];
 		for(int i=0;i<N;i++){
 			alpha[i] = new float_type[K];
-			for(int k=0;k<K;k++){
-				alpha[i][k] = _alpha[i][k];
+			for(vector<pair<int, float_type>>::iterator it = _act_k_index[i].begin(); it != _act_k_index[i].end(); it++){
+				int k = it->first;
+				alpha[i][k] = it->second;
 				if( alpha[i][k] != 0.0 ){
 					act_k_index[i].push_back(k);
 				}

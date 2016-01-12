@@ -3,47 +3,29 @@
 
 	inline void find_index(pair<int, pair<float_type, float_type> >*& l, int& st, const int& index, const int& size0, int*& hashindices){
 	        st = hashindices[index] & size0;
-	        //cout << "start finding " << st << " " << size0 << endl;
 	        if (l[st].first != index){
 	                while (l[st].first != index && l[st].first != -1){
 	                        st++;
 	                        st &= size0;
 	                }
 	        }
-	        //cout << "end finding " << endl;
 	}
 	inline void find_index(pair<int, float_type>*& l, int& st, const int& index, const int& size0, int*& hashindices){
 	        st = hashindices[index] & size0;
-	        //cout << "start finding " << st << " " << size0 << endl;
 	        if (l[st].first != index){
 	                while (l[st].first != index && l[st].first != -1){
 	                        st++;
 	                        st &= size0;
 	                }
 	        }
-	        //cout << "end finding " << endl;
 	}
 	
 
 
-	/*inline void find_index(pair<int, float_type>* l, int& st, const int& index, const int& size0){
-	        //st = hashindices[index] & size0;
-	        //cout << "start finding " << st << " " << size0 << endl;
-	        if (l[st].first != index){
-	                while (l[st].first != index && l[st].first != -1){
-	                        st++;
-	                        st &= size0;
-	                }
-	        }
-	        //cout << "end finding " << endl;
-	}*/
 	inline void resize(pair<int, pair<float_type, float_type> >*& l, pair<int, pair<float_type, float_type> >*& L, int& size, int& new_size, int& new_size0, const int& util, int*& hashindices){
 		while (util > UPPER_UTIL_RATE * new_size){
 	                new_size *= 2;
 	        }
-	        //while (new_size > INIT_SIZE && util < LOWER_UTIL_RATE * new_size){
-	        //        new_size /= 2;
-	        //}
 	        if (new_size == size)
 	                return;
 	        pair<int, pair<float_type, float_type>>* new_l = new pair<int, pair<float_type, float_type> >[new_size];
@@ -69,9 +51,6 @@
 		while (util > UPPER_UTIL_RATE * new_size){
 	                new_size *= 2;
 	        }
-	        //while (new_size > INIT_SIZE && util < LOWER_UTIL_RATE * new_size){
-	        //        new_size /= 2;
-	        //}
 	        if (new_size == size)
 	                return;
 	        pair<int, float_type>* new_l = new pair<int, float_type>[new_size];
@@ -100,8 +79,6 @@
 			pair<int, float_type> p = l[tt];
 			if (p.first != -1 && p.second != 0.0)
 				util++;
-			//else 
-			//	l[tt] = make_pair(-1, 0.0);
 		}
 		int new_size = size;
 		while (util > UPPER_UTIL_RATE * new_size){

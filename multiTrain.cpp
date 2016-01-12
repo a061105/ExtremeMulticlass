@@ -197,9 +197,9 @@ int main(int argc, char** argv){
 			
 			param->post_solve_iter = min(solver->iter, param->post_solve_iter);
 			#ifdef USING_HASHVEC
-			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, model->size_w, solver->alpha, solver->size_alpha, solver->v, solver->size_v, solver->hashindices );
+			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, model->size_w, solver->act_k_index, solver->v, solver->size_v, solver->hashindices );
 			#else
-			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, solver->alpha, solver->v );
+			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, solver->act_k_index, solver->v );
 			#endif
 			model = postSolve->solve();
 			

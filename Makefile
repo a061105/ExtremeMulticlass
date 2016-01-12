@@ -1,6 +1,6 @@
 all: train predict
 	
-FLAG= -DUSING_HASHVEC -DMULTISELECT
+FLAG= -DUSING_HASHVEC #-DMULTISELECT
 train:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
 predict:
@@ -80,3 +80,14 @@ ifneq ($(p), 0)
 	./multiPred $(test_file) $(model).p
 endif
 
+imgNet:	
+	$(eval train_file := $(data_dir)/imagenet/imgNet.train)
+	$(eval heldout_file := $(data_dir)/imagenet/imgNet.heldout)
+	$(eval test_file := $(data_dir)/imagenet/imgNet.test)
+	./multiTrain -s $(s) -l 0.1 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiPred $(train_file) $(model)
+	./multiPred $(test_file)  $(model)
+ifneq ($(p), 0)
+	./multiPred $(train_file) $(model).p
+	./multiPred $(test_file) $(model).p
+endif
