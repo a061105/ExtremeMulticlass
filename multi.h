@@ -350,14 +350,15 @@ void readData(char* fname, Problem* prob)
 				st++;
 				continue;
 			}
-			if (*(tokens[st].end()-1) == ','){
-				tokens[st].erase(tokens[st].end()-1);
-			}
-			if( (it=label_index_map->find(tokens[st])) == label_index_map->end() ){
-				lab_indices.push_back(label_index_map->size());
-				label_index_map->insert(make_pair(tokens[st],lab_indices.at(st)));
-			}else{
-				lab_indices.push_back(it->second);
+			vector<string> subtokens = split(tokens[st], ",");
+			for (vector<string>::iterator it_str = subtokens.begin(); it_str != subtokens.end(); it_str++){
+				string str = *it_str;
+				if( (it=label_index_map->find(str)) == label_index_map->end() ){
+					lab_indices.push_back(label_index_map->size());
+					label_index_map->insert(make_pair(str, lab_indices.at(st)));
+				}else{
+					lab_indices.push_back(it->second);
+				}
 			}
 			st++;
 		}
