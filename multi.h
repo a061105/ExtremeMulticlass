@@ -337,7 +337,16 @@ void readData(char* fname, Problem* prob)
 		
 		if( line_str.length() < 2 && fin.eof() )
 			break;
-
+		size_t found = line_str.find("  ");
+		while (found != string::npos){
+			line_str = line_str.replace(found, 2, " ");
+			found = line_str.find("  ");
+		}
+		found = line_str.find(", ");
+		while (found != string::npos){
+			line_str = line_str.replace(found, 2, ",");
+			found = line_str.find(", ");
+		}
 		vector<string> tokens = split(line_str, " ");
 		//get label index
 		Labels lab_indices;
@@ -353,9 +362,11 @@ void readData(char* fname, Problem* prob)
 			vector<string> subtokens = split(tokens[st], ",");
 			for (vector<string>::iterator it_str = subtokens.begin(); it_str != subtokens.end(); it_str++){
 				string str = *it_str;
+				if (str == "" || str == " ")
+					continue;
 				if( (it=label_index_map->find(str)) == label_index_map->end() ){
 					lab_indices.push_back(label_index_map->size());
-					label_index_map->insert(make_pair(str, lab_indices.at(st)));
+					label_index_map->insert(make_pair(str, lab_indices.back()));
 				}else{
 					lab_indices.push_back(it->second);
 				}

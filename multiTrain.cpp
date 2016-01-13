@@ -92,8 +92,9 @@ void writeModel( char* fname, Model* model){
 	fout << "nr_class " << model->K << endl;
 	fout << "label ";
 	for(vector<string>::iterator it=model->label_name_list->begin();
-			it!=model->label_name_list->end(); it++)
+			it!=model->label_name_list->end(); it++){
 		fout << *it << " ";
+	}
 	fout << endl;
 	fout << "nr_feature " << model->D << endl;
 	int D = model->D;
