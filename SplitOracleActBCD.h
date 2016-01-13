@@ -580,11 +580,11 @@ class SplitOracleActBCD{
 					max_index = k;
 				}
 				#endif
-				#ifdef MULTISELECT
+				/*#ifdef MULTISELECT
 				if (prod[k] > th){
 					update_max_indices(max_indices, prod, k, max_select);
 				}
-				#endif
+				#endif*/
 			}
                         for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
 				inside[*it2] = false;
@@ -592,7 +592,12 @@ class SplitOracleActBCD{
                 }
 		rand_nums->clear();
 		#ifdef MULTISELECT
-		for (int j = 0; j < max_select; j++){
+		for (int k = 0; k < K; k++){
+			if (prod[k] < th)
+				continue;
+			update_max_indices(max_indices, prod, k, max_select);
+		}
+		/*for (int j = 0; j < max_select; j++){
 			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
 				continue;
 			for (int r = 0; r < K; r++){
@@ -603,7 +608,7 @@ class SplitOracleActBCD{
 					}
 				}
 			}
-		}
+		}*/
 		for(int ind = 0; ind < max_select; ind++){
 			if (max_indices[ind] != -1 && prod[max_indices[ind]] > th){
 				act_k_index.push_back(make_pair(max_indices[ind], 0.0));
