@@ -465,7 +465,7 @@ class PostSolve{
 				#else
 				float_type* vk = v[k];
 				for(SparseVec::iterator it2=x_i->begin(); it2!=x_i->end(); it2++)
-					c[j] -= vk[it->first]*it->second;
+					c[j] -= vk[it2->first]*it2->second;
 				#endif
 				j++;
                         }
