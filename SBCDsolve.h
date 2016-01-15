@@ -735,7 +735,7 @@ class SBCDsolve{
 	float_type* Q_diag;
 	
 	//heldout options
-	int early_terminate = 3;
+	int early_terminate = 30;
 	
 	#ifdef USING_HASHVEC
 	pair<int, float_type>** w;

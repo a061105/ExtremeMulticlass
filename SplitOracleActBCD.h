@@ -28,7 +28,9 @@ class SplitOracleActBCD{
 		max_select = param->max_select;
 		prod = new float_type[K];
 		inside = new bool[K];
+		inside_index = new bool[K];
 		memset(inside, false, sizeof(bool)*K);	
+		memset(inside_index, false, sizeof(bool)*K);	
 		data = &(train->data);
 		//compute l_1 norm of every feature x_i
 		cdf_sum = new vector<float_type>();
@@ -42,7 +44,6 @@ class SplitOracleActBCD{
 		}
 		labels = &(train->labels);
 		max_iter = param->max_iter;
-		
 	}
 	
 	~SplitOracleActBCD(){
@@ -50,6 +51,7 @@ class SplitOracleActBCD{
 			delete[] v[j];
 		delete[] v;
 		delete[] inside;
+		delete[] inside_index;
 		#ifdef USING_HASHVEC
 		delete[] size_v;
 		#endif
@@ -510,7 +512,8 @@ class SplitOracleActBCD{
                 //compute <xi,wk> for k=1...K
                 Labels* yi = &(labels->at(i));
 		memset(prod, 0, sizeof(float_type)*K);
-                SparseVec* xi = data->at(i);
+                vector<int> check_indices; 
+		SparseVec* xi = data->at(i);
 		int nnz = xi->size();
 		for(vector<pair<int, float_type>>::iterator it = act_k_index.begin(); it != act_k_index.end(); it++){
 			prod[it->first] = -INFI;
@@ -573,6 +576,10 @@ class SplitOracleActBCD{
                                         it2--;
                                         continue; 
                                 }
+				if (!inside_index[k]){
+					check_indices.push_back(k);
+					inside_index[k] = true;
+				}
 				inside[k] = true;
                                 prod[k] += wjk * xij;
 				#ifndef MULTISELECT
@@ -592,12 +599,15 @@ class SplitOracleActBCD{
                 }
 		rand_nums->clear();
 		#ifdef MULTISELECT
-		for (int k = 0; k < K; k++){
+		
+		for (vector<int>::iterator it = check_indices.begin(); it != check_indices.end(); it++){
+			int k = *it;
+			inside_index[k] = false;
 			if (prod[k] < th)
 				continue;
 			update_max_indices(max_indices, prod, k, max_select);
 		}
-		/*for (int j = 0; j < max_select; j++){
+		for (int j = 0; j < max_select; j++){
 			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
 				continue;
 			for (int r = 0; r < K; r++){
@@ -608,7 +618,7 @@ class SplitOracleActBCD{
 					}
 				}
 			}
-		}*/
+		}
 		for(int ind = 0; ind < max_select; ind++){
 			if (max_indices[ind] != -1 && prod[max_indices[ind]] > th){
 				act_k_index.push_back(make_pair(max_indices[ind], 0.0));
@@ -751,13 +761,14 @@ class SplitOracleActBCD{
 		
 	//sampling 
 	bool* inside;
+	bool* inside_index;
 	bool using_importance_sampling;
 	int max_select;
 	int speed_up_rate, split_up_rate;	
 	float_type* prod;
 
 	//heldout options
-	int early_terminate = 3;
+	int early_terminate = 40;
 			
 	public:
 	vector<pair<int, float_type>>* act_k_index;

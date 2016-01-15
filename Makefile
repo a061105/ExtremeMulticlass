@@ -1,6 +1,6 @@
 all: train predict
 	
-FLAG= -DUSING_HASHVEC #-DMULTISELECT
+FLAG= -DUSING_HASHVEC -DMULTISELECT
 train:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
 predict:
@@ -50,6 +50,18 @@ ifneq ($(p), 0)
 	./multiPred $(data_dir)/aloi/aloi.bin.test $(model).p
 endif
 
+Dmoz:
+	$(eval train_file := $(data_dir)/ODP/Dmoz.train)
+	$(eval heldout_file := $(data_dir)/ODP/Dmoz.heldout.10k)
+	$(eval test_file := $(data_dir)/ODP/Dmoz.test)
+	./multiTrain -s $(s) -l $(l) -c 1 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiPred $(train_file) $(model)
+	./multiPred $(test_file)  $(model)
+ifneq ($(p), 0)
+	./multiPred $(train_file) $(model).p
+	./multiPred $(test_file) $(model).p
+endif
+
 aloi.bin2:
 	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) $(data_dir)/aloi/aloi.bin2.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin2.train $(model)
@@ -72,7 +84,7 @@ LSHTC2:
 	$(eval train_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/train.tfidf.scale)
 	$(eval heldout_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/heldout.tfidf.scale.5k)
 	$(eval test_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/test.tfidf.scale.5k)
-	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiTrain -s $(s) -l 0.1 -c 1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
 	./multiPred $(train_file) $(model)
 	./multiPred $(test_file)  $(model)
 ifneq ($(p), 0)
@@ -91,3 +103,15 @@ ifneq ($(p), 0)
 	./multiPred $(train_file) $(model).p
 	./multiPred $(test_file) $(model).p
 endif
+
+delicious:
+	$(eval train_file := $(data_dir)/multilabel/delicious.svm)
+	$(eval heldout_file := $(data_dir)/multilabel/delicious.svm)
+	$(eval test_file := $(data_dir)/multilabel/delicious.svm)
+	./multiTrain -s $(s) -l 0.0 -c 0.01 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiPred $(train_file) $(model)
+	./multiPred $(test_file)  $(model)
+ifneq ($(p), 0)
+	./multiPred $(train_file) $(model).p
+	./multiPred $(test_file) $(model).p
+endif	
