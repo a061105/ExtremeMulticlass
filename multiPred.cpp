@@ -96,12 +96,12 @@ int main(int argc, char** argv){
 			for(SparseVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
 				int k = it2->first;
 				prod[k] += it2->second*xij;
-				if (top == 1){
+				/*if (top == 1){
 					if (prod[max_indices[0]] < prod[k]){
 						max_indices[0] = k;
 					}
 					continue;
-				}
+				}*/
 				update_max_indices(max_indices, prod, k, top);
 			}
 		}
@@ -109,17 +109,9 @@ int main(int argc, char** argv){
 		float_type max_val = -1e300;
 		int argmax;
 		if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
-			if (top == 1){
-				int candidate = 0;
-				while (candidate < model->K && prod[max_indices[0]] > prod[candidate]){
-					candidate++;
-				}
-				if (candidate < model->K){
-					max_indices[0] = candidate;
-				}
-			} else {
-				for (int t = 0; t < top; t++){
-					for (int k = 0; k < model->K; k++){
+			for (int t = 0; t < top; t++){
+				for (int k = 0; k < model->K; k++){
+					if (prod[k] == 0.0){
 						if (update_max_indices(max_indices, prod, k, top)){
 							break;
 						}

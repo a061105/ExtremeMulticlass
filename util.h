@@ -53,7 +53,7 @@ class HashFunc{
 	HashFunc(){
 	}
 	HashFunc(int _K){
-		//srand(time(NULL));
+		srand(time(NULL));
 		K = _K;
 		l = 10000;
 		r = 100000;

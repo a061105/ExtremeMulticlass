@@ -100,21 +100,18 @@ void writeModel( char* fname, Model* model){
 	int D = model->D;
 	int K = model->K;
 	for(int j=0;j<D;j++){
-		vector<int>* nnz_index_j = model->w_hash_nnz_index[j];
+		vector<int>* nnz_index_j = &(model->w_hash_nnz_index[j]);
 		fout << nnz_index_j->size() << " ";
 		#ifdef USING_HASHVEC
-		int count = 0;
 		pair<int, float_type>* wj = model->w[j];
 		int size_wj = model->size_w[j];
-		for (int it = 0; it < size_wj; it++){
-			int k = wj[it].first;
-			if (k == -1 || wj[it].second == 0.0)
-				continue;
-			count++;
-			fout << k << ":" << wj[it].second << " ";
-		//	cout << j << ":" << k << ":" << wj[it].second << endl;
+		int size_wj0 = size_wj-1;
+		for (vector<int>::iterator it = nnz_index_j->begin(); it != nnz_index_j->end(); it++){
+			int k = *it;
+			int index_w = 0;
+			find_index(wj, index_w, k, size_wj0, model->hashindices);
+			fout << k << ":" << wj[index_w].second << " ";
 		}
-		assert(count == nnz_index_j->size());
 		#else
 		float_type* wj = model->w[j];
 		for(vector<int>::iterator it=nnz_index_j->begin(); it!=nnz_index_j->end(); it++){
@@ -147,13 +144,11 @@ int main(int argc, char** argv){
 		//cerr << "heldout K=" << heldout->K << endl;
 		param->heldoutEval = new HeldoutEval(heldout);
 	}
-	long nnz_X = nnz(train->data);
 	int D = train->D;
 	int K = train->K;
 	int N = train->data.size();
-	int d = nnz_X/N;
 	cerr << "N=" << N << endl;
-	cerr << "d=" << d << endl;
+	cerr << "d=" << (float_type)nnz(train->data)/N << endl;
 	cerr << "D=" << D << endl; 
 	cerr << "K=" << K << endl;
 	#ifndef USING_HASHVEC
@@ -168,9 +163,6 @@ int main(int argc, char** argv){
 		exit(0);
 	}
 	#endif
-	if( param->speed_up_rate==-1 )
-		param->speed_up_rate = round( max( min( 5.0*D*K/nnz_X/param->C/log((float_type)K), d/5.0), 1.0) );
-	cerr << "lambda=" << param->lambda << ", C=" << param->C << ", r=" << param->speed_up_rate  << endl;
 	
 	
 		
@@ -198,12 +190,12 @@ int main(int argc, char** argv){
 			
 			param->post_solve_iter = min(solver->iter, param->post_solve_iter);
 			#ifdef USING_HASHVEC
-			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, model->size_w, solver->act_k_index, solver->v, solver->size_v, solver->hashindices );
+			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, model->size_w, solver->act_k_index, solver->hashindices );
 			#else
-			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, solver->act_k_index, solver->v );
+			PostSolve* postSolve = new PostSolve( param, model->w_hash_nnz_index, model->w, solver->act_k_index );
 			#endif
 			model = postSolve->solve();
-			
+	
 			char* postsolved_modelFname = new char[FNAME_LEN];
 			sprintf(postsolved_modelFname, "%s.p", param->modelFname);
 			writeModel(postsolved_modelFname, model);

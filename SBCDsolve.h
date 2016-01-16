@@ -354,14 +354,14 @@ class SBCDsolve{
 		#ifdef USING_HASHVEC
 		w = new pair<int, float_type>*[D];
 		size_w = new int[D];
-		nnz_index = new vector<int>*[D];
+		nnz_index = new vector<int>[D];
 		for (int j = 0; j < D; j++){
 			size_w[j] = 2;
 			w[j] = new pair<int, float_type>[size_w[j]];
 			for (int tt = 0; tt < size_w[j]; tt++){
 				w[j][tt] = make_pair(-1, 0.0);
 			}
-			nnz_index[j] = new vector<int>();
+			nnz_index[j].clear();
 		}
 		for (int j = 0; j < D; j++){
 			pair<int, float_type>* wj = w[j];
@@ -377,9 +377,9 @@ class SBCDsolve{
 					wj[index_w].second = wjk;
 					if (wj[index_w].first == -1){
 						wj[index_w].first = k;
-						nnz_index[j]->push_back(k);
-						if (size_wj* UPPER_UTIL_RATE < nnz_index[j]->size()){
-							int util = nnz_index[j]->size();
+						nnz_index[j].push_back(k);
+						if (size_wj* UPPER_UTIL_RATE < nnz_index[j].size()){
+							int util = nnz_index[j].size();
 							resize(wj, w[j], size_wj, size_w[j], size_wj0, util, hashindices);
 						}
 					}
@@ -388,20 +388,20 @@ class SBCDsolve{
 		}
 		#else
 		w = new float_type*[D];
-		nnz_index = new vector<int>*[D];
+		nnz_index = new vector<int>[D];
 		for (int j = 0; j < D; j++){
 			w[j] = new float_type[K];
 			for (int k = 0; k < K; k++){
 				w[j][k] = 0.0;
 			}
-			nnz_index[j] = new vector<int>();
+			nnz_index[j].clear();
 		}
 		for (int j = 0; j < D; j++){
 			for (int k = 0; k < K; k++){
 				float_type wjk = v[j][k].second;
 				if (fabs(wjk) > 1e-12){
 					w[j][k] = wjk;
-					nnz_index[j]->push_back(k);
+					nnz_index[j].push_back(k);
 				}
 			}
 		}
@@ -429,7 +429,7 @@ class SBCDsolve{
 		int nnz_w = 0;
 		double w_1norm=0.0;
 		for(int j=0;j<D;j++){
-			for(vector<int>::iterator it=nnz_index[j]->begin(); it!=nnz_index[j]->end(); it++){
+			for(vector<int>::iterator it=nnz_index[j].begin(); it!=nnz_index[j].end(); it++){
 				int k = *it;
 				#ifdef USING_HASHVEC
 				int index_w = 0;
@@ -442,7 +442,7 @@ class SBCDsolve{
 				w_1norm += fabs(wjk);
 				
 			}
-			nnz_w += nnz_index[j]->size();
+			nnz_w += nnz_index[j].size();
 		}
 		d_obj/=2.0;
 		for(int i=0;i<N;i++){
@@ -737,9 +737,9 @@ class SBCDsolve{
 	//heldout options
 	int early_terminate = 30;
 	
+	vector<int>* nnz_index;
 	#ifdef USING_HASHVEC
 	pair<int, float_type>** w;
-	vector<int>** nnz_index;
 	int* size_w;
 	pair<int, float_type>** v;
 	pair<int, float_type>** alpha;
@@ -751,7 +751,6 @@ class SBCDsolve{
 	int* util_alpha;
 	#else
 	float_type** w;
-	vector<int>** nnz_index;
 	float_type** alpha;
 	pair<float_type, float_type>** v;
 	#endif

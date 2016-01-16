@@ -143,9 +143,9 @@ class HeldoutEval{
 	#endif
 	
 	#ifdef USING_HASHVEC
-	double calcAcc(pair<int, pair<float_type, float_type>>** v, int* size_v, vector<int>*** nnz_index, int*& hashindices, int split_up_rate){
+	double calcAcc(pair<int, pair<float_type, float_type>>** v, int* size_v, vector<int>**& nnz_index, int*& hashindices, int split_up_rate){
 	#else
-	double calcAcc(pair<float_type, float_type>** v, vector<int>*** nnz_index, int split_up_rate){
+	double calcAcc(pair<float_type, float_type>** v, vector<int>**& nnz_index, int split_up_rate){
 	#endif
 		vector<SparseVec*>* data = &(heldout->data);
 		vector<Labels>* labels = &(heldout->labels);
@@ -175,7 +175,7 @@ class HeldoutEval{
 				pair<float_type, float_type>* vj = v[j];
 				#endif
 				for (int S = 0; S < split_up_rate; S++){
-					vector<int>* wjS = nnz_index[j][S];
+					vector<int>* wjS = &(nnz_index[j][S]);
 					for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
 						int k = *it2;
 						#ifdef USING_HASHVEC
@@ -275,12 +275,12 @@ class Model{
 	}
 
 	#ifdef USING_HASHVEC
-	Model(Problem* prob, vector<int>** _w_hash_nnz_index, pair<int, float_type>** _w, int* _size_w, int* _hashindices){
+	Model(Problem* prob, vector<int>* _w_hash_nnz_index, pair<int, float_type>** _w, int* _size_w, int* _hashindices){
 		D = prob->D;
 		K = prob->K;
 		label_name_list = &(prob->label_name_list);
 		label_index_map = &(prob->label_index_map);
-		w_hash_nnz_index = _w_hash_nnz_index;
+		w_hash_nnz_index = _w_hash_nnz_index;	
 		w = _w;
 		size_w = _size_w;
                 hashindices = _hashindices;
@@ -289,7 +289,7 @@ class Model{
 	int* size_w;
 	int* hashindices;
 	#else
-	Model(Problem* prob, vector<int>** _w_hash_nnz_index, float_type** _w){
+	Model(Problem* prob, vector<int>* _w_hash_nnz_index, float_type** _w){
 		D = prob->D;
 		K = prob->K;
 		label_name_list = &(prob->label_name_list);
@@ -301,7 +301,7 @@ class Model{
 	#endif
 
 	HashVec** Hw;
-	vector<int>** w_hash_nnz_index;	
+	vector<int>* w_hash_nnz_index;	
 	int D;
 	int K;
 	vector<string>* label_name_list;
