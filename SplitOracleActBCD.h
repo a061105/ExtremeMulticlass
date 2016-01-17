@@ -46,7 +46,16 @@ class SplitOracleActBCD{
 		cerr << "lambda=" << lambda << ", C=" << C << ", r=" << speed_up_rate  << endl;
 		using_importance_sampling = param->using_importance_sampling;
 		max_select = param->max_select;
-		
+		if (max_select == -1){
+			int avg_label = 0;
+			for (int i = 0; i < N; i++){
+				avg_label += labels->at(i).size();
+			}
+			avg_label /= N;
+			if (avg_label < 1)
+				avg_label = 1;
+			max_select = avg_label;
+		}
 		//global cache
 		prod = new float_type[K];	
 		prod_cache = new float_type[K];	
@@ -62,11 +71,16 @@ class SplitOracleActBCD{
 		for(int j=0;j<D;j++)
 			delete[] v[j];
 		delete[] v;
-
+		
+		for(int j=0;j<D;j++)
+			delete[] w[j];
+		delete[] w;
+		
 		//delete global cache
 		delete[] inside;
 		delete[] inside_index;
 		delete[] prod;
+		delete[] prod_cache;
 		
 		#ifdef USING_HASHVEC
 		delete[] size_v;
@@ -74,6 +88,9 @@ class SplitOracleActBCD{
 		delete[] size_w;
 		#endif
 		delete[] act_k_index;
+		delete[] hashindices;
+		delete[] non_split_index;	
+		delete[] w_hash_nnz_index;
 	}
 
 	Model* solve(){
@@ -286,7 +303,12 @@ class SplitOracleActBCD{
 			cerr << "search=" << search_time-last_search_time << "\t";
 			cerr << "subsolve=" << subsolve_time-last_subsolve_time << "\t";
 			cerr << "maintain=" << maintain_time-last_maintain_time << "\t";
-			last_search_time = search_time; last_subsolve_time = subsolve_time; last_maintain_time = maintain_time;
+			if (search_time - last_search_time > (subsolve_time-last_subsolve_time + maintain_time - last_maintain_time)*2){
+				max_select *= 2;
+			}
+			last_search_time = search_time;
+			last_maintain_time = maintain_time;
+			last_subsolve_time = subsolve_time;	
 			//early terminate: if heldout_test_accuracy does not increase in last three iterations, stop!	
 			if( heldoutEval != NULL ){
 				overall_time += omp_get_wtime();
@@ -407,10 +429,11 @@ class SplitOracleActBCD{
 		double endtime = omp_get_wtime();
 		cerr << endl;
 	
-		if (best_act_k_index != NULL)	
+		if (best_act_k_index != NULL){
 			for (int i = 0; i < N; i++){
 				act_k_index[i] = best_act_k_index[i];
 			}
+		}
 		
 		cerr << "train time=" << endtime-starttime << endl;
 		cerr << "search time=" << search_time << endl;
@@ -420,6 +443,7 @@ class SplitOracleActBCD{
 		delete[] alpha_i_new;
 		delete[] Q_diag;
 		delete cdf_sum;
+		delete[] index;
 		return best_model;
 	}
 	void subSolve(int I, vector<pair<int, float_type>>& act_k_index, float_type* alpha_i_new){	
@@ -733,6 +757,8 @@ class SplitOracleActBCD{
 		for (Labels::iterator it = yi->begin(); it != yi->end(); it++){
 			prod_cache[*it] = 0.0;
 		}
+		
+		delete[] max_indices;
         }
 
 	void search_active_i_uniform(int i, vector<pair<int, float_type>>& act_k_index){	
@@ -903,6 +929,7 @@ class SplitOracleActBCD{
 			act_k_index.push_back(make_pair(max_index, 0.0));
 		} 
 		#endif*/
+		delete[] max_indices;
 	}
 	
 	private:

@@ -256,7 +256,7 @@ class Param{
 		lambda = 1.0;
 		C = 1.0;
 		max_iter = 20;
-		max_select = 1;
+		max_select = -1;
 		speed_up_rate = -1;
 		split_up_rate = 1;
 		using_importance_sampling = false;

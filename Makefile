@@ -84,7 +84,7 @@ LSHTC2:
 	$(eval train_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/train.tfidf.scale)
 	$(eval heldout_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/heldout.tfidf.scale.5k)
 	$(eval test_file := $(data_dir)/LSHTC/LSHTC2/wiki_large/test.tfidf.scale.5k)
-	./multiTrain -s $(s) -l 0.1 -c 1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiTrain -s $(s) -l $(l) -c 1 -m $(m) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
 	./multiPred $(train_file) $(model)
 	./multiPred $(test_file)  $(model)
 ifneq ($(p), 0)
