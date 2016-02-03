@@ -42,7 +42,7 @@ endif
 	
 
 aloi.bin:
-	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/aloi/aloi.bin.heldout $(data_dir)/aloi/aloi.bin.train $(model)
+	./multiTrain -s $(s) -l 0.1 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(data_dir)/aloi/aloi.bin.heldout $(data_dir)/aloi/aloi.bin.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin.train $(model)
 	./multiPred $(data_dir)/aloi/aloi.bin.test $(model)
 ifneq ($(p), 0)
@@ -96,7 +96,7 @@ imgNet:
 	$(eval train_file := $(data_dir)/imagenet/imgNet.train)
 	$(eval heldout_file := $(data_dir)/imagenet/imgNet.heldout)
 	$(eval test_file := $(data_dir)/imagenet/imgNet.test)
-	./multiTrain -s $(s) -l 0.1 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiTrain -s $(s) -l 1 -r 5 -c 1 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
 	./multiPred $(train_file) $(model)
 	./multiPred $(test_file)  $(model)
 ifneq ($(p), 0)

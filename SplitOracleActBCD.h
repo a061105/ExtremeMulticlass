@@ -194,7 +194,7 @@ class SplitOracleActBCD{
 				//solve subproblem
 				if( act_k_index[i].size() < 2 )
 					continue;
-					
+				
 				subsolve_time -= omp_get_wtime();
 				subSolve(i, act_k_index[i], alpha_i_new);
 				subsolve_time += omp_get_wtime();
@@ -209,7 +209,7 @@ class SplitOracleActBCD{
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
 					int J = it->first; 
 					float_type f_val = it->second;
-					vector<int>** wJ = &(w_hash_nnz_index[J]);
+					vector<int>* wJ = w_hash_nnz_index[J];
 					#ifdef USING_HASHVEC
 					pair<int, pair<float_type, float_type>>* vj = v[J];
 					int size_vj = size_v[J];
@@ -235,7 +235,7 @@ class SplitOracleActBCD{
 						}
 						if ( wjk_old != wjk ){
 							if (wjk_old == 0.0){
-								wJ[loc(k)]->push_back(k);
+								wJ[loc(k)].push_back(k);
 							}
                                                 }
 					}
@@ -255,7 +255,7 @@ class SplitOracleActBCD{
 						vj[k] = make_pair(vjk, wjk);
 						if ( wjk_old != wjk ){
 							if (wjk_old == 0.0){
-								wJ[loc(k)]->push_back(k);
+								wJ[loc(k)].push_back(k);
 							}
                                                 }
 					}
@@ -282,7 +282,6 @@ class SplitOracleActBCD{
 					act_k_index[i] = tmp_vec;
 				}
 				maintain_time += omp_get_wtime();
-				
 			}
 
 			cerr << "i=" << iter << "\t" ;
@@ -662,8 +661,8 @@ class SplitOracleActBCD{
 			}
                         xij *= cdf_sumi*((current_index->second > 0.0)?1:(-1));
 			int j = current_index->first;
-			vector<int>* wjS = &(w_hash_nnz_index[j][S]);
-			if (wjS->size() == 0) 
+			vector<int>& wjS = w_hash_nnz_index[j][S];
+			if (wjS.size() == 0) 
 				continue;
 			float_type wjk = 0.0;
 			#ifdef USING_HASHVEC
@@ -672,7 +671,7 @@ class SplitOracleActBCD{
 			#else
 			pair<float_type, float_type>* vj = v[j];
 			#endif
-			for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
+			for(vector<int>::iterator it2 = wjS.begin(); it2!=wjS.end(); it2++ ){
 				int k = *(it2);
 				#ifdef USING_HASHVEC
 				int index_v = 0;
@@ -682,8 +681,8 @@ class SplitOracleActBCD{
 				wjk = vj[k].second;
 				#endif
 				if (wjk == 0.0 || inside[k]){
-                                        *it2=*(wjS->end()-1);
-                                        wjS->erase(wjS->end()-1);
+                                        *it2=*(wjS.end()-1);
+                                        wjS.erase(wjS.end()-1);
                                         it2--;
                                         continue;
                                 }
@@ -694,7 +693,7 @@ class SplitOracleActBCD{
 				inside[k] = true;
                                 prod_cache[k] += wjk * xij;
 			}
-                        for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
+                        for(vector<int>::iterator it2 = wjS.begin(); it2!=wjS.end(); it2++ ){
 				inside[*it2] = false;
 			}
                 }
@@ -797,15 +796,15 @@ class SplitOracleActBCD{
 		for (SparseVec::iterator current_index = xi->begin(); current_index < xi->begin() + n; current_index++){
 			float_type xij = current_index->second;
 			int j = current_index->first;
-			vector<int>* wjS = &(w_hash_nnz_index[j][S]);
-			if (wjS->size() == 0) continue;
+			vector<int>& wjS = w_hash_nnz_index[j][S];
+			if (wjS.size() == 0) continue;
 			int k = 0, ind = 0;
 			#ifdef USING_HASHVEC
 			int size_vj0 = size_v[j] - 1;
 			#endif
 			float_type wjk = 0.0;
 			auto vj = v[j];
-                        for(vector<int>::iterator it2 = wjS->begin(); it2!=wjS->end(); it2++ ){
+                        for(vector<int>::iterator it2 = wjS.begin(); it2!=wjS.end(); it2++ ){
 				k = *(it2);
 				#ifdef USING_HASHVEC
 				int index_v = 0;
@@ -815,8 +814,8 @@ class SplitOracleActBCD{
 				wjk = vj[k].second;
 				#endif
 				if (wjk == 0.0 || inside[k]){
-                                        *it2=*(wjS->end()-1); 
-                                        wjS->erase(wjS->end()-1); 
+                                        *it2=*(wjS.end()-1); 
+                                        wjS.erase(wjS.end()-1); 
                                         it2--;
                                         continue;
                                 }
@@ -836,7 +835,7 @@ class SplitOracleActBCD{
 				}
 				#endif*/
 			}
-			for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+			for (vector<int>::iterator it2 = wjS.begin(); it2 != wjS.end(); it2++){
 				inside[*it2] = false;
 			}
                 }
