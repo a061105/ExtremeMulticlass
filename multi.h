@@ -175,8 +175,8 @@ class HeldoutEval{
 				pair<float_type, float_type>* vj = v[j];
 				#endif
 				for (int S = 0; S < split_up_rate; S++){
-					vector<int>* wjS = &(nnz_index[j][S]);
-					for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+					vector<int>& wjS = nnz_index[j][S];
+					for (vector<int>::iterator it2 = wjS.begin(); it2 != wjS.end(); it2++){
 						int k = *it2;
 						#ifdef USING_HASHVEC
 						int index_v = 0;
@@ -186,8 +186,8 @@ class HeldoutEval{
 						float_type wjk = vj[k].second;
 						#endif
 						if (wjk == 0.0 || inside[k]){
-							*it2=*(wjS->end()-1);
-							wjS->erase(wjS->end()-1);
+							*it2=*(wjS.end()-1);
+							wjS.erase(wjS.end()-1);
 							it2--;
 							continue; 
 						}
@@ -196,7 +196,7 @@ class HeldoutEval{
 						prod[k] += wjk * xij;
 						update_max_indices(max_indices, prod, k, top);
 					}
-					for (vector<int>::iterator it2 = wjS->begin(); it2 != wjS->end(); it2++){
+					for (vector<int>::iterator it2 = wjS.begin(); it2 != wjS.end(); it2++){
 						inside[*it2] = false;
 					}
 				}
