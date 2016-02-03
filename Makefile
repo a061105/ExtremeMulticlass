@@ -72,12 +72,15 @@ ifneq ($(p), 0)
 endif
 
 LSHTC1:
-	./multiTrain -s $(s) -l 0.025 -c 1 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/LSHTC/LSHTC1/heldout.tfidf.scale.5k $(data_dir)/LSHTC/LSHTC1/train.tfidf.scale $(model)
-	./multiPred $(data_dir)/LSHTC/LSHTC1/train.tfidf.scale $(model)
-	./multiPred $(data_dir)/LSHTC/LSHTC1/val.tfidf.scale  $(model)
+	$(eval train_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.train)
+	$(eval heldout_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.heldout.5k)
+	$(eval test_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.test.5k)
+	./multiTrain -s $(s) -l $(l) -c 1 -r 15 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	#./multiPred $(train_file) $(model)
+	./multiPred $(test_file)  $(model)
 ifneq ($(p), 0)
-	./multiPred $(data_dir)/LSHTC/LSHTC1/train.tfidf.scale $(model).p
-	./multiPred $(data_dir)/LSHTC/LSHTC1/val.tfidf.scale  $(model).p
+	#./multiPred $(train_file) $(model).p
+	./multiPred $(test_file) $(model).p
 endif
 
 LSHTC2:
@@ -96,7 +99,7 @@ imgNet:
 	$(eval train_file := $(data_dir)/imagenet/imgNet.train)
 	$(eval heldout_file := $(data_dir)/imagenet/imgNet.heldout)
 	$(eval test_file := $(data_dir)/imagenet/imgNet.test)
-	./multiTrain -s $(s) -l 1 -r 5 -c 1 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiTrain -s $(s) -l $(l) -r 10 -c 1 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
 	./multiPred $(train_file) $(model)
 	./multiPred $(test_file)  $(model)
 ifneq ($(p), 0)
@@ -104,14 +107,14 @@ ifneq ($(p), 0)
 	./multiPred $(test_file) $(model).p
 endif
 
-delicious:
-	$(eval train_file := $(data_dir)/multilabel/delicious.svm)
-	$(eval heldout_file := $(data_dir)/multilabel/delicious.svm)
-	$(eval test_file := $(data_dir)/multilabel/delicious.svm)
-	./multiTrain -s $(s) -l 0.0 -c 0.01 -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
-	./multiPred $(train_file) $(model)
+bibtex:
+	$(eval train_file := $(data_dir)/multilabel/bibtex.train)
+	$(eval heldout_file := $(data_dir)/multilabel/bibtex.heldout)
+	$(eval test_file := $(data_dir)/multilabel/bibtex.test)
+	./multiTrain -s $(s) -l $(l) -c 1 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	#./multiPred $(train_file) $(model)
 	./multiPred $(test_file)  $(model)
 ifneq ($(p), 0)
-	./multiPred $(train_file) $(model).p
+	#./multiPred $(train_file) $(model).p
 	./multiPred $(test_file) $(model).p
 endif	

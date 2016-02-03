@@ -24,7 +24,7 @@ void exit_with_help(){
 	cerr << "-i im_sampling: Importance sampling instead of uniform (default not)" << endl;
 	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 1)" << endl;
 	cerr << "-p post_train_iter: #iter of post-training w/o L1R (default 0)" << endl;
-	
+	cerr << "-e early_terminate (default 3)" << endl;
 	exit(0);
 }
 
@@ -65,6 +65,8 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 			case 'p': param->post_solve_iter = atoi(argv[i]);
 				  break;
 			case 'h': param->heldoutFname = argv[i];
+				  break;
+			case 'e': param->early_terminate = atoi(argv[i]);
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;

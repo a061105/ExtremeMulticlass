@@ -250,7 +250,8 @@ class Param{
 	int max_select;
 	bool using_importance_sampling;
 	int post_solve_iter;
-
+	int early_terminate;
+	
 	Param(){
 		solver = 0;
 		lambda = 1.0;
@@ -261,7 +262,7 @@ class Param{
 		split_up_rate = 1;
 		using_importance_sampling = false;
 		post_solve_iter = 0;
-
+		early_terminate = 3;
 		heldoutFname == NULL;
 		train = NULL;
 	}

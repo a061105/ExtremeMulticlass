@@ -12,6 +12,7 @@ class SplitOracleActBCD{
 	SplitOracleActBCD(Param* param){
 		train = param->train;
 		heldoutEval = param->heldoutEval;	
+		early_terminate = param->early_terminate;
 		data = &(train->data);
 		labels = &(train->labels);
 		lambda = param->lambda;
@@ -964,7 +965,7 @@ class SplitOracleActBCD{
 	float_type* prod;
 
 	//heldout options
-	int early_terminate = 3;
+	int early_terminate;
 		
 	public:
 	
