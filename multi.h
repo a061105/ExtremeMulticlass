@@ -147,6 +147,7 @@ class HeldoutEval{
 	#else
 	double calcAcc(pair<float_type, float_type>** v, vector<int>**& nnz_index, int split_up_rate){
 	#endif
+		cout << " hehe ";
 		vector<SparseVec*>* data = &(heldout->data);
 		vector<Labels>* labels = &(heldout->labels);
 		hit=0.0;

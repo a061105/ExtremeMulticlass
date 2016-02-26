@@ -25,6 +25,7 @@ typedef float float_type;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 
+#define EPS 1e-12
 #define INFI 1e10
 #define INIT_SIZE 16
 #define PermutationHash HashClass
@@ -53,7 +54,7 @@ class HashFunc{
 	HashFunc(){
 	}
 	HashFunc(int _K){
-		srand(time(NULL));
+		//srand(time(NULL));
 		K = _K;
 		l = 10000;
 		r = 100000;
@@ -112,7 +113,9 @@ class PermutationHash{
 	public:
 	PermutationHash(){};
 	PermutationHash(int _K){	
-		srand(time(NULL));
+		auto time_null = time(NULL);
+		cerr << "random seed: " << time_null << endl;
+		srand(time_null);
 		K = _K;
 		hashindices = new int[K];
 		for (int i = 0; i < K; i++){

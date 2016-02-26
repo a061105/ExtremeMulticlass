@@ -220,7 +220,7 @@ class SplitOracleActBCD{
 					for (vector<pair<int, float_type>>::iterator it2 = act_k_index[i].begin(); it2 != act_k_index[i].end(); it2++){
 						int k = it2->first;
 						float_type delta_alpha = delta_alpha_ik[ind++];
-						if( fabs(delta_alpha) < 1e-12 )
+						if( fabs(delta_alpha) < EPS )
 							continue;
 						//update v						
 						find_index(vj, index_v, k, size_vj0, hashindices);
@@ -235,7 +235,7 @@ class SplitOracleActBCD{
 							}
 						}
 						if ( wjk_old != wjk ){
-							if (wjk_old == 0.0){
+							if (fabs(wjk_old) < EPS){
 								wJ[loc(k)].push_back(k);
 							}
                                                 }
@@ -246,7 +246,7 @@ class SplitOracleActBCD{
 					for(vector<pair<int, float_type>>::iterator it2 = act_k_index[i].begin(); it2 < act_k_index[i].end(); it2++){
 						int k = it2->first;
 						float_type delta_alpha = delta_alpha_ik[ind++];
-						if( fabs(delta_alpha) < 1e-12 )
+						if( fabs(delta_alpha) < EPS )
 							continue;
 						//update v
 						pair<float_type, float_type> vjk_wjk = vj[k];
@@ -255,7 +255,7 @@ class SplitOracleActBCD{
 						float_type wjk_old = vjk_wjk.second;
 						vj[k] = make_pair(vjk, wjk);
 						if ( wjk_old != wjk ){
-							if (wjk_old == 0.0){
+							if (fabs(wjk_old) < EPS){
 								wJ[loc(k)].push_back(k);
 							}
                                                 }
@@ -268,7 +268,7 @@ class SplitOracleActBCD{
 				for(vector<pair<int, float_type>>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
 					int k = it->first;
 					it->second = alpha_i_new[k];
-					has_zero |= (fabs(it->second)<1e-12);
+					has_zero |= (fabs(it->second)<EPS);
 				}
 				//shrink act_k_index
 				if( has_zero ){
@@ -276,7 +276,7 @@ class SplitOracleActBCD{
 					tmp_vec.reserve(act_k_index[i].size());
 					for(vector<pair<int, float_type>>::iterator it=act_k_index[i].begin(); it!=act_k_index[i].end(); it++){
 						int k = it->first;
-						if( fabs(it->second) > 1e-12 || find(yi->begin(), yi->end(), k)!=yi->end() ){
+						if( fabs(it->second) > EPS || find(yi->begin(), yi->end(), k)!=yi->end() ){
 							tmp_vec.push_back(make_pair(k, it->second));
 						}
 					}
@@ -310,7 +310,7 @@ class SplitOracleActBCD{
 			last_maintain_time = maintain_time;
 			last_subsolve_time = subsolve_time;	
 			//early terminate: if heldout_test_accuracy does not increase in last three iterations, stop!	
-			if( heldoutEval != NULL ){
+			if( heldoutEval != NULL){
 				overall_time += omp_get_wtime();
 				#ifdef USING_HASHVEC
 				float_type heldout_test_acc = heldoutEval->calcAcc(v, size_v, w_hash_nnz_index, hashindices, split_up_rate);//(float_type)hit/heldout->N;
@@ -321,68 +321,7 @@ class SplitOracleActBCD{
 				overall_time -= omp_get_wtime();
 				if ( heldout_test_acc > best_heldout_acc){
 					best_heldout_acc = heldout_test_acc;
-					#ifdef USING_HASHVEC
-					memset(inside, false, sizeof(bool)*K);
-					for (int j = 0; j < D; j++){	
-						size_w[j] = 1;
-						int total_size = 0;
-						for (int S = 0; S < split_up_rate; S++){
-							total_size+=w_hash_nnz_index[j][S].size();
-						}
-						while (size_w[j] * UPPER_UTIL_RATE < total_size)
-							size_w[j] *= 2;
-						delete[] w[j];
-						w[j] = new pair<int, float_type>[size_w[j]];
-						non_split_index[j].clear();
-						for(int it = 0; it < size_w[j]; it++)
-							w[j][it] = make_pair(-1, 0.0);
-						memset(inside, false, sizeof(bool)*K);
-						for(int S=0;S<split_up_rate;S++){
-							for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
-								int k = *it;
-								int index_v = 0;
-								find_index(v[j], index_v, k, size_v[j]-1, hashindices);
-								if (fabs(v[j][index_v].second.second) > 1e-12 && !inside[k]){
-									inside[k] = true;
-									int index_w = 0;
-									find_index(w[j], index_w, k, size_w[j]-1, hashindices);
-									w[j][index_w] = make_pair(k, v[j][index_v].second.second);
-									non_split_index[j].push_back(k);
-								}
-							}
-						}
-						//recover inside, avoid any complexity related to K
-						for(int S=0;S<split_up_rate;S++){
-							for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
-								int k = *it;
-								inside[k] = false;
-							}
-						}
-					}
-					best_model = new Model(train, non_split_index, w, size_w, hashindices);
-					#else
-					for (int j = 0; j < D; j++){
-						for (vector<int>::iterator it = non_split_index[j].begin(); it != non_split_index[j].end(); it++){
-							w[j][*it] = 0.0;
-						}
-					}
-					for (int j = 0; j < D; j++){
-						non_split_index[j].clear();
-						pair<float_type, float_type>* vj = v[j];
-						memset(inside, false, sizeof(bool)*K);
-						for(int S=0;S<split_up_rate;S++){
-							for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
-								int k = *it;
-								if (fabs(vj[k].second) > 1e-12 && !inside[k]){
-									w[j][k] = vj[k].second;
-									inside[k] = true;
-									non_split_index[j].push_back(k);
-								}
-							}
-						}
-					}
-					best_model = new Model(train, non_split_index, w);
-					#endif	
+					store_best_model();
 					//save best v and w_hash_nnz_index
 					/*for (int j = 0; j < D; j++){
 						for (int S = 0; S < split_up_rate; S++)
@@ -411,10 +350,6 @@ class SplitOracleActBCD{
 						}
 					}
 					#endif*/
-					if (best_act_k_index == NULL)
-						best_act_k_index = new vector<pair<int, float_type>>[N];
-					for (int i = 0; i < N; i++)
-						best_act_k_index[i] = act_k_index[i];
 					//copy alpha
 					terminate_countdown = 0;
 				} else {
@@ -444,6 +379,9 @@ class SplitOracleActBCD{
 		delete[] Q_diag;
 		delete cdf_sum;
 		delete[] index;
+		if (best_model == NULL){
+			store_best_model();
+		}
 		return best_model;
 	}
 	void subSolve(int I, vector<pair<int, float_type>>& act_k_index, float_type* alpha_i_new){	
@@ -930,6 +868,84 @@ class SplitOracleActBCD{
 		} 
 		#endif*/
 		delete[] max_indices;
+	}
+
+	void store_best_model(){
+		#ifdef USING_HASHVEC
+		memset(inside, false, sizeof(bool)*K);
+		for (int j = 0; j < D; j++){
+			size_w[j] = 1;
+			int total_size = 0;
+			for (int S = 0; S < split_up_rate; S++){
+				total_size+=w_hash_nnz_index[j][S].size();
+			}
+			while (size_w[j] * UPPER_UTIL_RATE < total_size)
+				size_w[j] *= 2;
+			delete[] w[j];
+			w[j] = new pair<int, float_type>[size_w[j]];
+			non_split_index[j].clear();
+			for(int it = 0; it < size_w[j]; it++)
+				w[j][it] = make_pair(-1, 0.0);
+			memset(inside, false, sizeof(bool)*K);
+			for(int S=0;S<split_up_rate;S++){
+				for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
+					int k = *it;
+					int index_v = 0;
+					find_index(v[j], index_v, k, size_v[j]-1, hashindices);
+					if (fabs(v[j][index_v].second.second) > 1e-12 && !inside[k]){
+						inside[k] = true;
+						int index_w = 0;
+						find_index(w[j], index_w, k, size_w[j]-1, hashindices);
+						w[j][index_w] = make_pair(k, v[j][index_v].second.second);
+						non_split_index[j].push_back(k);
+					}
+				}
+			}
+			//recover inside, avoid any complexity related to K
+			for (vector<int>::iterator it=non_split_index[j].begin(); it != non_split_index[j].end(); it++){
+				int k = *it;
+				inside[k] = false;
+			}
+		//	for(int S=0;S<split_up_rate;S++){
+		//		for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
+		//			int k = *it;
+		//			inside[k] = false;
+		//		}
+		//	}
+		}
+		best_model = new Model(train, non_split_index, w, size_w, hashindices);
+		#else
+		for (int j = 0; j < D; j++){
+			for (vector<int>::iterator it = non_split_index[j].begin(); it != non_split_index[j].end(); it++){
+				w[j][*it] = 0.0;
+			}
+		}
+		for (int j = 0; j < D; j++){
+			non_split_index[j].clear();
+			pair<float_type, float_type>* vj = v[j];
+			memset(inside, false, sizeof(bool)*K);
+			for(int S=0;S<split_up_rate;S++){
+				for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
+					int k = *it;
+					if (fabs(vj[k].second) > EPS && !inside[k]){
+						w[j][k] = vj[k].second;
+						inside[k] = true;
+						non_split_index[j].push_back(k);
+					}
+				}
+			}
+			//recover inside, avoid any complexity related to K
+			for (vector<int>::iterator it=non_split_index[j].begin(); it != non_split_index[j].end(); it++){
+				int k = *it;
+				inside[k] = false;
+			}
+		}
+		best_model = new Model(train, non_split_index, w);
+		#endif		
+		if (best_act_k_index == NULL)
+			best_act_k_index = new vector<pair<int, float_type>>[N];
+		for (int i = 0; i < N; i++)
+			best_act_k_index[i] = act_k_index[i];
 	}
 	
 	private:
