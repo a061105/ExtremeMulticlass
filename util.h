@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <time.h>
 #include <tuple>
+#include <cassert>
 //#include "newHash.h"
 
 using namespace std;
@@ -21,7 +22,7 @@ using namespace std;
 typedef vector<pair<int,double> > SparseVec;
 typedef unordered_map<int,double> HashVec;
 typedef vector<int> Labels;
-typedef float float_type;
+typedef double Float;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
 
@@ -35,14 +36,14 @@ const int FNAME_LEN = 1000;
 class ScoreComp{
 	
 	public:
-	ScoreComp(float_type* _score){
+	ScoreComp(Float* _score){
 		score = _score;
 	}
 	bool operator()(const int& ind1, const int& ind2){
 		return score[ind1] > score[ind2];
 	}
 	private:
-	float_type* score;
+	Float* score;
 };
 
 // Hash function [K] ->[m]
@@ -213,7 +214,7 @@ long nnz( vector<SparseVec*>& data ){
 	return sum;
 }
 
-inline bool update_max_indices(int* max_indices, float_type* prod, int candidate, int top){
+inline bool update_max_indices(int* max_indices, Float* prod, int candidate, int top){
 	//max_indices should have size top+1
 	int ind = 0;
 	while (ind < top && max_indices[ind] != -1 && max_indices[ind] != candidate){
@@ -236,6 +237,145 @@ inline bool update_max_indices(int* max_indices, float_type* prod, int candidate
 		max_indices[--ind] = k;
 	}
 	return true;
+}
+
+//min_{x,y} \|x - b\|^2 + \|y - c\|^2
+// s.t. x,y \in (Simplex * C)
+//  \|x\|_1 = \|y\|_1 = t \in [0, C]
+// x,b \in R^n, y,c \in R^m
+inline void solve_bi_simplex(int n, int m, Float* b, Float* c, Float C, Float* x, Float* y){
+	int* index_b = new int[n];
+	int* index_c = new int[m];
+	for (int i = 0; i < n; i++)
+		index_b[i] = i;
+	for (int j = 0; j < m; j++)
+		index_c[j] = j;
+	sort(index_b, index_b+n, ScoreComp(b));
+	sort(index_c, index_c+m, ScoreComp(c));
+	Float* S_b = new Float[n];
+	Float* S_c = new Float[m];
+	Float* D_b = new Float[n+1];
+	Float* D_c = new Float[m+1];
+	Float r_b = 0.0, r_c = 0.0;
+	for (int i = 0; i < n; i++){
+		r_b += b[index_b[i]]*b[index_b[i]];
+		if (i == 0)
+			S_b[i] = b[index_b[i]];
+		else
+			S_b[i] = S_b[i-1] + b[index_b[i]];
+		D_b[i] = S_b[i] - (i+1)*b[index_b[i]];
+	}
+	D_b[n] = C;
+	for (int j = 0; j < m; j++){
+		r_c += c[index_c[j]]*c[index_c[j]];
+		if (j == 0)
+			S_c[j] = c[index_c[j]];
+		else
+			S_c[j] = S_c[j-1] + c[index_c[j]];
+		D_c[j] = S_c[j] - (j+1)*c[index_c[j]];
+	}
+	D_c[m] = C;
+	/*
+	cerr << "b:";
+	for (int i = 0; i < n; i++)
+		cerr << b[index_b[i]] << " ";
+	cerr << endl;
+	cerr << "c:";
+	for (int j = 0; j < m; j++)
+		cerr << c[index_c[j]] << " ";
+	cerr << endl;
+	cerr << "D_b:";
+	for (int i = 0; i <= n; i++)
+		cerr << D_b[i] << " ";
+	cerr << endl;
+	cerr << "D_c:";
+	for (int j = 0; j <= m; j++)
+		cerr << D_c[j] << " ";
+	cerr << endl;
+	*/
+	int i = 0, j = 0;
+	//update for b_{0..i-1} c_{0..j-1}
+	//i,j is the indices of coordinate that we will going to include, but not now!
+	Float t = 0.0;
+	Float ans_t_star = 0;
+	Float ans = INFI;
+	int ansi = i, ansj = j;
+	int lasti = 0, lastj = 0;
+	do{
+		lasti = i; lastj = j;
+		// l = t; t = min(f_b(i), f_c(j));
+		Float l = t;
+		t = min(D_b[i+1], D_c[j+1]);
+		//cerr << "getting new t:" << t << endl;
+		/*if (i == n){
+		  if (j == m){
+		  t = C;
+		  } else {
+		  t = D_c[j];
+		  }
+		  } else {
+		  if (j == m){
+		  t = D_b[i];
+		  } else {
+		  t = min(D_b[i], D_c[j]);
+		  }
+		  }*/
+		//now allowed to use 0..i, 0..j
+		if (l >= C && t > C){
+			break;
+		}
+		if (t > C) { 
+			t = C;
+		}
+		Float t_star = ((i+1)*S_c[j] + (1+j)*S_b[i])/(i+j+2);
+		//cerr << "getting t_star=" << t_star << endl;
+		if (t_star < l){
+			t_star = l;
+		//	cerr << "truncating t_star=" << l << endl;
+		}
+		if (t_star > t){
+			t_star = t;
+		//	cerr << "truncating t_star=" << t << endl;
+		}
+		Float candidate = r_b + r_c + (S_b[i] - t_star)*(S_b[i] - t_star)/(i+1) + (S_c[j] - t_star)*(S_c[j] - t_star)/(j+1);
+		//cerr << "candidate val=" << candidate << endl;
+		if (candidate < ans){
+			ans = candidate;
+			ansi = i;
+			ansj = j;
+			ans_t_star = t_star;
+		}
+		while ((i + 1)< n && D_b[i+1] <= t){
+			i++;
+			r_b -= b[index_b[i]]*b[index_b[i]];
+		}
+		//cerr << "updating i to " << i << endl;
+		while ((j+1) < m && D_c[j+1] <= t) {
+			j++;
+			r_c -= c[index_c[j]]*c[index_c[j]];
+		}
+		//cerr << "updating j to " << j << endl;
+	} while (i != lasti || j != lastj);
+	//i = ansi; j = ansj;
+	//cerr << "ansi=" << ansi << ", ansj=" << ansj << ", t_star=" << ans_t_star << endl;
+	for(i = 0; i < n; i++){
+		int ii = index_b[i];
+		if (i <= ansi)
+			x[ii] = (b[index_b[i]] + (ans_t_star - S_b[ansi])/(ansi+1));
+		else
+			x[ii] = 0.0;
+	}
+	for(j = 0; j < m; j++){
+		int jj = index_c[j];
+		if (j <= ansj)
+			y[jj] = c[index_c[j]] + (ans_t_star - S_c[ansj])/(ansj+1);
+		else
+			y[jj] = 0.0;
+	}
+
+	delete[] S_b; delete[] S_c;
+	delete[] index_b; delete[] index_c;
+	delete[] D_b; delete[] D_c;
 }
 
 #endif

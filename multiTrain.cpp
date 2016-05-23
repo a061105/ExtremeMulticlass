@@ -105,7 +105,7 @@ void writeModel( char* fname, Model* model){
 		vector<int>* nnz_index_j = &(model->w_hash_nnz_index[j]);
 		fout << nnz_index_j->size() << " ";
 		#ifdef USING_HASHVEC
-		pair<int, float_type>* wj = model->w[j];
+		pair<int, Float>* wj = model->w[j];
 		int size_wj = model->size_w[j];
 		int size_wj0 = size_wj-1;
 		for (vector<int>::iterator it = nnz_index_j->begin(); it != nnz_index_j->end(); it++){
@@ -115,7 +115,7 @@ void writeModel( char* fname, Model* model){
 			fout << k << ":" << wj[index_w].second << " ";
 		}
 		#else
-		float_type* wj = model->w[j];
+		Float* wj = model->w[j];
 		for(vector<int>::iterator it=nnz_index_j->begin(); it!=nnz_index_j->end(); it++){
 			fout << *it << ":" << wj[*it] << " ";
 		}
@@ -150,7 +150,7 @@ int main(int argc, char** argv){
 	int K = train->K;
 	int N = train->data.size();
 	cerr << "N=" << N << endl;
-	cerr << "d=" << (float_type)nnz(train->data)/N << endl;
+	cerr << "d=" << (Float)nnz(train->data)/N << endl;
 	cerr << "D=" << D << endl; 
 	cerr << "K=" << K << endl;
 	#ifndef USING_HASHVEC
@@ -159,14 +159,12 @@ int main(int argc, char** argv){
 	size_t max_need = D*K;
 	if (max_need < N*K)
 		max_need = N*K;
-	//cout << total_memory/2 << " " << 2*sizeof(float_type)*max_need/1024 << endl;
-	if (total_memory/2 < (2*sizeof(float_type)*max_need/1024)) {
+	//cout << total_memory/2 << " " << 2*sizeof(Float)*max_need/1024 << endl;
+	if (total_memory/2 < (2*sizeof(Float)*max_need/1024)) {
 		cerr << " not enough total memory! try make with -DUSING_HASHVEC! " << endl;
 		exit(0);
 	}
 	#endif
-	
-	
 		
 	if( param->solver == 0 ){
 		

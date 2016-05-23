@@ -30,7 +30,7 @@ StaticModel* readModel(char* file){
 			fin >> tmp;
 			ind_val = split(tmp,":");
 			int k = atoi(ind_val[0].c_str());
-			float_type val = atof(ind_val[1].c_str());
+			Float val = atof(ind_val[1].c_str());
 			model->w[j][r].first = k;
 			model->w[j][r].second = val;
 		}
@@ -66,15 +66,15 @@ int main(int argc, char** argv){
 	//compute accuracy
 	vector<SparseVec*>* data = &(prob->data);
 	vector<Labels>* labels = &(prob->labels);
-	float_type hit=0.0;
-	float_type margin_hit = 0.0;
-	float_type* prod = new float_type[model->K];
+	Float hit=0.0;
+	Float margin_hit = 0.0;
+	Float* prod = new Float[model->K];
 	int* max_indices = new int[model->K+1];
 	for(int k = 0; k < model->K+1; k++){
 		max_indices[k] = -1;
 	}
 	for(int i=0;i<prob->N;i++){
-		memset(prod, 0.0, sizeof(float_type)*model->K);
+		memset(prod, 0.0, sizeof(Float)*model->K);
 		
 		SparseVec* xi = data->at(i);
 		Labels* yi = &(labels->at(i));
@@ -89,7 +89,7 @@ int main(int argc, char** argv){
 		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			
 			int j= it->first;
-			float_type xij = it->second;
+			Float xij = it->second;
 			if( j >= model->D )
 				continue;
 			SparseVec* wj = &(model->w[j]);
@@ -106,7 +106,7 @@ int main(int argc, char** argv){
 			}
 		}
 		//sort(k_index, k_index + model->K, ScoreComp(prod));
-		float_type max_val = -1e300;
+		Float max_val = -1e300;
 		int argmax;
 		if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
 			for (int t = 0; t < top; t++){
@@ -132,6 +132,6 @@ int main(int argc, char** argv){
 	}
 	
 	double end = omp_get_wtime();
-	cerr << "Acc=" << ((float_type)hit/prob->N) << endl;
+	cerr << "Acc=" << ((Float)hit/prob->N) << endl;
 	cerr << "pred time=" << (end-start) << " s" << endl;
 }

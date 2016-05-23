@@ -28,7 +28,7 @@ class HeldoutEval{
 		N = heldout->data.size();
 		D = heldout->D;
 		K = heldout->K;
-		prod = new float_type[K];
+		prod = new Float[K];
 		max_indices = new int[K];
 		inside = new bool[K];
 		for (int k = 0; k < K; k++)
@@ -38,11 +38,11 @@ class HeldoutEval{
 	}
 	
 	#ifdef USING_HASHVEC
-	double calcAcc(pair<int, float_type>** v, int* size_v, int* hashindices, float_type lambda){
+	double calcAcc(pair<int, Float>** v, int* size_v, int* hashindices, Float lambda){
 		hit=0.0;
 		margin_hit = 0.0;
 		for(int i=0;i<heldout->N;i++){
-			memset(prod, 0.0, sizeof(float_type)*K);
+			memset(prod, 0.0, sizeof(Float)*K);
 
 			SparseVec* xi = heldout->data.at(i);
 			Labels* yi = &(heldout->labels.at(i));
@@ -54,15 +54,15 @@ class HeldoutEval{
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
-				float_type xij = it->second;
+				Float xij = it->second;
 				if( j >= D )
 					continue;
-				pair<int, float_type>* vj = v[j];
+				pair<int, Float>* vj = v[j];
 				int size_vj0 = size_v[j] - 1;
 				for (int k = 0; k < K; k++){
 					int index_v = 0;
 					find_index(vj, index_v, k, size_vj0, hashindices);
-					float_type wjk = prox_l1(vj[index_v].second, lambda);
+					Float wjk = prox_l1(vj[index_v].second, lambda);
 					prod[k] += wjk * xij;
 					update_max_indices(max_indices, prod, k, top); 
 				}
@@ -91,11 +91,11 @@ class HeldoutEval{
 		return hit/N;
 	}
 	#else
-	double calcAcc(pair<float_type, float_type>** v){
+	double calcAcc(pair<Float, Float>** v){
 		hit=0.0;
 		margin_hit = 0.0;
 		for(int i=0;i<N;i++){
-			memset(prod, 0.0, sizeof(float_type)*K);
+			memset(prod, 0.0, sizeof(Float)*K);
 				
 			SparseVec* xi = heldout->data.at(i);
 			Labels* yi = &(heldout->labels.at(i));
@@ -108,10 +108,10 @@ class HeldoutEval{
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
-				float_type xij = it->second;
+				Float xij = it->second;
 				if( j >= D )
 					continue;
-				pair<float_type, float_type>* vj = v[j];
+				pair<Float, Float>* vj = v[j];
 				for (int k = 0; k < K; k++){	
 					prod[k] += vj[k].second * xij;
 					update_max_indices(max_indices, prod, k, top);
@@ -143,17 +143,16 @@ class HeldoutEval{
 	#endif
 	
 	#ifdef USING_HASHVEC
-	double calcAcc(pair<int, pair<float_type, float_type>>** v, int* size_v, vector<int>**& nnz_index, int*& hashindices, int split_up_rate){
+	double calcAcc(pair<int, pair<Float, Float>>** v, int* size_v, vector<int>**& nnz_index, int*& hashindices, int split_up_rate){
 	#else
-	double calcAcc(pair<float_type, float_type>** v, vector<int>**& nnz_index, int split_up_rate){
+	double calcAcc(pair<Float, Float>** v, vector<int>**& nnz_index, int split_up_rate){
 	#endif
-		cout << " hehe ";
 		vector<SparseVec*>* data = &(heldout->data);
 		vector<Labels>* labels = &(heldout->labels);
 		hit=0.0;
 		margin_hit = 0.0;
 		for(int i=0;i<heldout->N;i++){
-			memset(prod, 0.0, sizeof(float_type)*K);
+			memset(prod, 0.0, sizeof(Float)*K);
 			
 			SparseVec* xi = data->at(i);
 			Labels* yi = &(labels->at(i));
@@ -166,14 +165,14 @@ class HeldoutEval{
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
-				float_type xij = it->second;
+				Float xij = it->second;
 				if( j >= D )
 					continue;
 				#ifdef USING_HASHVEC
-				pair<int, pair<float_type, float_type>>* vj = v[j];
+				pair<int, pair<Float, Float>>* vj = v[j];
 				int size_vj0 = size_v[j] - 1;
 				#else
-				pair<float_type, float_type>* vj = v[j];
+				pair<Float, Float>* vj = v[j];
 				#endif
 				for (int S = 0; S < split_up_rate; S++){
 					vector<int>& wjS = nnz_index[j][S];
@@ -182,9 +181,9 @@ class HeldoutEval{
 						#ifdef USING_HASHVEC
 						int index_v = 0;
 						find_index(vj, index_v, k, size_vj0, hashindices);
-						float_type wjk = vj[index_v].second.second;
+						Float wjk = vj[index_v].second.second;
 						#else
-						float_type wjk = vj[k].second;
+						Float wjk = vj[k].second;
 						#endif
 						if (wjk == 0.0 || inside[k]){
 							*it2=*(wjS.end()-1);
@@ -228,9 +227,9 @@ class HeldoutEval{
 	private:
 	int N,D,K;
 	Problem* heldout;
-	float_type* prod;
+	Float* prod;
 	int* max_indices;
-	float_type hit, margin_hit;
+	Float hit, margin_hit;
 	bool* inside;
 	int T;
 };
@@ -239,8 +238,8 @@ class Param{
 	char* trainFname;
 	char* modelFname;
 	char* heldoutFname;
-	float_type lambda; //for L1-norm (default 1/N)
-	float_type C; //weight of loss
+	Float lambda; //for L1-norm (default 1/N)
+	Float C; //weight of loss
 	int speed_up_rate; // speed up rate for sampling
 	int split_up_rate; // split up [K] into a number of subsets	
 	Problem* train;
@@ -277,7 +276,7 @@ class Model{
 	}
 
 	#ifdef USING_HASHVEC
-	Model(Problem* prob, vector<int>* _w_hash_nnz_index, pair<int, float_type>** _w, int* _size_w, int* _hashindices){
+	Model(Problem* prob, vector<int>* _w_hash_nnz_index, pair<int, Float>** _w, int* _size_w, int* _hashindices){
 		D = prob->D;
 		K = prob->K;
 		label_name_list = &(prob->label_name_list);
@@ -287,11 +286,11 @@ class Model{
 		size_w = _size_w;
                 hashindices = _hashindices;
 	}
-	pair<int, float_type>** w;
+	pair<int, Float>** w;
 	int* size_w;
 	int* hashindices;
 	#else
-	Model(Problem* prob, vector<int>* _w_hash_nnz_index, float_type** _w){
+	Model(Problem* prob, vector<int>* _w_hash_nnz_index, Float** _w){
 		D = prob->D;
 		K = prob->K;
 		label_name_list = &(prob->label_name_list);
@@ -299,7 +298,7 @@ class Model{
 		w_hash_nnz_index = _w_hash_nnz_index;
 		w = _w;
 	}
-	float_type** w;
+	Float** w;
 	#endif
 
 	HashVec** Hw;
@@ -380,7 +379,7 @@ void readData(char* fname, Problem* prob)
 		for(int i=st;i<tokens.size();i++){
 			vector<string> kv = split(tokens[i],":");
 			int ind = atoi(kv[0].c_str());
-			float_type val = atof(kv[1].c_str());
+			Float val = atof(kv[1].c_str());
 			ins->push_back(make_pair(ind,val));
 			if( ind > d )
 				d = ind;
