@@ -30,14 +30,23 @@ class HeldoutEval{
 		K = heldout->K;
 		prod = new Float[K];
 		max_indices = new int[K];
+		for (int k = 0; k < K; k++)
+			max_indices[k] = k;
 		inside = new bool[K];
 		for (int k = 0; k < K; k++)
 			inside[k] = false;
 
 		T = 1;
 	}
+
+	~HeldoutEval(){
+		delete[] max_indices;
+		delete[] inside;
+		delete[] prod;
+	}
 	
 	#ifdef USING_HASHVEC
+	//compute heldout accuracy when using hash
 	double calcAcc(pair<int, Float>** v, int* size_v, int* hashindices, Float lambda){
 		hit=0.0;
 		margin_hit = 0.0;
@@ -49,14 +58,13 @@ class HeldoutEval{
 			int top = T;
 			if (top == -1)
 				top = yi->size();
-			for (int t = 0; t <= top; t++)
-				max_indices[t] = -1;
+			//for (int t = 0; t <= top; t++)
+			//	max_indices[t] = -1;
+			// compute <w_k, x_i> where w_k is stored in hashmap
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
-
 				int j= it->first;
 				Float xij = it->second;
-				if( j >= D )
-					continue;
+				assert( j < D );
 				pair<int, Float>* vj = v[j];
 				int size_vj0 = size_v[j] - 1;
 				for (int k = 0; k < K; k++){
@@ -64,10 +72,20 @@ class HeldoutEval{
 					find_index(vj, index_v, k, size_vj0, hashindices);
 					Float wjk = prox_l1(vj[index_v].second, lambda);
 					prod[k] += wjk * xij;
-					update_max_indices(max_indices, prod, k, top); 
+					//update_max_indices(max_indices, prod, k, top);
 				}
 			}
-			if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
+			/*vector<pair<Float, int>> comp;
+			for (int k = 0; k < K; k++){
+				comp.push_back(make_pair(prod[k], k));
+			}
+			sort(comp.begin(), comp.end(), greater<pair<Float, int>>());*/
+			
+			//sort to get rank
+			sort(max_indices, max_indices+K, ScoreComp(prod));
+			
+			/*if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
+				//best score is smaller than zero
 				for (int t = 0; t < top; t++){
 					for (int k = 0; k < K; k++){
 						if (prod[k] == 0.0){
@@ -76,11 +94,13 @@ class HeldoutEval{
 						}
 					}
 				}
-			}
+			}*/
 			for(int k=0;k<top;k++){
 				bool flag = false;
+				//assert(fabs(prod[comp[k].second] - prod[max_indices[k]]) < 1e-6);
+				//assert(comp[k].second == max_indices[k]);
 				for (int j = 0; j < yi->size(); j++){
-					if (yi->at(j) == max_indices[k]){
+					if (yi->at(j) == max_indices[k] ){
 						flag = true;
 					}
 				}
@@ -91,6 +111,7 @@ class HeldoutEval{
 		return hit/N;
 	}
 	#else
+	//compute heldout accuracy without using hash
 	double calcAcc(pair<Float, Float>** v){
 		hit=0.0;
 		margin_hit = 0.0;
@@ -103,21 +124,22 @@ class HeldoutEval{
 			int top = T;
 			if (top == -1)
 				top = yi->size();
-			for (int t = 0; t < top; t++)
-				max_indices[t] = -1;
+			//for (int t = 0; t < top; t++)
+			//	max_indices[t] = -1;
+
+			// compute <w_k, x_i>
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
 				Float xij = it->second;
-				if( j >= D )
-					continue;
+				//assert(j < D);
 				pair<Float, Float>* vj = v[j];
 				for (int k = 0; k < K; k++){	
 					prod[k] += vj[k].second * xij;
-					update_max_indices(max_indices, prod, k, top);
+					//update_max_indices(max_indices, prod, k, top);
 				}
 			}
-			if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
+			/*if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
 				for (int t = 0; t < top; t++){
 					for (int k = 0; k < K; k++){
 						if (prod[k] == 0.0){
@@ -126,7 +148,10 @@ class HeldoutEval{
 						}
 					}
 				}
-			}
+			}*/
+
+			// sort to get rank
+			sort(max_indices, max_indices+K, ScoreComp(prod));
 			for(int k=0;k<top;k++){
 				bool flag = false;
 				for (int j = 0; j < yi->size(); j++){
@@ -166,8 +191,9 @@ class HeldoutEval{
 
 				int j= it->first;
 				Float xij = it->second;
-				if( j >= D )
-					continue;
+				assert(j < D);
+				//if( j >= D )
+				//	continue;
 				#ifdef USING_HASHVEC
 				pair<int, pair<Float, Float>>* vj = v[j];
 				int size_vj0 = size_v[j] - 1;
@@ -192,7 +218,6 @@ class HeldoutEval{
 							continue; 
 						}
 						inside[k] = true;
-							
 						prod[k] += wjk * xij;
 						update_max_indices(max_indices, prod, k, top);
 					}
@@ -253,21 +278,28 @@ class Param{
 	int early_terminate;
 	
 	Param(){
-		solver = 0;
+		solver = 1;
 		lambda = 1.0;
 		C = 1.0;
 		max_iter = 20;
 		max_select = -1;
 		speed_up_rate = -1;
 		split_up_rate = 1;
-		using_importance_sampling = false;
+		using_importance_sampling = true;
 		post_solve_iter = 0;
 		early_terminate = 3;
 		heldoutFname == NULL;
 		train = NULL;
 	}
+
+	~Param(){
+		delete[] trainFname;
+		delete[] modelFname;
+		delete[] heldoutFname;
+	}
 };
 
+//only used for training
 class Model{
 	public:
 	Model(){
@@ -300,6 +332,45 @@ class Model{
 	}
 	Float** w;
 	#endif
+	
+	//write model to file
+	void writeModel( char* fname){
+
+		ofstream fout(fname);
+		fout << "nr_class " << K << endl;
+		fout << "label ";
+		for(vector<string>::iterator it=label_name_list->begin();
+				it!=label_name_list->end(); it++){
+			fout << *it << " ";
+		}
+		fout << endl;
+		fout << "nr_feature " << D << endl;
+		//int D = model->D;
+		//int K = model->K;
+		for(int j=0;j<D;j++){
+			vector<int>* nnz_index_j = &(w_hash_nnz_index[j]);
+			fout << nnz_index_j->size() << " ";
+#ifdef USING_HASHVEC
+			pair<int, Float>* wj = w[j];
+			int size_wj = size_w[j];
+			int size_wj0 = size_wj-1;
+			for (vector<int>::iterator it = nnz_index_j->begin(); it != nnz_index_j->end(); it++){
+				int k = *it;
+				int index_w = 0;
+				find_index(wj, index_w, k, size_wj0, hashindices);
+				fout << k << ":" << wj[index_w].second << " ";
+			}
+#else
+			Float* wj = w[j];
+			for(vector<int>::iterator it=nnz_index_j->begin(); it!=nnz_index_j->end(); it++){
+				fout << *it << ":" << wj[*it] << " ";
+			}
+#endif
+			fout << endl;
+		}
+		fout.close();
+		
+	}
 
 	HashVec** Hw;
 	vector<int>* w_hash_nnz_index;	
@@ -309,6 +380,7 @@ class Model{
 	map<string,int>* label_index_map;
 };
 
+//only used for prediction
 class StaticModel{
 
 	public:

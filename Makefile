@@ -1,21 +1,24 @@
 all: train predict
 	
-FLAG= -DUSING_HASHVEC #-DMULTISELECT
+#FLAG= -DUSING_HASHVEC #-DMULTISELECT
 train:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp $(FLAG)
+	g++ -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
+	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
+	
 predict:
 	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
-s=3
+s=1
 r=1
 m=20
 q=1
 g=1
 p=20
 l=1
+e=3
 model=model
-sample_opt=-i
-data_dir=/scratch/cluster/ianyen/data
+sample_opt=
+data_dir=/scratch/cluster/xrhuang/data
 
 ocr:
 	./multiTrain -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) $(data_dir)/data/data20.subtrain.svm $(model)
@@ -32,12 +35,12 @@ ifneq ($(p), 0)
 endif
 
 sector:
-	./multiTrain -l $(l) -s $(s) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/sector.heldout $(data_dir)/sector.train $(model)
-	./multiPred $(data_dir)/sector.train $(model)
-	./multiPred $(data_dir)/sector.test $(model)
+	./multiTrain -l $(l) -s $(s) -e $(e) -r $(r) -m $(m) -q $(q) -g $(g) -p $(p) $(sample_opt) -h $(data_dir)/sector/sector.heldout $(data_dir)/sector/sector.train $(model)
+	./multiPred $(data_dir)/sector/sector.train $(model)
+	./multiPred $(data_dir)/sector/sector.test $(model)
 ifneq ($(p), 0)
-	./multiPred $(data_dir)/sector.train $(model).p
-	./multiPred $(data_dir)/sector.test $(model).p
+	./multiPred $(data_dir)/sector/sector.train $(model).p
+	./multiPred $(data_dir)/sector/sector.test $(model).p
 endif
 	
 
@@ -111,7 +114,19 @@ bibtex:
 	$(eval train_file := $(data_dir)/multilabel/bibtex.train)
 	$(eval heldout_file := $(data_dir)/multilabel/bibtex.heldout)
 	$(eval test_file := $(data_dir)/multilabel/bibtex.test)
-	./multiTrain -s $(s) -l $(l) -c 1 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	./multiTrainHash -s $(s) -l $(l) -c 1 -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
+	#./multiPred $(train_file) $(model)
+	./multiPred $(test_file)  $(model)
+ifneq ($(p), 0)
+	#./multiPred $(train_file) $(model).p
+	./multiPred $(test_file) $(model).p
+endif	
+
+Eur-Lex:
+	$(eval train_file := $(data_dir)/multilabel/$@.train)
+	$(eval heldout_file := $(data_dir)/multilabel/$@.heldout)
+	$(eval test_file := $(data_dir)/multilabel/$@.test)
+	./multiTrainHash -s $(s) -l $(l) -c 1 -e $(e) -m $(m) -q $(q) -p $(p) $(sample_opt) -h $(heldout_file) $(train_file) $(model)
 	#./multiPred $(train_file) $(model)
 	./multiPred $(test_file)  $(model)
 ifneq ($(p), 0)

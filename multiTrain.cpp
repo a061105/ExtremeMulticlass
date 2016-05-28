@@ -5,7 +5,7 @@
 //#include "ActBCDsolve.h"
 //#include "OracleActBCD.h"
 #include "PostSolve.h"
-#include <unistd.h>
+//#include <unistd.h>
 
 double overall_time = 0.0;
 
@@ -15,25 +15,26 @@ void exit_with_help(){
 	cerr << "-s solver: (default 0)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
 	//cerr << "	1 -- Active Block Coordinate Descent" << endl;
-	cerr << "	3 -- Stochastic-Active Block Coordinate Descent" << endl;
+	cerr << "	1 -- Stochastic-Active Block Coordinate Descent(PD-Sparse)" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
-	cerr << "-c cost: cost of each sample (default 1)" << endl;
-	cerr << "-r speed_up_rate: using 1/r fraction of samples (default min(max(DK/(log(K)nnz(X)),1),d/5) )" << endl;
-	cerr << "-q split_up_rate: choose 1/q fraction of [K]" << endl;
+	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
+	cerr << "-r speed_up_rate: sample 1/r fraction of non-zero features to estimate gradient (default r = ceil(min( 5DK/(Clog(K)nnz(X)), nnz(X)/(5N) )) )" << endl;
+	cerr << "-q split_up_rate: divide all classes into q disjoint subsets (default 1)" << endl;
 	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
-	cerr << "-i im_sampling: Importance sampling instead of uniform (default not)" << endl;
-	cerr << "-g max_select: maximum number of greedy-selected dual variables per sample (default 1)" << endl;
-	cerr << "-p post_train_iter: #iter of post-training w/o L1R (default 0)" << endl;
+	cerr << "-u uniform_sampling: use uniform sampling instead of importance sampling (default not)" << endl;
+	cerr << "-g max_select: maximum number of dual variables selected during search (default: -1 (i.e. dynamically adjusted during iterations) )" << endl;
+	cerr << "-p post_train_iter: #iter of post-training without L1R (default 0)" << endl;
 	cerr << "-e early_terminate (default 3)" << endl;
+	cerr << "-h <file>: using heldout file <file>" << endl;
 	exit(0);
 }
 
-size_t getTotalSystemMemory()
+/*size_t getTotalSystemMemory()
 {
     long pages = sysconf(_SC_PHYS_PAGES);
     long page_size = sysconf(_SC_PAGE_SIZE);
     return (pages * page_size / 1024);
-}
+}*/
 
 void parse_cmd_line(int argc, char** argv, Param* param){
 
@@ -52,21 +53,21 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 				  break;
 			case 'c': param->C = atof(argv[i]);
 				  break;
-			case 'm': param->max_iter = atoi(argv[i]);
-				  break;
-			case 'g': param->max_select = atoi(argv[i]);
-				  break;
 			case 'r': param->speed_up_rate = atoi(argv[i]);
-				  break;
-			case 'i': param->using_importance_sampling = true; --i;
 				  break;
 			case 'q': param->split_up_rate = atoi(argv[i]);
 				  break;
+			case 'm': param->max_iter = atoi(argv[i]);
+				  break;
+			case 'u': param->using_importance_sampling = false; --i;
+				  break;
+			case 'g': param->max_select = atoi(argv[i]);
+				  break;
 			case 'p': param->post_solve_iter = atoi(argv[i]);
 				  break;
-			case 'h': param->heldoutFname = argv[i];
-				  break;
 			case 'e': param->early_terminate = atoi(argv[i]);
+				  break;
+			case 'h': param->heldoutFname = argv[i];
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;
@@ -88,42 +89,6 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 	}
 }
 
-void writeModel( char* fname, Model* model){
-
-	ofstream fout(fname);
-	fout << "nr_class " << model->K << endl;
-	fout << "label ";
-	for(vector<string>::iterator it=model->label_name_list->begin();
-			it!=model->label_name_list->end(); it++){
-		fout << *it << " ";
-	}
-	fout << endl;
-	fout << "nr_feature " << model->D << endl;
-	int D = model->D;
-	int K = model->K;
-	for(int j=0;j<D;j++){
-		vector<int>* nnz_index_j = &(model->w_hash_nnz_index[j]);
-		fout << nnz_index_j->size() << " ";
-		#ifdef USING_HASHVEC
-		pair<int, Float>* wj = model->w[j];
-		int size_wj = model->size_w[j];
-		int size_wj0 = size_wj-1;
-		for (vector<int>::iterator it = nnz_index_j->begin(); it != nnz_index_j->end(); it++){
-			int k = *it;
-			int index_w = 0;
-			find_index(wj, index_w, k, size_wj0, model->hashindices);
-			fout << k << ":" << wj[index_w].second << " ";
-		}
-		#else
-		Float* wj = model->w[j];
-		for(vector<int>::iterator it=nnz_index_j->begin(); it!=nnz_index_j->end(); it++){
-			fout << *it << ":" << wj[*it] << " ";
-		}
-		#endif
-		fout << endl;
-	}
-	fout.close();
-}
 
 int main(int argc, char** argv){
 	
@@ -153,6 +118,8 @@ int main(int argc, char** argv){
 	cerr << "d=" << (Float)nnz(train->data)/N << endl;
 	cerr << "D=" << D << endl; 
 	cerr << "K=" << K << endl;
+	
+	/*
 	#ifndef USING_HASHVEC
 	//cerr << "Assume we are using Unix system! " << endl;
 	size_t total_memory = getTotalSystemMemory();
@@ -161,16 +128,17 @@ int main(int argc, char** argv){
 		max_need = N*K;
 	//cout << total_memory/2 << " " << 2*sizeof(Float)*max_need/1024 << endl;
 	if (total_memory/2 < (2*sizeof(Float)*max_need/1024)) {
-		cerr << " not enough total memory! try make with -DUSING_HASHVEC! " << endl;
+		cerr << "WARNING: You might not have enough memory! try using multiTrainHash! " << endl;
 		exit(0);
 	}
 	#endif
+	*/
 		
 	if( param->solver == 0 ){
 		
 		SBCDsolve* solver = new SBCDsolve(param);
 		Model* model = solver->solve();
-		writeModel(param->modelFname, model);
+		model->writeModel(param->modelFname);
 //	}else if( param->solver==1 ){
 //		
 //		ActBCDsolve* solver = new ActBCDsolve(param);
@@ -181,10 +149,10 @@ int main(int argc, char** argv){
 //		OracleActBCD* solver = new OracleActBCD(param);
 //		Model* model = solver->solve();
 //		writeModel(param->modelFname, model);
-	}else if( param->solver==3 ){
+	}else if( param->solver==1 ){
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();
-		writeModel(param->modelFname, model);
+		model->writeModel(param->modelFname);
 		
 		if( param->post_solve_iter > 0 ){
 			
@@ -198,7 +166,7 @@ int main(int argc, char** argv){
 	
 			char* postsolved_modelFname = new char[FNAME_LEN];
 			sprintf(postsolved_modelFname, "%s.p", param->modelFname);
-			writeModel(postsolved_modelFname, model);
+			model->writeModel(postsolved_modelFname);
 			delete[] postsolved_modelFname;
 		}
 	}

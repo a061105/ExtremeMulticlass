@@ -21,6 +21,8 @@ class SplitOracleActBCD{
 		N = train->N;
 		D = train->D;
 		K = train->K;
+
+		//a random permutation
 		hashfunc = new HashClass(K);
 		hashindices = hashfunc->hashindices;
 		
@@ -44,9 +46,16 @@ class SplitOracleActBCD{
 		speed_up_rate = param->speed_up_rate;
 		split_up_rate = param->split_up_rate;
 		if( speed_up_rate==-1 )
-			speed_up_rate = round( max( min( 5.0*D*K/nnz(train->data)/C/log((Float)K), d/10.0), 1.0) );
-		cerr << "lambda=" << lambda << ", C=" << C << ", r=" << speed_up_rate  << endl;
+			speed_up_rate = ceil( min(5.0*D*K/nnz(train->data)/C/log((Float)K), d/5.0) );
+		cerr << "lambda=" << lambda << ", C=" << C << endl;
+		if (using_importance_sampling){
+			cerr << "using importance sampling" << ", speed up rate=" << speed_up_rate << endl;
+		} else {
+			cerr << "using uniform sampling" << ", speed up rate=" << speed_up_rate << endl;
+		}
 		using_importance_sampling = param->using_importance_sampling;
+
+		//number of variables added to active set in each iteration.
 		max_select = param->max_select;
 		if (max_select == -1){
 			int avg_label = 0;
@@ -60,7 +69,7 @@ class SplitOracleActBCD{
 		}
 		//global cache
 		prod = new Float[K];	
-		prod_cache = new Float[K];	
+		prod_cache = new Float[K];
 		inside = new bool[K];
 		inside_index = new bool[K];
 		memset(prod, 0.0, sizeof(Float)*K);
@@ -89,6 +98,7 @@ class SplitOracleActBCD{
 		delete[] util_v;
 		delete[] size_w;
 		#endif
+
 		delete[] act_k_index;
 		delete[] hashindices;
 		delete[] non_split_index;	
@@ -167,7 +177,7 @@ class SplitOracleActBCD{
 		
 		//main loop
 		int terminate_countdown = 0;
-		double starttime = omp_get_wtime();
+		//double starttime = omp_get_wtime();
 		double search_time=0.0, subsolve_time=0.0, maintain_time=0.0;
 		double last_search_time = 0.0, last_subsolve_time = 0.0, last_maintain_time = 0.0;
 		Float* alpha_i_new = new Float[K];
@@ -223,7 +233,7 @@ class SplitOracleActBCD{
 						Float delta_alpha = delta_alpha_ik[ind++];
 						if( fabs(delta_alpha) < EPS )
 							continue;
-						//update v						
+						//update v, w						
 						find_index(vj, index_v, k, size_vj0, hashindices);
 						Float vjk = vj[index_v].second.first + f_val*delta_alpha;
 						Float wjk_old = vj[index_v].second.second;
@@ -249,7 +259,7 @@ class SplitOracleActBCD{
 						Float delta_alpha = delta_alpha_ik[ind++];
 						if( fabs(delta_alpha) < EPS )
 							continue;
-						//update v
+						//update v, w
 						pair<Float, Float> vjk_wjk = vj[k];
 						Float vjk = vjk_wjk.first + f_val*delta_alpha;
 						Float wjk = prox_l1(vjk, lambda);
@@ -310,16 +320,16 @@ class SplitOracleActBCD{
 			last_search_time = search_time;
 			last_maintain_time = maintain_time;
 			last_subsolve_time = subsolve_time;	
-			//early terminate: if heldout_test_accuracy does not increase in last three iterations, stop!	
+			//early terminate: if heldout_test_accuracy does not increase in last <early_terminate> iterations, stop!	
 			if( heldoutEval != NULL){
-				overall_time += omp_get_wtime();
+				//overall_time += omp_get_wtime();
 				#ifdef USING_HASHVEC
 				Float heldout_test_acc = heldoutEval->calcAcc(v, size_v, w_hash_nnz_index, hashindices, split_up_rate);//(Float)hit/heldout->N;
 				#else
 				Float heldout_test_acc = heldoutEval->calcAcc(v, w_hash_nnz_index, split_up_rate);
 				#endif
 				cerr << "heldout Acc=" << heldout_test_acc << " ";
-				overall_time -= omp_get_wtime();
+				//overall_time -= omp_get_wtime();
 				if ( heldout_test_acc > best_heldout_acc){
 					best_heldout_acc = heldout_test_acc;
 					store_best_model();
@@ -362,16 +372,22 @@ class SplitOracleActBCD{
 			cerr << endl;
 			iter++;
 		}
-		double endtime = omp_get_wtime();
+		//double endtime = omp_get_wtime();
 		cerr << endl;
-	
+
+		//recover act_k_index to the best state so far
+		//This is because act_k_index is not a part of model, but we might need to use act_k_index possibly in Post Solve
 		if (best_act_k_index != NULL){
 			for (int i = 0; i < N; i++){
 				act_k_index[i] = best_act_k_index[i];
 			}
 		}
-		
-		cerr << "train time=" << endtime-starttime << endl;
+		if (best_model == NULL){
+			store_best_model();
+		}
+	
+		//computing heldout accuracy 	
+		cerr << "train time=" << overall_time + omp_get_wtime() << endl;
 		cerr << "search time=" << search_time << endl;
 		cerr << "subsolve time=" << subsolve_time << endl;
 		cerr << "maintain time=" << maintain_time << endl;
@@ -380,9 +396,6 @@ class SplitOracleActBCD{
 		delete[] Q_diag;
 		delete cdf_sum;
 		delete[] index;
-		if (best_model == NULL){
-			store_best_model();
-		}
 		return best_model;
 	}
 	void subSolve(int I, vector<pair<int, Float>>& act_k_index, Float* alpha_i_new){	
@@ -464,7 +477,8 @@ class SplitOracleActBCD{
 		delete[] b; delete[] c;
 		delete[] act_index_b; delete[] act_index_c;
 	}
-		
+	
+	//search with importance sampling	
 	void search_active_i_importance( int i, vector<pair<int, Float>>& act_k_index ){
 		//prod_cache should be all zero
 		
@@ -612,6 +626,7 @@ class SplitOracleActBCD{
 		delete[] max_indices;
         }
 
+	//searching with uniform sampling
 	void search_active_i_uniform(int i, vector<pair<int, Float>>& act_k_index){	
 		//prod_cache should be all zero
 		/*
@@ -783,6 +798,7 @@ class SplitOracleActBCD{
 		delete[] max_indices;
 	}
 
+	//store the best model as well as necessary indices
 	void store_best_model(){
 		#ifdef USING_HASHVEC
 		memset(inside, false, sizeof(bool)*K);
@@ -862,7 +878,7 @@ class SplitOracleActBCD{
 	}
 	
 	private:
-	Model* best_model = NULL;
+	
 	double best_heldout_acc = -1.0;
 	Problem* train;
 	HeldoutEval* heldoutEval;
@@ -878,7 +894,7 @@ class SplitOracleActBCD{
 	vector<Float>* cdf_sum;
 	HashVec** w_temp;
 	vector<int>** w_hash_nnz_index;
-	vector<int>** best_w_hash_nnz_index;
+	
 	int max_iter;
 	vector<int>* k_index;
 		
@@ -905,11 +921,18 @@ class SplitOracleActBCD{
 
 	//(index, val) representation of alpha
 	vector<pair<int, Float>>* act_k_index;
+
+	//for storing best model
 	vector<pair<int, Float>>* best_act_k_index;
-	
-	int iter;
-	int* hashindices;
 	vector<int>* non_split_index;
+	Model* best_model = NULL;
+	vector<int>** best_w_hash_nnz_index;
+
+	//iterations used so far	
+	int iter;
+	//a random permutation stored in public
+	int* hashindices;
+	
 	
 	#ifdef USING_HASHVEC
 	pair<int, Float>** w;
@@ -918,7 +941,6 @@ class SplitOracleActBCD{
 	pair<int, pair<Float, Float> >** best_v;  
 	int* size_v;
         int* util_v;
-	
 	#else
 	Float** w;
 	pair<Float, Float>** v;

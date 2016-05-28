@@ -109,44 +109,44 @@ class PostSolve{
 		*/
 		//if( nnz_alpha_avg < nnz_w_avg ){
 			
-			#ifdef USING_HASHVEC
-			for(int i=0;i<N;i++){
-				SparseVec* xi = data->at(i);
-				vector<SparseVec*>* data_per_class_i = &(data_per_class[i]);
-				vector<pair<int, Float>>* act_k_i = &(act_k_index[i]);
-				for(vector<pair<int, Float>>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
-					int k = it->first;
-					SparseVec* data_per_class_i_k = new SparseVec();
-					//loop over j s.t. x[i][j] != 0
-					for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
-						//need w[j][k] != 0
-						int index_w = 0;
-						int j = it2->first;
-						find_index(_w[j], index_w, k, _size_w[j]-1, _hashindices);
-						if( _w[j][index_w].second != 0.0 )
-							data_per_class_i_k->push_back(make_pair(j, it2->second));
-					}
-					data_per_class_i->push_back(data_per_class_i_k);
+		#ifdef USING_HASHVEC
+		for(int i=0;i<N;i++){
+			SparseVec* xi = data->at(i);
+			vector<SparseVec*>* data_per_class_i = &(data_per_class[i]);
+			vector<pair<int, Float>>* act_k_i = &(act_k_index[i]);
+			for(vector<pair<int, Float>>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
+				int k = it->first;
+				SparseVec* data_per_class_i_k = new SparseVec();
+				//loop over j s.t. x[i][j] != 0
+				for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
+					//need w[j][k] != 0
+					int index_w = 0;
+					int j = it2->first;
+					find_index(_w[j], index_w, k, _size_w[j]-1, _hashindices);
+					if( _w[j][index_w].second != 0.0 )
+						data_per_class_i_k->push_back(make_pair(j, it2->second));
 				}
+				data_per_class_i->push_back(data_per_class_i_k);
 			}
-				
-			#else
-			for(int i=0;i<N;i++){
-				SparseVec* xi = data->at(i);
-				//SparseVec* data_per_class_i = data_per_class[i];
-				vector<SparseVec*>* data_per_class_i = &(data_per_class[i]);
-				vector<pair<int, Float>>* act_k_i = &(act_k_index[i]);
-				for(vector<pair<int, Float>>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
-					int k = it->first;
-					SparseVec* data_per_class_i_k = new SparseVec();
-					for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
-						if( _w[ it2->first ][k] != 0.0 )
-							data_per_class_i_k->push_back(make_pair(it2->first, it2->second));
-					}
-					data_per_class_i->push_back(data_per_class_i_k);
+		}
+
+		#else
+		for(int i=0;i<N;i++){
+			SparseVec* xi = data->at(i);
+			//SparseVec* data_per_class_i = data_per_class[i];
+			vector<SparseVec*>* data_per_class_i = &(data_per_class[i]);
+			vector<pair<int, Float>>* act_k_i = &(act_k_index[i]);
+			for(vector<pair<int, Float>>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
+				int k = it->first;
+				SparseVec* data_per_class_i_k = new SparseVec();
+				for(SparseVec::iterator it2=xi->begin(); it2!=xi->end(); it2++){
+					if( _w[ it2->first ][k] != 0.0 )
+						data_per_class_i_k->push_back(make_pair(it2->first, it2->second));
 				}
+				data_per_class_i->push_back(data_per_class_i_k);
 			}
-			#endif
+		}
+		#endif
 		
 		//}
 		/*else{

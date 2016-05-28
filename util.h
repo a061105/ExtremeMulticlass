@@ -7,14 +7,14 @@
 #include<string>
 #include<cstring>
 #include<stdlib.h>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
-#include <omp.h>
-#include <unordered_map>
-#include <time.h>
-#include <tuple>
-#include <cassert>
+#include<fstream>
+#include<iostream>
+#include<algorithm>
+#include<omp.h>
+#include<unordered_map>
+#include<time.h>
+#include<tuple>
+#include<cassert>
 //#include "newHash.h"
 
 using namespace std;
@@ -47,7 +47,7 @@ class ScoreComp{
 };
 
 // Hash function [K] ->[m]
-
+/*
 class HashFunc{
 	
 	public:
@@ -109,7 +109,7 @@ class HashFunc{
 	int K, l, r;
 	int a,b,c,p;
 };
-
+*/
 class PermutationHash{
 	public:
 	PermutationHash(){};
@@ -214,24 +214,27 @@ long nnz( vector<SparseVec*>& data ){
 	return sum;
 }
 
-inline bool update_max_indices(int* max_indices, Float* prod, int candidate, int top){
-	//max_indices should have size top+1
+// maintain top tK indices, stored in max_indices, where indices are sorted by x[].
+// Here the situation is x(i) has just been updated, where i may or may not exist in max_indices
+inline bool update_max_indices(int* max_indices, Float* x, int i, int tK){
+	//max_indices should have size tK+1
 	int ind = 0;
-	while (ind < top && max_indices[ind] != -1 && max_indices[ind] != candidate){
+	// entry ind is empty if max_indices[ind] == -1
+	while (ind < tK && max_indices[ind] != -1 && max_indices[ind] != i){
 		ind++;
 	}
-	if (ind < top && max_indices[ind] == candidate)
+	if (ind < tK && max_indices[ind] == i)
 		return false;
-	max_indices[ind] = candidate;
+	max_indices[ind] = i;
 	int k = 0;
 	//try move to right
-	while (ind < top-1 && max_indices[ind+1] != -1 && prod[max_indices[ind+1]] > prod[max_indices[ind]]){
+	while (ind < tK-1 && max_indices[ind+1] != -1 && x[max_indices[ind+1]] > x[max_indices[ind]]){
                 k = max_indices[ind];
                 max_indices[ind] = max_indices[ind+1];
                 max_indices[++ind] = k;
         }
 	//try move to left
-	while (ind > 0 && prod[max_indices[ind]] > prod[max_indices[ind-1]]){
+	while (ind > 0 && x[max_indices[ind]] > x[max_indices[ind-1]]){
 		k = max_indices[ind];
 		max_indices[ind] = max_indices[ind-1];
 		max_indices[--ind] = k;
@@ -240,9 +243,10 @@ inline bool update_max_indices(int* max_indices, Float* prod, int candidate, int
 }
 
 //min_{x,y} \|x - b\|^2 + \|y - c\|^2
-// s.t. x,y \in (Simplex * C)
+// s.t. x >= 0, y >= 0
 //  \|x\|_1 = \|y\|_1 = t \in [0, C]
-// x,b \in R^n, y,c \in R^m
+// x,b \in R^n; y,c \in R^m
+// O( (m + n) log(m+n) ), but usually dominated by complexity of computing b, c
 inline void solve_bi_simplex(int n, int m, Float* b, Float* c, Float C, Float* x, Float* y){
 	int* index_b = new int[n];
 	int* index_c = new int[m];

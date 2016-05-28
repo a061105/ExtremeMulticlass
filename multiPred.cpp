@@ -43,10 +43,9 @@ StaticModel* readModel(char* file){
 int main(int argc, char** argv){
 	
 	if( argc < 1+2 ){
-		cerr << "multiPred [testfile] [model] (top k, default auto)" << endl;
+		cerr << "multiPred [testfile] [model] (k) (compute top k accuracy, default 1)" << endl;
 		exit(0);
 	}
-	
 
 	char* testFile = argv[1];
 	char* modelFile = argv[2];

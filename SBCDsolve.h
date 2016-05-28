@@ -9,6 +9,7 @@ class SBCDsolve{
 		
 		prob = param->train;
 		heldoutEval = param->heldoutEval;
+		early_terminate = param->early_terminate;
 		lambda = param->lambda;
 		C = param->C;
 		
@@ -735,7 +736,7 @@ class SBCDsolve{
 	Float* Q_diag;
 	
 	//heldout options
-	int early_terminate = 30;
+	int early_terminate;
 	
 	vector<int>* nnz_index;
 	#ifdef USING_HASHVEC
