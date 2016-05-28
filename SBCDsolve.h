@@ -20,7 +20,6 @@ class SBCDsolve{
 		K = prob->K;
 		max_iter = param->max_iter;
 		#ifdef USING_HASHVEC
-		//hash_top = 0; hash_bottom = 0;
 		hashfunc = new HashClass(K);
 		hashindices = hashfunc->hashindices;
 		#endif
@@ -35,67 +34,6 @@ class SBCDsolve{
 		delete[] v;
 	}
 	
-/*	#ifdef USING_HASHVEC
-	long long hash_top = 0, hash_bottom = 0;
-	inline pair<int, Float>* alpha_i_k(pair<int, Float>* alpha_i, int i, int act_indexj){
-		int size_alphai = size_alpha[i];
-		int index_alpha = hashindices[act_indexj] & (size_alphai - 1);
-                while (alpha_i[index_alpha].first != -1 && alpha_i[index_alpha].first != act_indexj){
-                        index_alpha++;
-                        if (index_alpha == size_alphai)
-                                index_alpha = 0;
-                }
-		//if (alpha_i[index_alpha].first == act_indexj)	hash_top++;
-		return &(alpha_i[index_alpha]);
-	}
-
-	inline pair<int, Float>* v_j_k(pair<int, Float>* vj, int j, int act_indexj){
-		int size_vj = size_v[j];
-		int index_v = hashindices[act_indexj] & (size_vj - 1);
-                while (vj[index_v].first != -1 && vj[index_v].first != act_indexj){
-                        index_v++;
-                        if (index_v == size_vj)
-                                index_v = 0;
-                }
-		//if (vj[index_v].first == act_indexj)	hash_top++;
-		return &(vj[index_v]);
-	}
-	inline void find_index(pair<int, Float>* l, int& st, const int& index, const int& size0){
-		st = hashindices[index] & size0;
-		//cout << "start finding " << st << " " << size0 << endl;
-		if (l[st].first != index){
-			while (l[st].first != index && l[st].first != -1){
-				st++;
-				st &= size0;
-			}
-		}
-		//cout << "end finding " << endl;
-	}
-	inline void resize(pair<int, Float>*& l, pair<int, Float>*& L, int& size, int& new_size, int& new_size0, const int& util){
-		while (util > UPPER_UTIL_RATE * new_size){
-			new_size *= 2;
-		}
-		pair<int, Float>* new_l = new pair<int, Float>[new_size];
-		new_size0 = new_size - 1;
-		int index_l = 0;
-		for (int tt = 0; tt < new_size; tt++){
-			new_l[tt] = make_pair(-1, 0.0);
-		}
-		for (int tt = 0; tt < size; tt++){
-			//insert old elements into new array
-			pair<int, Float> p = l[tt];
-			if (p.first != -1){
-				find_index(new_l, index_l, p.first, new_size0);
-				new_l[index_l] = p;
-			}
-		}
-		delete[] l;
-		l = new_l;
-		size = new_size;
-		L = new_l;
-	}
-	#endif
-*/	
 	Model* solve(){
 		
 		//initialize alpha and v ( s.t. v = X^Talpha )
@@ -110,7 +48,6 @@ class SBCDsolve{
 				size_alpha[i] = size_alpha[i] << 1;
 			}
 			alpha[i] = new pair<int, Float>[size_alpha[i]];
-			//memset(alpha[i], 255, sizeof(pair<int, Float>)*size_alpha[i]);
 			for (int k = 0; k < size_alpha[i]; k++){
 				alpha[i][k] = make_pair(-1, 0.0);
 			}
@@ -122,7 +59,6 @@ class SBCDsolve{
 		for (int j = 0; j < D; j++){
 			size_v[j] = INIT_SIZE;
 			v[j] = new pair<int, Float>[size_v[j]];
-			//memset(v[j], 255, sizeof(pair<int, Float>)*size_v[j]);
 			for(int k = 0; k < size_v[j]; k++){
 				v[j][k] = make_pair(-1, 0.0);
 			}
@@ -161,13 +97,10 @@ class SBCDsolve{
 			act_k_size[i] = K;
 
 		int** act_k_index = new int*[N];
-		//int** act_k_hashindex = new int*[N];
 		for(int i=0;i<N;i++){
 			act_k_index[i] = new int[K];
-		//	act_k_hashindex[i] = new int[K];
 			for(int k=0;k<K;k++){
 				act_k_index[i][k] = k;
-		//		act_k_hashindex[i][k] = k & (size_alpha[i]-1);
 			}
 		}
 		//main loop
@@ -184,7 +117,6 @@ class SBCDsolve{
 				int i = index[r];
 				int act_size = act_k_size[i];
 				int* act_index = act_k_index[i];
-				//int* act_hashindex = new int[K];
 				#ifdef USING_HASHVEC
 				pair<int, Float>* alpha_i = alpha[i];
 				int size_alphai = size_alpha[i];
@@ -208,17 +140,8 @@ class SBCDsolve{
 				Float* alpha_i_k = new Float[act_size];
 				for(int j = 0; j < act_size; j++){
 					int act_indexj = act_index[j];
-					/*int index_alpha = hashindices[act_indexj] & size_alphai0;
-                                        //hash_top++; hash_bottom++;
-                                        if (alpha_i[index_alpha].first != act_indexj)
-                                        while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1){
-						index_alpha++;
-                                                index_alpha &= size_alphai0;
-						//hash_top++;
-                                        }*/
 					find_index(alpha_i, index_alpha, act_indexj, size_alphai0, hashindices);
 					alpha_i_k[j] = alpha_i_new[act_indexj] - alpha_i[index_alpha].second; 
-					//act_hashindex[j] = hashindices[act_indexj] & size_alphai0;
 				}
 				#endif
 				for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
@@ -228,16 +151,10 @@ class SBCDsolve{
 					#ifdef USING_HASHVEC
 					pair<int, Float>* vj = v[J];
 					int size_vj = size_v[J];
-					//Float upper = size_vj*UPPER_UTIL_RATE;
 					int util_vj = util_v[J];
 					int size_vj0 = size_vj - 1;
 					for(int j = 0; j < act_size; j++){
 						int act_indexj = act_index[j];
-						//v_j_k(it->first, act_indexj)->second += f_val*(alpha_i_new[act_indexj] - alpha_i_k(i, act_indexj)->second);
-						//v_j_k(it->first, act_indexj)->first = act_indexj;
-						//int index_v = hashindices[act_indexj] & size_vj0;
-						//hash_top++; hash_bottom++;
-						//cout << "outside finding " << util_vj << " " << endl;
 						find_index(vj, index_v, act_indexj, size_vj0, hashindices);
 						vj[index_v].second += f_val*alpha_i_k[j];
 						if (vj[index_v].first == -1){
@@ -258,20 +175,11 @@ class SBCDsolve{
 					}
 					#endif
 				}
-				//cout << "middle " << endl;
 				//update alpha
 				#ifdef USING_HASHVEC
 				for(int j=0;j<act_size;j++){
 					int act_indexj = act_index[j];
 					find_index(alpha_i, index_alpha, act_indexj, size_alphai0, hashindices);
-					//int index_alpha = hashindices[act_indexj] & size_alphai0;
-                                      	//hash_top++; hash_bottom++;
-                                       	//while (alpha_i[index_alpha].first != act_indexj && alpha_i[index_alpha].first != -1 ){
-                                        //       index_alpha++;
-                                        //       if (index_alpha == size_alphai)
-                                        //               index_alpha = 0;
-                                        //      hash_top++;
-                                        //};
 					
 					if (alpha_i[index_alpha].first == -1 && (alpha_i_new[act_indexj] != 0.0)){
 						alpha_i[index_alpha].first = act_indexj;
@@ -280,41 +188,7 @@ class SBCDsolve{
 				}
 				if (act_size > size_alphai * UPPER_UTIL_RATE){
 					//resize here
-					//cout << "enter_alpha" << endl;
-					//cout << size_alphai << " " << act_size << endl;
 					resize(alpha_i, alpha[i], size_alpha[i], size_alphai, size_alphai0, act_size, hashindices);
-					/*while (act_size > size_alphai * UPPER_UTIL_RATE){
-						size_alphai = size_alphai << 1;
-					}
-					//using size_vj as new size_v[j], and size_v[j] is old size
-					size_alphai0 = size_alphai - 1;
-					pair<int, Float>* alphai_new = new pair<int, Float>[size_alphai];
-					for (int tt = 0; tt < size_alphai; tt++){
-						alphai_new[tt] = make_pair(-1, 0.0);
-					}
-					for (int tt = 0; tt < size_alpha[i]; tt++){
-						//insert vj[tt]
-						pair<int, Float>* temp_pair = &(alpha_i[tt]);
-						int k = temp_pair->first;
-						if (k != -1){
-							int index_alpha = hashindices[k] & size_alphai0;
-							if (alphai_new[index_alpha].first != k){
-                						while (alphai_new[index_alpha].first != k && alphai_new[index_alpha].first != -1){
-                						        index_alpha++;
-									index_alpha &= size_alphai0;
-                						}
-								if (alphai_new[index_alpha].first == -1){
-									alphai_new[index_alpha].first = k;
-								}
-							}
-							alphai_new[index_alpha].second = temp_pair->second;
-						}
-					}
-					
-					delete[] alpha_i;
-					alpha_i = alphai_new; alpha[i] = alphai_new;
-					size_alpha[i] = size_alphai;
-					//cout << "exit_alpha" << endl;*/
 				}
 				delete[] alpha_i_k;
 				#else
@@ -408,22 +282,6 @@ class SBCDsolve{
 		}
 		
 		#endif
-	//	pair<int, Float>** w = new pair<int, Float>*[D];
-	//	for(int j=0;j<D;j++)
-	//		w[j] = new pair<int, Float>;
-	//	for(int j=0;j<D;j++)
-	//		for(int k=0;k<K;k++){
-	//			#ifdef USING_HASHVEC
-	//			int index_v = 0;
-	//			find_index(v[j], index_v, k, size_v[j] - 1, hashindices);
-	//			Float wjk = v[j][index_v].second;
-	//			//Float wjk = prox_l1(v_j_k(v[j], j, k)->second, lambda);
-	//			#else
-	//			Float wjk = v[j][k].second;
-	//			#endif
-	//			if( wjk != 0.0 )
-	//				w[j]->insert(make_pair(k, wjk));
-	//		}
 		
 		Float d_obj = 0.0;
 		int nSV = 0;
@@ -473,8 +331,6 @@ class SBCDsolve{
 		cerr << "train time=" << endtime-starttime << endl;
 		cerr << "subsolve time=" << subsolve_time << endl;
 		cerr << "maintain time=" << maintain_time << endl;
-		//debug
-		/////////////////////////
 		
 		//delete algorithm-specific variables
 		delete[] alpha_i_new;
@@ -511,38 +367,24 @@ class SBCDsolve{
 		Float* alpha_i = alpha[I];
 		#endif
 		int i = 0, j = 0;
-		int* index_b = new int[n];
-		int* index_c = new int[m];
 		for(int k=0;k<m+n;k++){
 			int p = act_k_index[k];
 			#ifdef USING_HASHVEC
 			find_index(alpha_i, index_alpha, p, size_alphai0, hashindices);
-			/*int index_alpha = hashindices[p] & size_alphai0;
-                        if (alpha_i[index_alpha].first != p){
-				//hash_top++; hash_bottom++;
-                                while (alpha_i[index_alpha].first != p && alpha_i[index_alpha].first != -1){
-                                        index_alpha++; index_alpha &= size_alphai0;
-				//	hash_top++;
-                                }
-                        }*/
 			
 			if( find(yi->begin(), yi->end(), p) == yi->end() ){
 				b[i] = 1.0 - A*alpha_i[index_alpha].second;
-				index_b[i] = i;
 				act_index_b[i++] = p;
 			}else{
                                 c[j] = A*alpha_i[index_alpha].second;
-                                index_c[j] = j;
 				act_index_c[j++] = p;
 			}
 			#else
 			if( find(yi->begin(), yi->end(), p) == yi->end() ){
 				b[i] = 1.0 - A*alpha_i[p];
-				index_b[i] = i;
 				act_index_b[i++] = p;
 			}else{
 				c[j] = A*alpha_i[p];
-				index_c[j] = j;
 				act_index_c[j++] = p;
 			}
 			#endif
@@ -562,17 +404,6 @@ class SBCDsolve{
 			for(int i = 0; i < n; i++){
 				int k = act_index_b[i];
 				#ifdef USING_HASHVEC
-				/*int index_v = hashindices[k] & size_vj0;
-				//int first = vj[index_v].first;
-				if (vj[index_v].first != k){
-					//hash_top++; hash_bottom++;
-					if (vj[index_v].first != -1){
-						do{
-                				        index_v++; index_v &= size_vj0;
-							//hash_top++;
-                				}while (vj[index_v].first != k && vj[index_v].first != -1);
-					}
-				}*/
 				find_index(vj, index_v, k, size_vj0, hashindices);
 				Float vjk = vj[index_v].second;
 				if (fabs(vjk) > lambda){
@@ -589,16 +420,6 @@ class SBCDsolve{
 			for(int j = 0; j < m; j++){
 				int k = act_index_c[j];
 				#ifdef USING_HASHVEC
-				/*int index_v = hashindices[k] & size_vj0;
-				if (vj[index_v].first != k){
-					//hash_top++; hash_bottom++;
-					if (vj[index_v].first != -1){
-						do{
-                				        index_v++; index_v &= size_vj0;
-							//hash_top++;
-                				}while (vj[index_v].first != k && vj[index_v].first != -1);
-					}
-				}*/
 				find_index(vj, index_v, k, size_vj0, hashindices);
 				Float vjk = vj[index_v].second;	
 				if( fabs(vjk) > lambda ){
@@ -613,114 +434,29 @@ class SBCDsolve{
 			}
 		}
 
-		//sort by non-increasing order
-		sort(index_b, index_b+n, ScoreComp(b));
-		sort(index_c, index_c+m, ScoreComp(c));	
-
-		//partial sums
-		Float* S_b = new Float[n];
-		Float* S_c = new Float[m];
-		//l_2 residuals
-		Float r_b = 0.0, r_c = 0.0;
 		for (int i = 0; i < n; i++){
-			b[index_b[i]] /= A;
-			r_b += b[index_b[i]]*b[index_b[i]];
-			if (i == 0)
-				S_b[i] = b[index_b[i]];
-			else
-				S_b[i] = S_b[i-1] + b[index_b[i]];
+			b[i] /= A;
 		}
 		for (int j = 0; j < m; j++){
-                        c[index_c[j]] /= A;
-			r_c += c[index_c[j]]*c[index_c[j]];
-			if (j == 0)
-				S_c[j] = c[index_c[j]];
-			else
-                        	S_c[j] = S_c[j-1] + c[index_c[j]];
-                }
-		i = 0; j = 0; 
-		while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= 0){
-			r_b -= b[index_b[i]]*b[index_b[i]];
-			i++;
-		} 
-		while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= 0) { 
-                        r_c -= c[index_c[j]]*c[index_c[j]];
-                        j++;
-                }
-		//update for b_{0..i-1} c_{0..j-1}
-		//i,j is the indices of coordinate that we will going to include, but not now!
-		Float t = 0.0;
-		Float ans_t_star = 0; 
-		Float ans = INFI; 
-		int ansi = i, ansj = j;
-		int lasti = 0, lastj = 0;
-		do{
-			lasti = i; lastj = j;
-			// l = t; t = min(f_b(i), f_c(j));
-			Float l = t;
-			if (i == n){
-				if (j == m){
-					t = C;
-				} else {
-					t = S_c[j] - (j+1)*c[index_c[j]];
-				}
-			} else {
-				if (j == m){
-					t = S_b[i] - (i+1)*b[index_b[i]];
-				} else {
-					t = S_b[i] - (i+1)*b[index_b[i]];
-					if (S_c[j] - (j+1)*c[index_c[j]] < t){ 
-                                		t = S_c[j] - (j+1)*c[index_c[j]]; 
-                        		}
-				}
-			}
-			if (t > C){
-				t = C;
-			}
-			Float t_star = (i*S_c[j-1] + j*S_b[i-1])/(i+j);
-			if (t_star < l){
-				t_star = l;
-			}
-			if (t_star > t){
-				t_star = t;
-			}
-			Float candidate = r_b + r_c + (S_b[i-1] - t_star)*(S_b[i-1] - t_star)/i + (S_c[j-1] - t_star)*(S_c[j-1] - t_star)/j;
-			if (candidate < ans){
-				ans = candidate;
-				ansi = i;
-				ansj = j;
-				ans_t_star = t_star;
-			}
-			while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= t){
-               	         	r_b -= b[index_b[i]]*b[index_b[i]];
-               	        	i++;
-               	 	}
-               	 	while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= t) {
-               	         	r_c -= c[index_c[j]]*c[index_c[j]];
-               	        	j++;
-               	 	}
-		} while (i != lasti || j != lastj);
-		i = ansi; j = ansj;
+			c[j] /= A;
+		}
+		
+		Float* x = new Float[n];
+		Float* y = new Float[m];
+		solve_bi_simplex(n, m, b, c, C, x, y);
+		
 		for(int i = 0; i < n; i++){
-			int k = act_index_b[index_b[i]];
-			if (i < ansi)
-				alpha_i_new[k] = -(b[index_b[i]] + (ans_t_star - S_b[ansi-1])/ansi);
-			else
-				alpha_i_new[k] = 0.0;
+			int k = act_index_b[i];
+			alpha_i_new[k] = -x[i]; 
 		}
 		for(int j = 0; j < m; j++){
-                        int k = act_index_c[index_c[j]];
-			if (j < ansj)
-                        	alpha_i_new[k] = c[index_c[j]] + (ans_t_star - S_c[ansj-1])/ansj;
-			else
-				alpha_i_new[k] = 0.0;
+                        int k = act_index_c[j];
+                        alpha_i_new[k] = y[j]; 
                 }
-			
+		
+		delete[] x; delete[] y;	
 		delete[] b; delete[] c;
 		delete[] act_index_b; delete[] act_index_c;
-		delete[] S_b; delete[] S_c;
-		delete[] index_b; delete[] index_c; 
-		//delete[] Dk;	
 	}
 
 	private:

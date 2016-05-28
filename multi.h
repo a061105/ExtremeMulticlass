@@ -58,13 +58,10 @@ class HeldoutEval{
 			int top = T;
 			if (top == -1)
 				top = yi->size();
-			//for (int t = 0; t <= top; t++)
-			//	max_indices[t] = -1;
 			// compute <w_k, x_i> where w_k is stored in hashmap
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 				int j= it->first;
 				Float xij = it->second;
-				assert( j < D );
 				pair<int, Float>* vj = v[j];
 				int size_vj0 = size_v[j] - 1;
 				for (int k = 0; k < K; k++){
@@ -72,33 +69,14 @@ class HeldoutEval{
 					find_index(vj, index_v, k, size_vj0, hashindices);
 					Float wjk = prox_l1(vj[index_v].second, lambda);
 					prod[k] += wjk * xij;
-					//update_max_indices(max_indices, prod, k, top);
 				}
 			}
-			/*vector<pair<Float, int>> comp;
-			for (int k = 0; k < K; k++){
-				comp.push_back(make_pair(prod[k], k));
-			}
-			sort(comp.begin(), comp.end(), greater<pair<Float, int>>());*/
 			
 			//sort to get rank
 			sort(max_indices, max_indices+K, ScoreComp(prod));
 			
-			/*if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
-				//best score is smaller than zero
-				for (int t = 0; t < top; t++){
-					for (int k = 0; k < K; k++){
-						if (prod[k] == 0.0){
-							if (update_max_indices(max_indices, prod, k, top))
-								break;
-						}
-					}
-				}
-			}*/
 			for(int k=0;k<top;k++){
 				bool flag = false;
-				//assert(fabs(prod[comp[k].second] - prod[max_indices[k]]) < 1e-6);
-				//assert(comp[k].second == max_indices[k]);
 				for (int j = 0; j < yi->size(); j++){
 					if (yi->at(j) == max_indices[k] ){
 						flag = true;
@@ -124,34 +102,21 @@ class HeldoutEval{
 			int top = T;
 			if (top == -1)
 				top = yi->size();
-			//for (int t = 0; t < top; t++)
-			//	max_indices[t] = -1;
 
 			// compute <w_k, x_i>
 			for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 
 				int j= it->first;
 				Float xij = it->second;
-				//assert(j < D);
 				pair<Float, Float>* vj = v[j];
 				for (int k = 0; k < K; k++){	
 					prod[k] += vj[k].second * xij;
-					//update_max_indices(max_indices, prod, k, top);
 				}
 			}
-			/*if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
-				for (int t = 0; t < top; t++){
-					for (int k = 0; k < K; k++){
-						if (prod[k] == 0.0){
-							if (update_max_indices(max_indices, prod, k, top))
-								break;
-						}
-					}
-				}
-			}*/
 
 			// sort to get rank
 			sort(max_indices, max_indices+K, ScoreComp(prod));
+			
 			for(int k=0;k<top;k++){
 				bool flag = false;
 				for (int j = 0; j < yi->size(); j++){
@@ -191,9 +156,6 @@ class HeldoutEval{
 
 				int j= it->first;
 				Float xij = it->second;
-				assert(j < D);
-				//if( j >= D )
-				//	continue;
 				#ifdef USING_HASHVEC
 				pair<int, pair<Float, Float>>* vj = v[j];
 				int size_vj0 = size_v[j] - 1;
@@ -345,8 +307,6 @@ class Model{
 		}
 		fout << endl;
 		fout << "nr_feature " << D << endl;
-		//int D = model->D;
-		//int K = model->K;
 		for(int j=0;j<D;j++){
 			vector<int>* nnz_index_j = &(w_hash_nnz_index[j]);
 			fout << nnz_index_j->size() << " ";

@@ -2,10 +2,7 @@
 #include "multi.h"
 #include "SplitOracleActBCD.h"
 #include "SBCDsolve.h"
-//#include "ActBCDsolve.h"
-//#include "OracleActBCD.h"
 #include "PostSolve.h"
-//#include <unistd.h>
 
 double overall_time = 0.0;
 
@@ -18,7 +15,6 @@ void exit_with_help(){
 	cerr << "options:" << endl;
 	cerr << "-s solver: (default 0)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
-	//cerr << "	1 -- Active Block Coordinate Descent" << endl;
 	cerr << "	1 -- Stochastic-Active Block Coordinate Descent(PD-Sparse)" << endl;
 	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
 	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
@@ -32,13 +28,6 @@ void exit_with_help(){
 	cerr << "-h <file>: using heldout file <file>" << endl;
 	exit(0);
 }
-
-/*size_t getTotalSystemMemory()
-{
-    long pages = sysconf(_SC_PHYS_PAGES);
-    long page_size = sysconf(_SC_PAGE_SIZE);
-    return (pages * page_size / 1024);
-}*/
 
 void parse_cmd_line(int argc, char** argv, Param* param){
 
@@ -104,15 +93,10 @@ int main(int argc, char** argv){
 	
 	overall_time -= omp_get_wtime();
 
-	//param->lambda /= prob->N;
 	if (param->heldoutFname != NULL){
-		//assert(param->train->label_index_map == param->heldout->label_index_map);
-		//assert(param->train->label_name_list == param->heldout->label_name_list);
 		Problem* heldout = new Problem();
 		readData( param->heldoutFname, heldout);
 		cerr << "heldout N=" << heldout->data.size() << endl;
-		//cerr << "heldout D=" << heldout->D << endl;
-		//cerr << "heldout K=" << heldout->K << endl;
 		param->heldoutEval = new HeldoutEval(heldout);
 	}
 	int D = train->D;
@@ -122,37 +106,13 @@ int main(int argc, char** argv){
 	cerr << "d=" << (Float)nnz(train->data)/N << endl;
 	cerr << "D=" << D << endl; 
 	cerr << "K=" << K << endl;
-	
-	/*
-	#ifndef USING_HASHVEC
-	//cerr << "Assume we are using Unix system! " << endl;
-	size_t total_memory = getTotalSystemMemory();
-	size_t max_need = D*K;
-	if (max_need < N*K)
-		max_need = N*K;
-	//cout << total_memory/2 << " " << 2*sizeof(Float)*max_need/1024 << endl;
-	if (total_memory/2 < (2*sizeof(Float)*max_need/1024)) {
-		cerr << "WARNING: You might not have enough memory! try using multiTrainHash! " << endl;
-		exit(0);
-	}
-	#endif
-	*/
 		
 	if( param->solver == 0 ){
 		
 		SBCDsolve* solver = new SBCDsolve(param);
 		Model* model = solver->solve();
 		model->writeModel(param->modelFname);
-//	}else if( param->solver==1 ){
-//		
-//		ActBCDsolve* solver = new ActBCDsolve(param);
-//		Model* model = solver->solve();
-//		writeModel(param->modelFname, model);
-//	}else if( param->solver==2 ){
-//		
-//		OracleActBCD* solver = new OracleActBCD(param);
-//		Model* model = solver->solve();
-//		writeModel(param->modelFname, model);
+	
 	}else if( param->solver==1 ){
 		SplitOracleActBCD* solver = new SplitOracleActBCD(param);
 		Model* model = solver->solve();

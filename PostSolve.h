@@ -96,18 +96,6 @@ class PostSolve{
 
 		// construct data_per_class
 		data_per_class = new vector<SparseVec*>[N];
-		//for(int i=0;i<N;i++)
-		//	data_per_class[i] = new vector<SparseVec*>();
-
-		/*double nnz_alpha_avg = (double)total_size( act_k_index, N ) / N;
-		double nnz_w_avg = 0.0;
-        	for(int j=0;j<D;j++)
-        	        nnz_w_avg += _w_hash_nnz_index[j]->size();
-		nnz_w_avg /= D;
-		//double nnz_w_avg = (double)total_size( *_w_hash_nnz_index, D ) / D;
-		cerr << "nnz_alpha=" << nnz_alpha_avg << ", nnz_w_avg=" << nnz_w_avg << endl;
-		*/
-		//if( nnz_alpha_avg < nnz_w_avg ){
 			
 		#ifdef USING_HASHVEC
 		for(int i=0;i<N;i++){
@@ -133,7 +121,6 @@ class PostSolve{
 		#else
 		for(int i=0;i<N;i++){
 			SparseVec* xi = data->at(i);
-			//SparseVec* data_per_class_i = data_per_class[i];
 			vector<SparseVec*>* data_per_class_i = &(data_per_class[i]);
 			vector<pair<int, Float>>* act_k_i = &(act_k_index[i]);
 			for(vector<pair<int, Float>>::iterator it=act_k_i->begin(); it!=act_k_i->end(); it++){
@@ -147,36 +134,6 @@ class PostSolve{
 			}
 		}
 		#endif
-		
-		//}
-		/*else{
-			
-			for(int i=0;i<N;i++){
-				SparseVec* xi = data->at(i);
-				vector<SparseVec*>* data_per_class_i = &(data_per_class[i]);
-				//SparseVec* data_per_class_i = data_per_class[i];
-				//hashmap(<k, data_per_class_i_k>
-				for(SparseVec::iterator it=xi->begin() ;it!=xi->end(); it++){
-					int j = it->first;
-					double xij = it->second;
-					SparseVec* data_per_class_i_k = new SparseVec();
-					for(vector<int>::iterator it2=_w_hash_nnz_index[j]->begin(); it2!=_w_hash_nnz_index[j]->end(); it2++){
-						int k = *it2;
-						#ifdef USING_HASHVEC
-						int index_alpha = 0;
-						int _size_alphai0 = _size_alpha[i] - 1;
-						find_index(_alpha[i], index_alpha, k, _size_alphai0, _hashindices);
-						if( _alpha[i][index_alpha].second != 0.0 )
-							data_per_class_i_k->push_back(make_pair(j, xij));
-						#else
-						if( _alpha[i][k] != 0.0)
-							data_per_class_i_k->push_back(make_pair(j, xij));
-						#endif
-					}
-					data_per_class_i->push_back(data_per_class_i_k);
-				}
-			}
-		}*/
 		
 		construct_time += omp_get_wtime();
 		cerr << "construct_time=" << construct_time << endl;
@@ -404,46 +361,12 @@ class PostSolve{
 		
 		Float A = Q_diag[I];
 
-		int* index_b = new int[n+m];
-		int* index_c = new int[m+n];
-		/*for(int k=0;k<m+n;k++){
-			int p = act_k_index[k];
-			act_k_index
-			#ifdef USING_HASHVEC
-			int index_alpha = 0;
-			find_index(alpha_i, index_alpha, p, size_alphai0, hashindices);
-			if( find(yi->begin(), yi->end(), p) == yi->end() ){
-				b[i] = 1.0 - A*alpha_i[index_alpha].second;
-				index_b[i] = i;
-				invert_index_b[i] = k;
-				act_index_b[i++] = p;
-			}else{
-				c[j] = A*alpha_i[index_alpha].second;
-				index_c[j] = j;
-				invert_index_c[j] = k;
-				act_index_c[j++] = p;
-			}
-			#else
-			if( find(yi->begin(), yi->end(), p) == yi->end() ){
-				b[i] = 1.0 - A*alpha_i[p];
-				index_b[i] = i;
-				invert_index_b[i] = k;
-				act_index_b[i++] = p;
-			}else{
-				c[j] = A*alpha_i[p];
-				index_c[j] = j;
-				invert_index_c[j] = k;
-				act_index_c[j++] = p;
-			}
-			#endif
-		}*/
 		vector<SparseVec*>::iterator data_it = x_i_per_class->begin();
 		for(vector<pair<int, Float>>::iterator it = act_k_index.begin(); it != act_k_index.end(); it++){
 			int k = it->first;
 			Float alpha_ik = it->second;
                         if( find(yi->begin(), yi->end(), k) == yi->end() ){
                                 b[i] = 1.0 - A*alpha_ik;
-                                index_b[i] = i;
 				act_index_b[i] = k;
 				SparseVec* x_i = *(data_it++);
 				#ifdef USING_HASHVEC
@@ -463,7 +386,6 @@ class PostSolve{
 				i++;
                         }else{
                                 c[j] = A*alpha_ik;
-                                index_c[j] = j;
 				act_index_c[j] = k;
 				SparseVec* x_i = *(data_it++);
 				#ifdef USING_HASHVEC
@@ -484,151 +406,29 @@ class PostSolve{
 		}
 		n = i;
 		m = j;
-		/*for(int i=0;i<n;i++){
-			int k = act_index_b[i];
-			int ind = invert_index_b[i];
-			SparseVec* x_i = x_i_per_class->at(ind);
-			#ifdef USING_HASHVEC
-			int size_vk0 = size_v[k] - 1;
-			pair<int, Float>* vk = v[k];
-			for(SparseVec::iterator it = x_i->begin(); it!=x_i->end(); it++){
-				int index_v = 0, j = it->first;
-				find_index(vk, index_v, j, size_vk0, hashindices);
-				b[i] += vk[index_v].second*it->second;
-			}
-			#else
-			Float* vk = v[k];
-			for(SparseVec::iterator it=x_i->begin(); it!=x_i->end(); it++){
-				b[i] += vk[it->first]*it->second;
-			}
-			#endif
-		}
-		for(int i=0;i<m;i++){
-			int k = act_index_c[i];
-			int ind = invert_index_c[i];
-			SparseVec* x_i = x_i_per_class->at(ind);
-			#ifdef USING_HASHVEC
-			int size_vk0 = size_v[k] - 1;
-			pair<int, Float>* vk = v[k];
-			for(SparseVec::iterator it = x_i->begin(); it!=x_i->end(); it++){
-				int index_v = 0, j = it->first;
-				find_index(vk, index_v, j, size_vk0, hashindices);
-				c[i] -= vk[index_v].second*it->second;
-			}
-			#else
-			Float* vk = v[k];
-			for(SparseVec::iterator it=x_i->begin(); it!=x_i->end() ;it++)
-				c[i] -= vk[it->first]*it->second;
-			#endif
-		}*/
-
-		//sort by non-increasing order
-		sort(index_b, index_b+n, ScoreComp(b));
-		sort(index_c, index_c+m, ScoreComp(c));	
-
-		//partial sums
-		Float* S_b = new Float[n];
-		Float* S_c = new Float[m];
-		//l_2 residuals
-		Float r_b = 0.0, r_c = 0.0;
 		for (int i = 0; i < n; i++){
-			b[index_b[i]] /= A;
-			r_b += b[index_b[i]]*b[index_b[i]];
-			if (i == 0)
-				S_b[i] = b[index_b[i]];
-			else
-				S_b[i] = S_b[i-1] + b[index_b[i]];
+			b[i] /= A;
 		}
 		for (int j = 0; j < m; j++){
-                        c[index_c[j]] /= A;
-			r_c += c[index_c[j]]*c[index_c[j]];
-			if (j == 0)
-				S_c[j] = c[index_c[j]];
-			else
-                        	S_c[j] = S_c[j-1] + c[index_c[j]];
-                }
-		i = 0; j = 0; 
-		while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= 0){
-			r_b -= b[index_b[i]]*b[index_b[i]];
-			i++;
-		} 
-		while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= 0) { 
-                        r_c -= c[index_c[j]]*c[index_c[j]];
-                        j++;
-                }
-		//update for b_{0..i-1} c_{0..j-1}
-		//i,j is the indices of coordinate that we will going to include, but not now!
-		Float t = 0.0;
-		Float ans_t_star = 0; 
-		Float ans = INFI; 
-		int ansi = i, ansj = j;
-		int lasti = 0, lastj = 0;
-		do{
-			lasti = i; lastj = j;
-			Float l = t;
-			if (i == n){
-				if (j == m){
-					t = C;
-				} else {
-					t = S_c[j] - (j+1)*c[index_c[j]];
-				}
-			} else {
-				if (j == m){
-					t = S_b[i] - (i+1)*b[index_b[i]];
-				} else {
-					t = S_b[i] - (i+1)*b[index_b[i]];
-					if (S_c[j] - (j+1)*c[index_c[j]] < t){ 
-                                		t = S_c[j] - (j+1)*c[index_c[j]]; 
-                        		}
-				}
-			}
-			if (t > C){
-				t = C;
-			}
-			Float t_star = (i*S_c[j-1] + j*S_b[i-1])/(i+j);
-			if (t_star < l){
-				t_star = l;
-			}
-			if (t_star > t){
-				t_star = t;
-			}
-			Float candidate = r_b + r_c + (S_b[i-1] - t_star)*(S_b[i-1] - t_star)/i + (S_c[j-1] - t_star)*(S_c[j-1] - t_star)/j;
-			if (candidate < ans){
-				ans = candidate;
-				ansi = i;
-				ansj = j;
-				ans_t_star = t_star;
-			}
-			while (i < n && S_b[i] - (i+1)*b[index_b[i]] <= t){
-               	         	r_b -= b[index_b[i]]*b[index_b[i]];
-               	        	i++;
-               	 	}
-               	 	while (j < m && S_c[j] - (j+1)*c[index_c[j]] <= t) {
-               	         	r_c -= c[index_c[j]]*c[index_c[j]];
-               	        	j++;
-               	 	}
-		} while (i != lasti || j != lastj);
-		i = ansi; j = ansj;
+			c[j] /= A;
+		}
+
+		Float* x = new Float[n];
+		Float* y = new Float[m];
+		solve_bi_simplex(n, m, b, c, C, x, y);
+		
 		for(int i = 0; i < n; i++){
-			int k = act_index_b[index_b[i]];
-			if (i < ansi)
-				alpha_i_new[k] = -(b[index_b[i]] + (ans_t_star - S_b[ansi-1])/ansi);
-			else
-				alpha_i_new[k] = 0.0;
+			int k = act_index_b[i];
+			alpha_i_new[k] = -x[i]; 
 		}
 		for(int j = 0; j < m; j++){
-                        int k = act_index_c[index_c[j]];
-			if (j < ansj)
-                        	alpha_i_new[k] = c[index_c[j]] + (ans_t_star - S_c[ansj-1])/ansj;
-			else
-				alpha_i_new[k] = 0.0;
+                        int k = act_index_c[j];
+                        alpha_i_new[k] = y[j]; 
                 }
-
-			
+		
+		delete[] x; delete[] y;	
 		delete[] b; delete[] c;
 		delete[] act_index_b; delete[] act_index_c;
-		delete[] S_b; delete[] S_c;
-		delete[] index_b; delete[] index_c; 
 	}
 
 	private:

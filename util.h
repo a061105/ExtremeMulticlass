@@ -15,7 +15,6 @@
 #include<time.h>
 #include<tuple>
 #include<cassert>
-//#include "newHash.h"
 
 using namespace std;
 
@@ -46,70 +45,6 @@ class ScoreComp{
 	Float* score;
 };
 
-// Hash function [K] ->[m]
-/*
-class HashFunc{
-	
-	public:
-	int* hashindices;
-	HashFunc(){
-	}
-	HashFunc(int _K){
-		//srand(time(NULL));
-		K = _K;
-		l = 10000;
-		r = 100000;
-		
-		// pick random prime number in [l, r]
-		p = rand() % (r - l) + l - 1;
-		bool isprime;
-		do {
-			p++;
-			isprime = true;
-			for (int i = 2; i * i <= p; i++){
-				if (p % i == 0){
-					isprime = false;
-					break;
-				}
-			}
-		} while (!isprime);
-		a = rand() % p;
-		b = rand() % p;
-		c = rand() % p;
-		hashindices = new int[K];
-		for (int i = 0; i < K; i++){
-			hashindices[i] = ((a*i*i + b*i + c) % p) % INIT_SIZE;
-			if (i < INIT_SIZE) cerr << hashindices[i] % INIT_SIZE << " ";
-		}
-		cerr << endl;
-	}
-	~HashFunc(){
-		delete [] hashindices;
-	}
-	void rehash(){
-		p = rand() % (r - l) + l - 1;
-                bool isprime;
-                do {
-                        p++;
-                        isprime = true;
-                        for (int i = 2; i * i <= p; i++){
-                                if (p % i == 0){
-                                        isprime = false;
-                                        break;
-                                }
-                        }
-                } while (!isprime);
-		a = rand() % p;
-                b = rand() % p;
-		for (int i = 0; i < K; i++){
-                        hashindices[i] = (a * i + b) % p;
-                }
-	}
-	private:
-	int K, l, r;
-	int a,b,c,p;
-};
-*/
 class PermutationHash{
 	public:
 	PermutationHash(){};
@@ -279,24 +214,6 @@ inline void solve_bi_simplex(int n, int m, Float* b, Float* c, Float C, Float* x
 		D_c[j] = S_c[j] - (j+1)*c[index_c[j]];
 	}
 	D_c[m] = C;
-	/*
-	cerr << "b:";
-	for (int i = 0; i < n; i++)
-		cerr << b[index_b[i]] << " ";
-	cerr << endl;
-	cerr << "c:";
-	for (int j = 0; j < m; j++)
-		cerr << c[index_c[j]] << " ";
-	cerr << endl;
-	cerr << "D_b:";
-	for (int i = 0; i <= n; i++)
-		cerr << D_b[i] << " ";
-	cerr << endl;
-	cerr << "D_c:";
-	for (int j = 0; j <= m; j++)
-		cerr << D_c[j] << " ";
-	cerr << endl;
-	*/
 	int i = 0, j = 0;
 	//update for b_{0..i-1} c_{0..j-1}
 	//i,j is the indices of coordinate that we will going to include, but not now!
@@ -307,23 +224,8 @@ inline void solve_bi_simplex(int n, int m, Float* b, Float* c, Float C, Float* x
 	int lasti = 0, lastj = 0;
 	do{
 		lasti = i; lastj = j;
-		// l = t; t = min(f_b(i), f_c(j));
 		Float l = t;
 		t = min(D_b[i+1], D_c[j+1]);
-		//cerr << "getting new t:" << t << endl;
-		/*if (i == n){
-		  if (j == m){
-		  t = C;
-		  } else {
-		  t = D_c[j];
-		  }
-		  } else {
-		  if (j == m){
-		  t = D_b[i];
-		  } else {
-		  t = min(D_b[i], D_c[j]);
-		  }
-		  }*/
 		//now allowed to use 0..i, 0..j
 		if (l >= C && t > C){
 			break;
@@ -360,7 +262,6 @@ inline void solve_bi_simplex(int n, int m, Float* b, Float* c, Float C, Float* x
 		}
 		//cerr << "updating j to " << j << endl;
 	} while (i != lasti || j != lastj);
-	//i = ansi; j = ansj;
 	//cerr << "ansi=" << ansi << ", ansj=" << ansj << ", t_star=" << ans_t_star << endl;
 	for(i = 0; i < n; i++){
 		int ii = index_b[i];

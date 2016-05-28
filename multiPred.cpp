@@ -95,16 +95,9 @@ int main(int argc, char** argv){
 			for(SparseVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
 				int k = it2->first;
 				prod[k] += it2->second*xij;
-				/*if (top == 1){
-					if (prod[max_indices[0]] < prod[k]){
-						max_indices[0] = k;
-					}
-					continue;
-				}*/
 				update_max_indices(max_indices, prod, k, top);
 			}
 		}
-		//sort(k_index, k_index + model->K, ScoreComp(prod));
 		Float max_val = -1e300;
 		int argmax;
 		if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
