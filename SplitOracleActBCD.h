@@ -177,7 +177,6 @@ class SplitOracleActBCD{
 		
 		//main loop
 		int terminate_countdown = 0;
-		//double starttime = omp_get_wtime();
 		double search_time=0.0, subsolve_time=0.0, maintain_time=0.0;
 		double last_search_time = 0.0, last_subsolve_time = 0.0, last_maintain_time = 0.0;
 		Float* alpha_i_new = new Float[K];
@@ -233,7 +232,7 @@ class SplitOracleActBCD{
 						Float delta_alpha = delta_alpha_ik[ind++];
 						if( fabs(delta_alpha) < EPS )
 							continue;
-						//update v, w						
+						//update v, w
 						find_index(vj, index_v, k, size_vj0, hashindices);
 						Float vjk = vj[index_v].second.first + f_val*delta_alpha;
 						Float wjk_old = vj[index_v].second.second;
@@ -307,6 +306,7 @@ class SplitOracleActBCD{
 			for(int j=0;j<D;j++){
 				for(int S=0;S < split_up_rate; S++){
 					nnz_w_j += w_hash_nnz_index[j][S].size(); //util_w[j][S];
+					
 				}
 			}
 			nnz_w_j /= D;
@@ -319,49 +319,21 @@ class SplitOracleActBCD{
 			}
 			last_search_time = search_time;
 			last_maintain_time = maintain_time;
-			last_subsolve_time = subsolve_time;	
+			last_subsolve_time = subsolve_time;
+			overall_time += omp_get_wtime();
+			cerr << "dual_obj=" << dual_obj() << "\t";
+			overall_time -= omp_get_wtime();
 			//early terminate: if heldout_test_accuracy does not increase in last <early_terminate> iterations, stop!	
 			if( heldoutEval != NULL){
-				//overall_time += omp_get_wtime();
 				#ifdef USING_HASHVEC
-				Float heldout_test_acc = heldoutEval->calcAcc(v, size_v, w_hash_nnz_index, hashindices, split_up_rate);//(Float)hit/heldout->N;
+				Float heldout_test_acc = heldoutEval->calcAcc(v, size_v, w_hash_nnz_index, hashindices, split_up_rate);
 				#else
 				Float heldout_test_acc = heldoutEval->calcAcc(v, w_hash_nnz_index, split_up_rate);
 				#endif
 				cerr << "heldout Acc=" << heldout_test_acc << " ";
-				//overall_time -= omp_get_wtime();
 				if ( heldout_test_acc > best_heldout_acc){
 					best_heldout_acc = heldout_test_acc;
 					store_best_model();
-					//save best v and w_hash_nnz_index
-					/*for (int j = 0; j < D; j++){
-						for (int S = 0; S < split_up_rate; S++)
-							best_w_hash_nnz_index[j][S] = w_hash_nnz_index[j][S];
-					}
-					//copy act_k_index, v, size_v
-					#ifdef USING_HASHVEC
-					best_v = new pair<int, pair<Float, Float>>*[D];
-					best_size_v = new int[D];
-					for (int j = 0; j < D; j++){
-						best_size_v[j] = size_v[j];
-						best_v = new pair<int, pair<Float, Float>>[size_v[j]];
-						for (int it = 0; it < size_v[j]; it++){
-							best_v[j][it].second = v[j][it].second;
-							best_v[j][it].first = v[j][it].first;
-						}
-					}
-					
-					#else
-					best_v = new pair<Float, Float>*[D];
-					for (int j = 0; j < D; j++){
-						best_v = new pair<Float, Float>[size_v[j]];
-						for (int k = 0; k < K; k++){
-							best_v[j][k].second = v[it].second;
-							best_v[it].first = v[it].first;
-						}
-					}
-					#endif*/
-					//copy alpha
 					terminate_countdown = 0;
 				} else {
 					cerr << "(" << (++terminate_countdown) << "/" << early_terminate << ")";
@@ -372,7 +344,6 @@ class SplitOracleActBCD{
 			cerr << endl;
 			iter++;
 		}
-		//double endtime = omp_get_wtime();
 		cerr << endl;
 
 		//recover act_k_index to the best state so far
@@ -398,6 +369,59 @@ class SplitOracleActBCD{
 		delete[] index;
 		return best_model;
 	}
+	
+	//compute 1/2 \|w\|_2^2 + \sum_{i,k: k \not \in y_i} alpha_{i, k}
+	Float dual_obj(){
+		Float dual_obj = 0.0;
+		memset(inside, false, sizeof(bool)*K);
+		for (int J = 0; J < D; J++){
+			vector<int>* wJ = w_hash_nnz_index[J];
+			#ifdef USING_HASHVEC
+			pair<int, pair<Float, Float>>* vj = v[J];
+			int size_vj = size_v[J];
+			int util_vj = util_v[J];
+			int size_vj0 = size_vj - 1;
+			int index_v = -1;
+			#else
+			pair<Float, Float>* vj = v[J];
+			#endif
+			
+			for (int S = 0; S < split_up_rate; S++){
+				for (vector<int>::iterator it = wJ[S].begin(); it != wJ[S].end(); it++){
+					int k = *it;
+					if (inside[k]){
+						continue;
+					}
+					inside[k] = true;
+					#ifdef USING_HASHVEC
+					find_index(vj, index_v, k, size_vj0, hashindices);
+					Float wjk = vj[index_v].second.second;
+					#else
+					Float wjk = vj[k].second;
+					#endif
+					dual_obj += wjk*wjk;
+				}
+				for (vector<int>::iterator it = wJ[S].begin(); it != wJ[S].end(); it++){
+					int k = *it;
+					inside[k] = false;
+				}
+			}
+		}
+		dual_obj /= 2.0;
+		for (int i = 0; i < N; i++){
+			vector<pair<int, Float>>& act_index = act_k_index[i];
+			Labels* yi = &(labels->at(i));
+			for (vector<pair<int, Float>>::iterator it = act_index.begin(); it != act_index.end(); it++){
+				int k = it->first;
+				Float alpha_ik = it->second;
+				if (find(yi->begin(), yi->end(), k) == yi->end()){
+					dual_obj += alpha_ik;
+				}
+			}
+		}
+		return dual_obj;
+	}
+
 	void subSolve(int I, vector<pair<int, Float>>& act_k_index, Float* alpha_i_new){	
 			
 		Labels* yi = &(labels->at(I));
@@ -443,13 +467,11 @@ class SplitOracleActBCD{
                                 #endif
 			}
 			for(int j = 0; j < m; j++){
-				//int k = act_index_c[j];
 				#ifdef USING_HASHVEC
                                 find_index(vj, index_v, act_index_c[j], size_vj0, hashindices);
                                 Float wjk = vj[index_v].second.second;
                                 c[j] -= wjk*fea_val;
                                 #else
-                                //Float vjk = vj[k];
                                 c[j] -= vj[act_index_c[j]].second*fea_val;
 				#endif
 			}
@@ -503,14 +525,10 @@ class SplitOracleActBCD{
 			rand_nums.push_back(((Float)rand()/(RAND_MAX)));
 		}
 		sort(rand_nums.begin(), rand_nums.end()); 
-		//#ifdef MULTISELECT
 		int* max_indices = new int[max_select+1];
 		for(int ind = 0; ind <= max_select; ind++){
 			max_indices[ind] = -1;
 		}
-		/*#else
-		int max_index = 0;
-		#endif*/
 		SparseVec::iterator current_index = xi->begin();
 		Float current_sum = current_index->second;
 		vector<Float>::iterator current_rand_index = rand_nums.begin();
@@ -563,7 +581,6 @@ class SplitOracleActBCD{
 				inside[*it2] = false;
 			}
                 }
-		//#ifdef MULTISELECT
 		
 		for (vector<int>::iterator it = check_indices.begin(); it != check_indices.end(); it++){
 			int k = *it;
@@ -588,29 +605,6 @@ class SplitOracleActBCD{
 				act_k_index.push_back(make_pair(max_indices[ind], 0.0));
 			}
 		}
-		/*#else
-		max_index = 0;
-		for (vector<int>::iterator it = check_indices.begin(); it != check_indices.end(); it++){
-			int k = *it;
-			inside_index[k] = false;
-			if (prod_cache[max_index] < prod_cache[k]){
-				max_index = k;
-			}
-		}
-		if (prod_cache[max_index] < 0){
-			for (int r = 0; r < K; r++){
-				int k = hashindices[r];
-				if (prod_cache[k] == 0){
-					max_index = k;
-					break;
-				}
-			}
-		}
-		
-		if (prod_cache[max_index] > th){
-			act_k_index.push_back(make_pair(max_index, 0.0));
-		} 
-		#endif*/
 		
 		//reset prod_cache to all zero
 		for (vector<int>::iterator it = check_indices.begin(); it != check_indices.end(); it++){
@@ -629,10 +623,6 @@ class SplitOracleActBCD{
 	//searching with uniform sampling
 	void search_active_i_uniform(int i, vector<pair<int, Float>>& act_k_index){	
 		//prod_cache should be all zero
-		/*
-		for (int k = 0; k < K; k++)
-			assert(prod_cache[k] == 0.0);
-		*/
 		//select one area from {0, ..., split_up_rate-1}
 		int S = rand()%split_up_rate;
 
@@ -651,14 +641,10 @@ class SplitOracleActBCD{
 		if (nnz < speed_up_rate)
 			n = nnz;
 		Float th = -n/(1.0*nnz);
-		//#ifdef MULTISELECT
 		int* max_indices = new int[max_select+1];
 		for(int ind = 0; ind <= max_select; ind++){
 			max_indices[ind] = -1;
 		}
-		/*#else
-		int max_index = 0;
-		#endif*/
 		random_shuffle(xi->begin(), xi->end());
 		for (SparseVec::iterator current_index = xi->begin(); current_index < xi->begin() + n; current_index++){
 			Float xij = current_index->second;
@@ -692,15 +678,6 @@ class SplitOracleActBCD{
 				}
 				inside[k] = true;
                                 prod_cache[k] += wjk * xij;
-				/*#ifndef MULTISELECT
-				if (prod[max_index] < prod[k]){
-					max_index = k;
-				}
-				#else
-				if (prod[k] > th){
-					update_max_indices(max_indices, prod, k, max_select);	
-				}
-				#endif*/
 			}
 			for (vector<int>::iterator it2 = wjS.begin(); it2 != wjS.end(); it2++){
 				inside[*it2] = false;
@@ -729,29 +706,6 @@ class SplitOracleActBCD{
 				act_k_index.push_back(make_pair(max_indices[ind], 0.0));
 			}
 		}
-		/*#else
-		max_index = 0;
-		for (vector<int>::iterator it = check_indices.begin(); it != check_indices.end(); it++){
-			int k = *it;
-			inside_index[k] = false;
-			if (prod_cache[max_index] < prod_cache[k]){
-				max_index = k;
-			}
-		}
-		if (prod_cache[max_index] < 0){
-			for (int r = 0; r < K; r++){
-				int k = hashindices[r];
-				if (prod_cache[k] == 0){
-					max_index = k;
-					break;
-				}
-			}
-		}
-		
-		if (prod_cache[max_index] > th){
-			act_k_index.push_back(make_pair(max_index, 0.0));
-		} 
-		#endif*/
 		
 		//reset prod_cache to all zero
 		for (vector<int>::iterator it = check_indices.begin(); it != check_indices.end(); it++){
@@ -763,38 +717,6 @@ class SplitOracleActBCD{
 		for (Labels::iterator it = yi->begin(); it != yi->end(); it++){
 			prod_cache[*it] = 0.0;
 		}
-		/*#ifdef MULTISELECT
-		for (int j = 0; j < max_select; j++){
-			if (max_indices[j] != -1 && prod[max_indices[j]] > 0.0) 
-				continue;
-			for (int r = 0; r < K; r++){
-				int k = hashindices[r];
-				if (prod[k] == 0){
-					if (update_max_indices(max_indices, prod, k, max_select)){
-						break;
-					}
-				}
-			}
-		}
-		for(int ind = 0; ind < max_select; ind++){
-			if (max_indices[ind] != -1 && prod[max_indices[ind]] > th){
-				act_k_index.push_back(make_pair(max_indices[ind], 0.0));
-			}
-		}
-		#else
-		if (prod[max_index] < 0){
-			for (int r = 0; r < K; r++){
-				int k = hashindices[r]; 
-				if (prod[k] == 0){
-					max_index = k;
-					break;
-				}
-			}
-		}
-		if (prod[max_index] > th){
-			act_k_index.push_back(make_pair(max_index, 0.0));
-		} 
-		#endif*/
 		delete[] max_indices;
 	}
 
@@ -835,12 +757,6 @@ class SplitOracleActBCD{
 				int k = *it;
 				inside[k] = false;
 			}
-		//	for(int S=0;S<split_up_rate;S++){
-		//		for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
-		//			int k = *it;
-		//			inside[k] = false;
-		//		}
-		//	}
 		}
 		best_model = new Model(train, non_split_index, w, size_w, hashindices);
 		#else
@@ -849,10 +765,10 @@ class SplitOracleActBCD{
 				w[j][*it] = 0.0;
 			}
 		}
+		memset(inside, false, sizeof(bool)*K);
 		for (int j = 0; j < D; j++){
 			non_split_index[j].clear();
 			pair<Float, Float>* vj = v[j];
-			memset(inside, false, sizeof(bool)*K);
 			for(int S=0;S<split_up_rate;S++){
 				for (vector<int>::iterator it=w_hash_nnz_index[j][S].begin(); it!=w_hash_nnz_index[j][S].end(); it++){
 					int k = *it;

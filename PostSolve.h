@@ -14,7 +14,8 @@ class PostSolve{
 		
 		prob = param->train;
 		C = param->C;
-		
+		lambda = param->lambda;	
+	
 		vector<SparseVec*>* data = &(prob->data);
 		labels = &(prob->labels);
 		D = prob->D;
@@ -177,6 +178,7 @@ class PostSolve{
 		double subsolve_time = 0.0, maintain_time = 0.0;
 		Float* alpha_i_new = new Float[K];
 		int iter = 0;
+		max_iter = 0;
 		while( iter < max_iter ){
 			random_shuffle( index, index+N );
 			for(int r=0;r<N;r++){
@@ -307,9 +309,9 @@ class PostSolve{
 				#else
 				Float wjk = w[j][k];
 				#endif
+				wjk = prox_l1(wjk, lambda);
 				d_obj += wjk*wjk;
 				w_1norm += fabs(wjk);
-				
 			}
 			nnz_w += nnz_index[j].size();
 		}
@@ -433,7 +435,7 @@ class PostSolve{
 
 	private:
 	Problem* prob;
-	Float C;
+	Float C, lambda;
 	
 	vector<SparseVec*>* data_per_class;
 	vector<Labels>* labels;

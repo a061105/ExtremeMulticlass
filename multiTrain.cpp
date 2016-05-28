@@ -85,6 +85,10 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 
 int main(int argc, char** argv){
 	
+	auto time_null = time(NULL);
+	cerr << "random seed: " << time_null << endl;
+	srand(time_null);
+	
 	Param* param = new Param();
 	parse_cmd_line(argc, argv, param);
 	Problem* train = new Problem();

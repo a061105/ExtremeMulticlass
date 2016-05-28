@@ -49,9 +49,6 @@ class PermutationHash{
 	public:
 	PermutationHash(){};
 	PermutationHash(int _K){	
-		auto time_null = time(NULL);
-		cerr << "random seed: " << time_null << endl;
-		srand(time_null);
 		K = _K;
 		hashindices = new int[K];
 		for (int i = 0; i < K; i++){
@@ -102,7 +99,7 @@ double prox_l1_nneg( double v, double lambda ){
 	return v-lambda;
 }
 
-double prox_l1( double v, double lambda ){
+inline Float prox_l1( Float v, Float lambda ){
 	
 	if( fabs(v) > lambda ){
 		if( v>0.0 )

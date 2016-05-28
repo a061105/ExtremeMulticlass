@@ -52,9 +52,9 @@ Eur-Lex:
 
 #multiclass datasets
 sector:
-	$(eval train_file := $(data_dir)/$@/$@.train)
-	$(eval heldout_file := $(data_dir)/$@/$@.heldout)
-	$(eval test_file := $(data_dir)/$@/$@.test)
+	$(eval train_file := $(data_dir)/multiclass/$@/$@.train)
+	$(eval heldout_file := $(data_dir)/multiclass/$@/$@.heldout)
+	$(eval test_file := $(data_dir)/multiclass/$@/$@.test)
 	make train_without_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.1
 
 aloi.bin:
