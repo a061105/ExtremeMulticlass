@@ -48,12 +48,12 @@ class SplitOracleActBCD{
 		if( speed_up_rate==-1 )
 			speed_up_rate = ceil( min(5.0*D*K/nnz(train->data)/C/log((Float)K), d/5.0) );
 		cerr << "lambda=" << lambda << ", C=" << C << endl;
+		using_importance_sampling = param->using_importance_sampling;
 		if (using_importance_sampling){
 			cerr << "using importance sampling" << ", speed up rate=" << speed_up_rate << endl;
 		} else {
 			cerr << "using uniform sampling" << ", speed up rate=" << speed_up_rate << endl;
 		}
-		using_importance_sampling = param->using_importance_sampling;
 
 		//number of variables added to active set in each iteration.
 		max_select = param->max_select;

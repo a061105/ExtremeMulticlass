@@ -10,7 +10,11 @@
 double overall_time = 0.0;
 
 void exit_with_help(){
-	cerr << "Usage: ./multiTrain (options) [train_data] (model)" << endl;
+	#ifdef USING_HASHVEC
+	cerr << "Usage: ./multiTrainHash (options) [train_data] (model)" << endl;
+	#else
+	cerr << "Usage: ./multiTrain (options) [train_data] (model)" << endl;	
+	#endif
 	cerr << "options:" << endl;
 	cerr << "-s solver: (default 0)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
