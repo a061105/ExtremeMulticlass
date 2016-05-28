@@ -178,7 +178,6 @@ class PostSolve{
 		double subsolve_time = 0.0, maintain_time = 0.0;
 		Float* alpha_i_new = new Float[K];
 		int iter = 0;
-		max_iter = 0;
 		while( iter < max_iter ){
 			random_shuffle( index, index+N );
 			for(int r=0;r<N;r++){

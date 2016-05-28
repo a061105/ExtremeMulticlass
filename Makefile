@@ -20,7 +20,7 @@ post_train_iter=200
 early_terminate=3
 
 output_model=model
-data_dir=./examples#/scratch/cluster/xrhuang/data
+data_dir=/scratch/cluster/xrhuang/data
 train_file=
 heldout_file=
 test_file=
@@ -42,7 +42,7 @@ bibtex:
 	$(eval train_file := $(data_dir)/multilabel/$@.train)
 	$(eval heldout_file := $(data_dir)/multilabel/$@.heldout)
 	$(eval test_file := $(data_dir)/multilabel/$@.test)
-	make train_without_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) sample_option=-u 
+	make train_without_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) sample_option=-u early_terminate=10
 
 Eur-Lex:
 	$(eval train_file := $(data_dir)/multilabel/$@.train)
@@ -67,7 +67,7 @@ Dmoz:
 	$(eval train_file := $(data_dir)/Dmoz/Dmoz.train)
 	$(eval heldout_file := $(data_dir)/Dmoz/Dmoz.heldout)
 	$(eval test_file := $(data_dir)/Dmoz/Dmoz.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file)
+	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.1 split_up_rate=3
 
 LSHTC1:
 	$(eval train_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.train)
@@ -75,11 +75,11 @@ LSHTC1:
 	$(eval test_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.test)
 	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.01 split_up_rate=3 early_terminate=10
 
-imgNet:	
-	$(eval train_file := $(data_dir)/imagenet/imgNet.train)
-	$(eval heldout_file := $(data_dir)/imagenet/imgNet.heldout)
-	$(eval test_file := $(data_dir)/imagenet/imgNet.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file)
+imageNet:	
+	$(eval train_file := $(data_dir)/$@/$@.train)
+	$(eval heldout_file := $(data_dir)/$@/$@.heldout)
+	$(eval test_file := $(data_dir)/$@/$@.test)
+	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.1 split_up_rate=3
 
 
 
