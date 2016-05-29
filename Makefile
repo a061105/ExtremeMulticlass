@@ -1,11 +1,17 @@
-all: train predict
+all: multiTrain multiTrainHash multiPred
 	
-train:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
+multiTrain:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
+multiTrainHash:	
+	g++ -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
 	
-predict:
+multiPred:
 	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
+
+clean:
+	rm -f multiTrain
+	rm -f multiTrainHash
+	rm -f multiPred
 
 #parameters
 solver=1
@@ -25,78 +31,64 @@ train_file=
 heldout_file=
 test_file=
 
+.SECONDEXPANSION:
+
 #multilabel datasets
-LSHTCwiki:
-	$(eval train_file := $(data_dir)/multilabel/$@.train)
-	$(eval heldout_file := $(data_dir)/multilabel/$@.heldout)
-	$(eval test_file := $(data_dir)/multilabel/$@.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) 
+LSHTCwiki: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test
 
-rcv1_regions:
-	$(eval train_file := $(data_dir)/multilabel/$@.train)
-	$(eval heldout_file := $(data_dir)/multilabel/$@.heldout)
-	$(eval test_file := $(data_dir)/multilabel/$@.test)
-	make train_without_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.1 split_up_rate=3 
+rcv1_regions:  examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_without_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda=0.1 split_up_rate=3 
 
-bibtex:
-	$(eval train_file := $(data_dir)/multilabel/$@.train)
-	$(eval heldout_file := $(data_dir)/multilabel/$@.heldout)
-	$(eval test_file := $(data_dir)/multilabel/$@.test)
-	make train_without_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) sample_option=-u early_terminate=10
+bibtex: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_without_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test sample_option=-u early_terminate=10
 
-Eur-Lex:
-	$(eval train_file := $(data_dir)/multilabel/$@.train)
-	$(eval heldout_file := $(data_dir)/multilabel/$@.heldout)
-	$(eval test_file := $(data_dir)/multilabel/$@.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.001 early_terminate=10 
+Eur-Lex: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda=0.001 early_terminate=10 
 
 #multiclass datasets
-sector:
-	$(eval train_file := $(data_dir)/multiclass/$@/$@.train)
-	$(eval heldout_file := $(data_dir)/multiclass/$@/$@.heldout)
-	$(eval test_file := $(data_dir)/multiclass/$@/$@.test)
-	make train_without_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.1
+sector: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_without_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda=0.1
 
-aloi.bin:
-	$(eval train_file := $(data_dir)/$@/$@.train)
-	$(eval heldout_file := $(data_dir)/$@/$@.heldout)
-	$(eval test_file := $(data_dir)/$@/$@.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.01
+aloi.bin: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda=0.01
 
-Dmoz:
-	$(eval train_file := $(data_dir)/Dmoz/Dmoz.train)
-	$(eval heldout_file := $(data_dir)/Dmoz/Dmoz.heldout)
-	$(eval test_file := $(data_dir)/Dmoz/Dmoz.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.1 split_up_rate=3
+Dmoz: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda=0.1 split_up_rate=3
 
-LSHTC1:
-	$(eval train_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.train)
-	$(eval heldout_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.heldout)
-	$(eval test_file := $(data_dir)/LSHTC/LSHTC1/LSHTC1.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.01 split_up_rate=3 early_terminate=10
+LSHTC1: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda=0.01 split_up_rate=3 early_terminate=10
 
-imageNet:	
-	$(eval train_file := $(data_dir)/$@/$@.train)
-	$(eval heldout_file := $(data_dir)/$@/$@.heldout)
-	$(eval test_file := $(data_dir)/$@/$@.test)
-	make train_with_hash train_file=$(train_file) heldout_file=$(heldout_file) test_file=$(test_file) lambda=0.1 split_up_rate=3
+imageNet: examples/$$@/	
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda=0.1 split_up_rate=3
 
-
-
-train_without_hash: $(train_file) $(heldout_file) $(test_file)
+train_without_hash: multiTrain multiPred $(train_file) $(heldout_file) $(test_file)
 	./multiTrain -c $(cost) -l $(lambda) -s $(solver) -r $(speed_up_rate) -e $(early_terminate) -m $(max_iter) -q $(split_up_rate) -g $(max_select) -p $(post_train_iter) $(sample_option) -h $(heldout_file) $(train_file) $(output_model)
-	#testing model before post solve
+	@echo "testing model before post solve"
 	./multiPred $(test_file) $(output_model)
 ifneq ($(p), 0)
-	#testing model after post solve
+	@echo "testing model after post solve"
 	./multiPred $(test_file) $(output_model).p
 endif
 
-train_with_hash: $(train_file) $(heldout_file) $(test_file)
+train_with_hash: multiTrainHash multiPred $(train_file) $(heldout_file) $(test_file)
 	./multiTrainHash -c $(cost) -l $(lambda) -s $(solver) -r $(speed_up_rate) -e $(early_terminate) -m $(max_iter) -q $(split_up_rate) -g $(max_select) -p $(post_train_iter) $(sample_option) -h $(heldout_file) $(train_file) $(output_model)
-	#testing model before post solve
+	@echo "testing model before post solve"
 	./multiPred $(test_file) $(output_model)
 ifneq ($(p), 0)
-	#testing model after post solve
+	@echo "testing model after post solve"
 	./multiPred $(test_file) $(output_model).p
 endif
+
+examples/%:
+	make construct -C examples/ dataset=$(notdir $@)
+
