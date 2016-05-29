@@ -30,7 +30,7 @@ LSHTCwiki.tar.bz2:
 	wget https://www.dropbox.com/s/3j8urvy6j9kyx4u/LSHTCwiki.tar.bz2
 
 imageNet.tar.bz2:
-	
+	wget https://www.dropbox.com/s/898cgz76lmuz04a/imageNet.tar.bz2	
 
 clean:
 	rm *.bz2
