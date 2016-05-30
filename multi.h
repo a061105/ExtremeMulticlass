@@ -243,12 +243,12 @@ class Param{
 		solver = 1;
 		lambda = 0.1;
 		C = 1.0;
-		max_iter = 20;
+		max_iter = 50;
 		max_select = -1;
 		speed_up_rate = -1;
 		split_up_rate = 1;
 		using_importance_sampling = true;
-		post_solve_iter = 0;
+		post_solve_iter = INF;
 		early_terminate = 3;
 		heldoutFname == NULL;
 		train = NULL;

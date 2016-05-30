@@ -20,12 +20,12 @@ void exit_with_help(){
 	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
 	cerr << "-r speed_up_rate: sample 1/r fraction of non-zero features to estimate gradient (default r = ceil(min( 5DK/(Clog(K)nnz(X)), nnz(X)/(5N) )) )" << endl;
 	cerr << "-q split_up_rate: divide all classes into q disjoint subsets (default 1)" << endl;
-	cerr << "-m max_iter: maximum number of iterations allowed (default 20)" << endl;
+	cerr << "-m max_iter: maximum number of iterations allowed if -h not used (default 50)" << endl;
 	cerr << "-u uniform_sampling: use uniform sampling instead of importance sampling (default not)" << endl;
 	cerr << "-g max_select: maximum number of dual variables selected during search (default: -1 (i.e. dynamically adjusted during iterations) )" << endl;
-	cerr << "-p post_train_iter: #iter of post-training without L1R (default 0)" << endl;
-	cerr << "-e early_terminate (default 3)" << endl;
-	cerr << "-h <file>: using heldout file <file>" << endl;
+	cerr << "-p post_train_iter: #iter of post-training without L1R (default auto)" << endl;
+	cerr << "-h <file>: using accuracy on heldout file '<file>' to terminate iterations" << endl;
+	cerr << "-e early_terminate: how many iterations of non-increasing heldout accuracy required to earyly stop (default 3)" << endl;
 	exit(0);
 }
 
@@ -61,6 +61,7 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 			case 'e': param->early_terminate = atoi(argv[i]);
 				  break;
 			case 'h': param->heldoutFname = argv[i];
+				  param->max_iter=INF;
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;

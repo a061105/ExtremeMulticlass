@@ -15,7 +15,7 @@
 #include<time.h>
 #include<tuple>
 #include<cassert>
-
+#include<limits.h>
 using namespace std;
 
 typedef vector<pair<int,double> > SparseVec;
@@ -24,6 +24,7 @@ typedef vector<int> Labels;
 typedef double Float;
 const int LINE_LEN = 100000000;
 const int FNAME_LEN = 1000;
+const int INF = INT_MAX;
 
 #define EPS 1e-12
 #define INFI 1e10
