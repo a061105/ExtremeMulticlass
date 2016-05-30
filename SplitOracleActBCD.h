@@ -46,7 +46,7 @@ class SplitOracleActBCD{
 		speed_up_rate = param->speed_up_rate;
 		split_up_rate = param->split_up_rate;
 		if( speed_up_rate==-1 )
-			speed_up_rate = ceil( min(5.0*D*K/nnz(train->data)/C/log((Float)K), d/5.0) );
+			speed_up_rate = ceil( min(5.0*D*K/nnz(train->data)/C/log((Float)K), d/10.0) );
 		cerr << "lambda=" << lambda << ", C=" << C << endl;
 		using_importance_sampling = param->using_importance_sampling;
 		if (using_importance_sampling){
