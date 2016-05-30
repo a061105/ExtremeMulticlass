@@ -308,7 +308,6 @@ class PostSolve{
 				#else
 				Float wjk = w[j][k];
 				#endif
-				wjk = prox_l1(wjk, lambda);
 				d_obj += wjk*wjk;
 				w_1norm += fabs(wjk);
 			}
