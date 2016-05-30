@@ -241,7 +241,7 @@ class Param{
 	
 	Param(){
 		solver = 1;
-		lambda = 1.0;
+		lambda = 0.1;
 		C = 1.0;
 		max_iter = 20;
 		max_select = -1;

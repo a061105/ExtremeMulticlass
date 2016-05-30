@@ -13,10 +13,10 @@ void exit_with_help(){
 	cerr << "Usage: ./multiTrain (options) [train_data] (model)" << endl;	
 	#endif
 	cerr << "options:" << endl;
-	cerr << "-s solver: (default 0)" << endl;
+	cerr << "-s solver: (default 1)" << endl;
 	cerr << "	0 -- Stochastic Block Coordinate Descent" << endl;
-	cerr << "	1 -- Stochastic-Active Block Coordinate Descent(PD-Sparse)" << endl;
-	cerr << "-l lambda: L1 regularization weight (default 1.0)" << endl;
+	cerr << "	1 -- Stochastic-Active Block Coordinate Descent (PD-Sparse)" << endl;
+	cerr << "-l lambda: L1 regularization weight (default 0.1)" << endl;
 	cerr << "-c cost: cost of each sample (default 1.0)" << endl;
 	cerr << "-r speed_up_rate: sample 1/r fraction of non-zero features to estimate gradient (default r = ceil(min( 5DK/(Clog(K)nnz(X)), nnz(X)/(5N) )) )" << endl;
 	cerr << "-q split_up_rate: divide all classes into q disjoint subsets (default 1)" << endl;
