@@ -3,12 +3,12 @@ all: multiTrain multiTrainHash multiPred
 #.PHONY: multiTrain multiTrainHash multiPred
 
 multiTrain:
-	g++-4.8 -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
+	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
 multiTrainHash:	
-	g++-4.8 -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
+	g++ -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
 	
 multiPred:
-	g++-4.8 -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
+	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
 clean:
 	rm -f multiTrain
