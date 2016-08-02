@@ -43,18 +43,20 @@ StaticModel* readModel(char* file){
 int main(int argc, char** argv){
 	
 	if( argc < 1+2 ){
-		cerr << "multiPred [testfile] [model] (-p S) (k)" << endl;
-        cerr << "\t-p S: print top S <label>:<prediction score> pairs for each instance, default S=0" << endl;
+		cerr << "multiPred [testfile] [model] (-p S <output_file>) (k)" << endl;
+        cerr << "\t-p S <output_file>: print top S <label>:<prediction score> pairs to <output_file>, one line for each instance. (default S=0 and no file is generated)" << endl;
         cerr << "\tcompute top k accuracy, default k=1" << endl;
 		exit(0);
 	}
 
 	char* testFile = argv[1];
 	char* modelFile = argv[2];
+    char* outFname;
     int S = 0, offset = 0;
-    if (argc > 4 && strcmp(argv[3], "-p") == 0){
+    if (argc > 5 && strcmp(argv[3], "-p") == 0){
         S = atoi(argv[4]);
-        offset = 2;
+        outFname = argv[5];
+        offset = 3;
     }
 	int T = 1;
 	if (argc > 3 + offset){
@@ -82,8 +84,10 @@ int main(int argc, char** argv){
 	for(int k = 0; k < model->K+1; k++){
 		max_indices[k] = -1;
 	}
+    ofstream fout;
     if (S != 0){
-        cerr << "Printing Top " << S << " <label>:<prediction score> pairs, one line per instance:" << endl;
+        cerr << "Printing Top " << S << " <label>:<prediction score> pairs to " << outFname << ", one line per instance" << endl;
+        fout.open(outFname);
     }
 	for(int i=0;i<prob->N;i++){
 		memset(prod, 0.0, sizeof(Float)*model->K);
@@ -124,14 +128,17 @@ int main(int argc, char** argv){
         if (S != 0){
             for (int k = 0; k < S; k++){
                 if (k != 0){
-                    cerr << " ";
+                    fout << " ";
                 }
-                cerr << model->label_name_list->at(max_indices[k]) << ":" << prod[max_indices[k]];
+                fout << model->label_name_list->at(max_indices[k]) << ":" << prod[max_indices[k]];
             }
-            cerr << endl;
+            fout << endl;
         }
 	}
-	
+    if (S != 0){
+	    fout.close();
+    }
+
 	double end = omp_get_wtime();
 	cerr << "Top " << T << " Acc=" << ((Float)hit/prob->N) << endl;
 	cerr << "pred time=" << (end-start) << " s" << endl;
