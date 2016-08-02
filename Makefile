@@ -3,12 +3,12 @@ all: multiTrain multiTrainHash multiPred
 #.PHONY: multiTrain multiTrainHash multiPred
 
 multiTrain:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
+	g++-4.8 -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
 multiTrainHash:	
-	g++ -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
+	g++-4.8 -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
 	
 multiPred:
-	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
+	g++-4.8 -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
 
 clean:
 	rm -f multiTrain
@@ -66,7 +66,7 @@ imageNet: examples/$$@/
 train_without_hash: multiTrain multiPred $(train_file) $(heldout_file) $(test_file)
 	./multiTrain $(cost) $(lambda) $(solver) $(speed_up_rate) $(early_terminate) $(max_iter) $(split_up_rate) $(max_select) $(post_train_iter) $(sample_option) -h $(heldout_file) $(train_file) $(output_model)
 	@echo "testing model before post solve"
-	./multiPred $(test_file) $(output_model)
+	./multiPred $(test_file) $(output_model) 
 ifneq ($(p), 0)
 	@echo "testing model after post solve"
 	./multiPred $(test_file) $(output_model).p

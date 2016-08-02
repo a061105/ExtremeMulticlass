@@ -43,19 +43,29 @@ StaticModel* readModel(char* file){
 int main(int argc, char** argv){
 	
 	if( argc < 1+2 ){
-		cerr << "multiPred [testfile] [model] (k) (compute top k accuracy, default 1)" << endl;
+		cerr << "multiPred [testfile] [model] (-p S) (k)" << endl;
+        cerr << "\t-p S: print top S <label>:<prediction score> pairs for each instance, default S=0" << endl;
+        cerr << "\tcompute top k accuracy, default k=1" << endl;
 		exit(0);
 	}
 
 	char* testFile = argv[1];
 	char* modelFile = argv[2];
+    int S = 0, offset = 0;
+    if (argc > 4 && strcmp(argv[3], "-p") == 0){
+        S = atoi(argv[4]);
+        offset = 2;
+    }
 	int T = 1;
-	if (argc > 3){
-		T = atoi(argv[3]);
+	if (argc > 3 + offset){
+		T = atoi(argv[3 + offset]);
 	}
-	
 	StaticModel* model = readModel(modelFile);
-	
+
+    if (T > model->K || S > model->K){
+        cerr << "k or S is larger than domain size" << endl;
+        exit(0);
+    }
 	Problem* prob = new Problem();
 	readData( testFile, prob );
 	
@@ -72,20 +82,22 @@ int main(int argc, char** argv){
 	for(int k = 0; k < model->K+1; k++){
 		max_indices[k] = -1;
 	}
+    if (S != 0){
+        cerr << "Printing Top " << S << " <label>:<prediction score> pairs, one line per instance:" << endl;
+    }
 	for(int i=0;i<prob->N;i++){
 		memset(prod, 0.0, sizeof(Float)*model->K);
 		
 		SparseVec* xi = data->at(i);
 		Labels* yi = &(labels->at(i));
-		int top = T;
-		if (top == -1)
-			top = yi->size();
-		for(int ind = 0; ind < top+1; ind++){
-			max_indices[ind] = -1;
+		int Ti = T;
+		if (Ti <= 0)
+			Ti = yi->size();
+        int top = max(Ti, S);
+		for(int ind = 0; ind < model->K; ind++){
+			max_indices[ind] = ind;
 		}
-		if (top == 1)
-			max_indices[0] = 0;
-		for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
+        for(SparseVec::iterator it=xi->begin(); it!=xi->end(); it++){
 			
 			int j= it->first;
 			Float xij = it->second;
@@ -95,23 +107,11 @@ int main(int argc, char** argv){
 			for(SparseVec::iterator it2=wj->begin(); it2!=wj->end(); it2++){
 				int k = it2->first;
 				prod[k] += it2->second*xij;
-				update_max_indices(max_indices, prod, k, top);
 			}
 		}
-		Float max_val = -1e300;
-		int argmax;
-		if (max_indices[0] == -1 || prod[max_indices[0]] < 0.0){
-			for (int t = 0; t < top; t++){
-				for (int k = 0; k < model->K; k++){
-					if (prod[k] == 0.0){
-						if (update_max_indices(max_indices, prod, k, top)){
-							break;
-						}
-					}
-				}
-			}
-		}
-		for(int k=0;k<top;k++){
+        nth_element(max_indices, max_indices+top, max_indices+model->K, ScoreComp(prod));
+        sort(max_indices, max_indices+top, ScoreComp(prod));
+		for(int k=0;k<Ti;k++){
 			bool flag = false;
 			for (int j = 0; j < yi->size(); j++){
 				if (prob->label_name_list[yi->at(j)] == model->label_name_list->at(max_indices[k])){
@@ -119,11 +119,20 @@ int main(int argc, char** argv){
 				}
 			}
 			if (flag)
-				hit += 1.0/top;
+				hit += 1.0/Ti;
 		}
+        if (S != 0){
+            for (int k = 0; k < S; k++){
+                if (k != 0){
+                    cerr << " ";
+                }
+                cerr << model->label_name_list->at(max_indices[k]) << ":" << prod[max_indices[k]];
+            }
+            cerr << endl;
+        }
 	}
 	
 	double end = omp_get_wtime();
-	cerr << "Acc=" << ((Float)hit/prob->N) << endl;
+	cerr << "Top " << T << " Acc=" << ((Float)hit/prob->N) << endl;
 	cerr << "pred time=" << (end-start) << " s" << endl;
 }

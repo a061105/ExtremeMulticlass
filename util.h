@@ -156,8 +156,9 @@ inline bool update_max_indices(int* max_indices, Float* x, int i, int tK){
 	while (ind < tK && max_indices[ind] != -1 && max_indices[ind] != i){
 		ind++;
 	}
+    bool adding_new_index = true;
 	if (ind < tK && max_indices[ind] == i)
-		return false;
+		adding_new_index = false;
 	max_indices[ind] = i;
 	int k = 0;
 	//try move to right
@@ -172,7 +173,7 @@ inline bool update_max_indices(int* max_indices, Float* x, int i, int tK){
 		max_indices[ind] = max_indices[ind-1];
 		max_indices[--ind] = k;
 	}
-	return true;
+	return adding_new_index;
 }
 
 //min_{x,y} \|x - b\|^2 + \|y - c\|^2
