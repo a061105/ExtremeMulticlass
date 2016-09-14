@@ -4,6 +4,7 @@ all: multiTrain multiTrainHash multiPred
 
 multiTrain:
 	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
+
 multiTrainHash:	
 	g++ -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
 	
@@ -22,13 +23,14 @@ data_dir=/scratch/cluster/xrhuang/data
 train_file=
 heldout_file=
 test_file=
+misc=
 
 .SECONDEXPANSION:
 
 #multilabel datasets
-LSHTCwiki: examples/$$@/
+LSHTCwiki_original: examples/$$@/
 	$(eval base := examples/$@/$@)
-	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.01"
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.01" output_model='LSHTCwiki.model" misc="-d"
 
 rcv1_regions:  examples/$$@/
 	$(eval base := examples/$@/$@)
@@ -64,7 +66,7 @@ imageNet: examples/$$@/
 	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test split_up_rate="-q 3"
 
 train_without_hash: multiTrain multiPred $(train_file) $(heldout_file) $(test_file)
-	./multiTrain $(cost) $(lambda) $(solver) $(speed_up_rate) $(early_terminate) $(max_iter) $(split_up_rate) $(max_select) $(post_train_iter) $(sample_option) -h $(heldout_file) $(train_file) $(output_model)
+	./multiTrain $(cost) $(lambda) $(solver) $(speed_up_rate) $(early_terminate) $(max_iter) $(split_up_rate) $(max_select) $(post_train_iter) $(sample_option) $(misc) -h $(heldout_file) $(train_file) $(output_model)
 	@echo "testing model before post solve"
 	./multiPred $(test_file) $(output_model) 
 ifneq ($(p), 0)
@@ -73,7 +75,7 @@ ifneq ($(p), 0)
 endif
 
 train_with_hash: multiTrainHash multiPred $(train_file) $(heldout_file) $(test_file)
-	./multiTrainHash $(cost) $(lambda) $(solver) $(speed_up_rate) $(early_terminate) $(max_iter) $(split_up_rate) $(max_select) $(post_train_iter) $(sample_option) -h $(heldout_file) $(train_file) $(output_model)
+	./multiTrainHash $(cost) $(lambda) $(solver) $(speed_up_rate) $(early_terminate) $(max_iter) $(split_up_rate) $(max_select) $(post_train_iter) $(sample_option) $(misc) -h $(heldout_file) $(train_file) $(output_model)
 	@echo "testing model before post solve"
 	./multiPred $(test_file) $(output_model)
 ifneq ($(p), 0)

@@ -21,6 +21,10 @@ class SplitOracleActBCD{
 		N = train->N;
 		D = train->D;
 		K = train->K;
+		dump_model = param->dump_model;
+		if (param->dump_model){
+			modelFname =string( param->modelFname);
+		}
 
 		//a random permutation
 		hashfunc = new HashClass(K);
@@ -334,6 +338,14 @@ class SplitOracleActBCD{
 				if ( heldout_test_acc > best_heldout_acc){
 					best_heldout_acc = heldout_test_acc;
 					store_best_model();
+					if (dump_model){
+						string name = modelFname + "." + to_string(iter);
+						char* fname = new char[name.length()+1];
+						strcpy(fname, name.c_str());
+						cerr << ", dump_model_file=" << fname;
+						best_model->writeModel(fname);
+						delete fname;
+					}
 					terminate_countdown = 0;
 				} else {
 					cerr << "(" << (++terminate_countdown) << "/" << early_terminate << ")";
@@ -848,6 +860,9 @@ class SplitOracleActBCD{
 	int iter;
 	//a random permutation stored in public
 	int* hashindices;
+	
+	bool dump_model = false;
+	string modelFname;
 	
 	
 	#ifdef USING_HASHVEC

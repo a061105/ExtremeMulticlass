@@ -26,6 +26,7 @@ void exit_with_help(){
 	cerr << "-p post_train_iter: #iter of post-training without L1R (default auto)" << endl;
 	cerr << "-h <file>: using accuracy on heldout file '<file>' to terminate iterations" << endl;
 	cerr << "-e early_terminate: how many iterations of non-increasing heldout accuracy required to earyly stop (default 3)" << endl;
+	cerr << "-d : dump model file when better heldout accuracy is achieved, model files will have name (model).<iter>" << endl;
 	exit(0);
 }
 
@@ -62,6 +63,8 @@ void parse_cmd_line(int argc, char** argv, Param* param){
 				  break;
 			case 'h': param->heldoutFname = argv[i];
 				  param->max_iter=INF;
+				  break;
+			case 'd': param->dump_model = true; --i;
 				  break;
 			default:
 				  cerr << "unknown option: -" << argv[i-1][1] << endl;

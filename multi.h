@@ -238,6 +238,7 @@ class Param{
 	bool using_importance_sampling;
 	int post_solve_iter;
 	int early_terminate;
+	bool dump_model;
 	
 	Param(){
 		solver = 1;
@@ -252,6 +253,7 @@ class Param{
 		early_terminate = 3;
 		heldoutFname == NULL;
 		train = NULL;
+		dump_model = false;
 	}
 
 	~Param(){
