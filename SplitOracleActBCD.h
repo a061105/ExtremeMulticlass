@@ -321,6 +321,9 @@ class SplitOracleActBCD{
 			if (search_time - last_search_time > (subsolve_time-last_subsolve_time + maintain_time - last_maintain_time)*2){
 				max_select *= 2;
 			}
+			if (max_select > 100){
+				max_select = 100;
+			}
 			last_search_time = search_time;
 			last_maintain_time = maintain_time;
 			last_subsolve_time = subsolve_time;
