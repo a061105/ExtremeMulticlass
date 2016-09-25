@@ -3,6 +3,7 @@
 #include "newHash.h"
 #include <iomanip>
 #include <cassert>
+#include <thread>	
 #define loc(k) k*split_up_rate/K
 
 extern double overall_time;
@@ -58,6 +59,8 @@ class SplitOracleActBCD{
 		} else {
 			cerr << "using uniform sampling" << ", speed up rate=" << speed_up_rate << endl;
 		}
+
+		threads = new std::thread[split_up_rate];
 
 		//number of variables added to active set in each iteration.
 		max_select = param->max_select;
@@ -514,32 +517,25 @@ class SplitOracleActBCD{
 		delete[] b; delete[] c;
 		delete[] act_index_b; delete[] act_index_c;
 	}
-	
-	//search with importance sampling	
-	void search_active_i_importance( int i, vector<pair<int, Float>>& act_k_index ){
-		//prod_cache should be all zero
+
+	vector<Float> rand_nums;
+	vector<vector<pair<Float, int>>> candidate_cache;
+	//search with importance sampling
+	//void search_active_i_importance_sub( int i, vector<pair<Float, int>>& candidate, int S, vector<Float>& rand_nums ){
+	void search_active_i_importance_sub( int i, int S ){
+		//prod_cache should be all zero except ones inside act_k_index and yi
 		
 		//select one area from {0, ..., split_up_rate-1}
-		int S = rand()%split_up_rate;
-		
+		//int S = rand()%split_up_rate;
+
+		vector<pair<Float, int>>& candidate = candidate_cache[S];
+	
 		//compute <xi,wk> for k in the area just chosen
-                Labels* yi = &(labels->at(i));
                 vector<int> check_indices;
 		SparseVec* xi = data->at(i);
 		int nnz = xi->size();
-		for(vector<pair<int, Float>>::iterator it = act_k_index.begin(); it != act_k_index.end(); it++){
-			prod_cache[it->first] = -INFI;
-		}
-		for (Labels::iterator it = yi->begin(); it != yi->end(); it++){
-			prod_cache[*it] = -INFI;
-		}
 		int n = nnz/speed_up_rate;
 		Float th = -n/(1.0*nnz);
-		vector<Float> rand_nums;
-		for (int tt = 0; tt < n; tt++){
-			rand_nums.push_back(((Float)rand()/(RAND_MAX)));
-		}
-		sort(rand_nums.begin(), rand_nums.end()); 
 		int* max_indices = new int[max_select+1];
 		for(int ind = 0; ind <= max_select; ind++){
 			max_indices[ind] = -1;
@@ -617,7 +613,7 @@ class SplitOracleActBCD{
 		}
 		for(int ind = 0; ind < max_select; ind++){
 			if (max_indices[ind] != -1 && prod_cache[max_indices[ind]] > th){
-				act_k_index.push_back(make_pair(max_indices[ind], 0.0));
+				candidate.push_back(make_pair(prod_cache[max_indices[ind]], max_indices[ind]));
 			}
 		}
 		
@@ -625,15 +621,81 @@ class SplitOracleActBCD{
 		for (vector<int>::iterator it = check_indices.begin(); it != check_indices.end(); it++){
 			prod_cache[*it] = 0.0;
 		}
+		for(vector<pair<Float, int>>::iterator it = candidate.begin(); it != candidate.end(); it++){
+			prod_cache[it->second] = 0.0;
+		}
+		
+		delete[] max_indices;
+        }
+
+	//void hehe(int i){
+	//	cerr << i << endl;
+	//}
+	
+	void search_active_i_importance( int i, vector<pair<int, Float>>& act_k_index ){
+		//prod_cache should be all zero
+                Labels* yi = &(labels->at(i));
+		for(vector<pair<int, Float>>::iterator it = act_k_index.begin(); it != act_k_index.end(); it++){
+			prod_cache[it->first] = -INFI;
+		}
+		for (Labels::iterator it = yi->begin(); it != yi->end(); it++){
+			prod_cache[*it] = -INFI;
+		}
+
+		int num_cores = split_up_rate;
+		//vector<Float> rand_nums;
+		rand_nums.clear();
+		SparseVec* xi = data->at(i);
+		int n = xi->size()/speed_up_rate;
+		for (int tt = 0; tt < n; tt++){
+			rand_nums.push_back(((Float)rand()/(RAND_MAX)));
+		}
+		sort(rand_nums.begin(), rand_nums.end()); 
+
+		candidate_cache.clear();
+		for (int S = 0; S < num_cores; S++){
+			vector<pair<Float, int>> candidate_S;
+			candidate_cache.push_back(candidate_S);
+		}
+		for (int S = 0; S < num_cores; S++){
+			//boost::thread th = boost::thread(&SplitOracleActBCD::search_active_i_importance_sub, this, i, candidate_cache[S], S, rand_nums);
+			//std::thread th(&SplitOracleActBCD::hehe, this, 1);
+			//t1.join();
+			threads[S] = std::thread(&SplitOracleActBCD::search_active_i_importance_sub, this, i, S);
+			//th();
+			//std::thread th([&]{ search_active_i_importance_sub(i, candidate_cache[S], S, rand_nums); });
+			//threads.push_back(th);
+		//	cerr << "creating thread " << S << endl;
+			//search_active_i_importance_sub( i, candidate_cache[S], S, rand_nums);
+		}
+		
+		vector<pair<Float, int>> all_candidate;
+		for (int S = 0; S < num_cores; S++){
+			threads[S].join();
+			//merge all candidate cache
+			//cerr << "merging thread " << S << ", size=" << candidate_cache[S].size() << endl;
+			all_candidate.insert(all_candidate.end(), candidate_cache[S].begin(), candidate_cache[S].end());
+		}
+		if (all_candidate.size() > max_select){
+			nth_element(all_candidate.begin(), all_candidate.begin()+max_select, all_candidate.end(), greater<pair<Float, int>>());
+		}
+		//cerr << "total size=" << all_candidate.size() << ", max_select=" << max_select << endl;
+		
+		for (int ind = 0; ind < all_candidate.size(); ind++){
+			if (ind >= max_select){
+				break;
+			}
+			act_k_index.push_back(make_pair(all_candidate[ind].second, 0.0));
+		}
+
 		for(vector<pair<int, Float>>::iterator it = act_k_index.begin(); it != act_k_index.end(); it++){
 			prod_cache[it->first] = 0.0;
 		}
 		for (Labels::iterator it = yi->begin(); it != yi->end(); it++){
 			prod_cache[*it] = 0.0;
 		}
-		
-		delete[] max_indices;
-        }
+		//prod_cache should be all zero again
+	}
 
 	//searching with uniform sampling
 	void search_active_i_uniform(int i, vector<pair<int, Float>>& act_k_index){	
@@ -809,6 +871,7 @@ class SplitOracleActBCD{
 	}
 	
 	private:
+	std::thread* threads;
 	
 	double best_heldout_acc = -1.0;
 	Problem* train;

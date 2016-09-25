@@ -3,13 +3,13 @@ all: multiTrain multiTrainHash multiPred
 #.PHONY: multiTrain multiTrainHash multiPred
 
 multiTrain:
-	g++ -fopenmp -std=c++11 -O3 -o multiTrain multiTrain.cpp
+	g++-4.8 -fopenmp -pthread -std=c++11 -O3 -o multiTrain multiTrain.cpp
 
 multiTrainHash:	
-	g++ -fopenmp -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
+	g++-4.8 -fopenmp -pthread -std=c++11 -O3 -o multiTrainHash multiTrain.cpp -DUSING_HASHVEC
 	
 multiPred:
-	g++ -fopenmp -std=c++11 -O3 -o multiPred multiPred.cpp
+	g++-4.8 -fopenmp -pthread -std=c++11 -O3 -o multiPred multiPred.cpp
 
 clean:
 	rm -f multiTrain
@@ -42,7 +42,7 @@ bibtex: examples/$$@/
 
 Eur-Lex: examples/$$@/
 	$(eval base := examples/$@/$@)
-	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.001" early_terminate="-e 10"
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.001" early_terminate="-e 10" split_up_rate="-q $(q)"
 
 #multiclass datasets
 sector: examples/$$@/
@@ -51,7 +51,7 @@ sector: examples/$$@/
 
 aloi.bin: examples/$$@/
 	$(eval base := examples/$@/$@)
-	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.01"
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.01" split_up_rate="-q $(q)"
 
 Dmoz: examples/$$@/
 	$(eval base := examples/$@/$@)
