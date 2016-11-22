@@ -329,7 +329,6 @@ class SplitOracleActBCD{
 			last_subsolve_time = subsolve_time;
 			overall_time += omp_get_wtime();
 			cerr << "dual_obj=" << dual_obj() << "\t";
-			overall_time -= omp_get_wtime();
 			//early terminate: if heldout_test_accuracy does not increase in last <early_terminate> iterations, stop!	
 			if( heldoutEval != NULL){
 				#ifdef USING_HASHVEC
@@ -357,6 +356,8 @@ class SplitOracleActBCD{
 				}
 			}
 			cerr << endl;
+			
+			overall_time -= omp_get_wtime();
 			iter++;
 		}
 		cerr << endl;
