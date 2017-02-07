@@ -98,7 +98,7 @@ nr_feature 47237
 6 65:0.223974 3:0.00958934 17:0.0270412 11:0.134858 42:-0.0397849 98:-0.0188011 
 
 4. Citation:
-Ian En-Hsu Yen (a061105@gmail.com)
+Ian En-Hsu Yen (eyan@cs.cmu.edu)
 PD-Sparse: A Primal and Dual Sparse Approach to Extreme Multiclass and Multilabel Classification. [pdf] 
 Ian E.H. Yen*, Xiangru Huang*, Kai Zhong, Pradeep Ravikumar and Inderjit S. Dhillon. (* equally contributed)
 In International Conference on Machine Learning (ICML), 2016.
