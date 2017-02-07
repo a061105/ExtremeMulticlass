@@ -30,7 +30,23 @@ misc=
 #multilabel datasets
 LSHTCwiki_original: examples/$$@/
 	$(eval base := examples/$@/$@)
-	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.01" output_model='LSHTCwiki.model" misc="-d"
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 0.01" output_model="LSHTCwiki.model" misc="-d"
+
+AmazonCat-13K: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 1e-3" output_model="AmazonCat-13K.model.l1e-3" misc="-d -e 10" speed_up_rate="-r 1" 
+
+WikipediaLarge-500K: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 1e-1" output_model="$@.model.l1e-1" misc="-d -e 3"
+
+AmazonCat-13K.scale: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 1e-2" output_model="AmazonCat-13K.scale.model.l1e-2" misc="-d -e 3"
+
+Bibtex: examples/$$@/
+	$(eval base := examples/$@/$@)
+	make train_with_hash train_file=$(base).train heldout_file=$(base).heldout test_file=$(base).test lambda="-l 1" output_model="Bibtex.model.l1" misc="-d -e 20"
 
 rcv1_regions:  examples/$$@/
 	$(eval base := examples/$@/$@)
