@@ -351,8 +351,10 @@ class SplitOracleActBCD{
 					terminate_countdown = 0;
 				} else {
 					cerr << "(" << (++terminate_countdown) << "/" << early_terminate << ")";
-					if (terminate_countdown == early_terminate)
+					if (terminate_countdown == early_terminate){
+						overall_time -= omp_get_wtime();
 						break;
+					}
 				}
 			}
 			cerr << endl;
@@ -374,7 +376,7 @@ class SplitOracleActBCD{
 		}
 	
 		//computing heldout accuracy 	
-		cerr << "train time=" << overall_time + omp_get_wtime() << endl;
+		cerr << "train time=" << (overall_time + omp_get_wtime()) << endl;
 		cerr << "search time=" << search_time << endl;
 		cerr << "subsolve time=" << subsolve_time << endl;
 		cerr << "maintain time=" << maintain_time << endl;
